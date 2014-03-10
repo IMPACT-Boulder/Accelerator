@@ -52,7 +52,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose
 
   ;;calculate velocity
   d_12 = 0.6                    ; distance 1->2 [m]
-  ;d_23 = 5.022                  ; distance 2->3 [m] (old)
+  ;d_23 = 5.022                  ; distance 2->3 [m] (old as of 3/4/2014)
   d_23 = 3.24485                ; distance 2->3 [m]
   d_13 = d_23+d_12              ; distance 1->3 [m]
  
