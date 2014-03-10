@@ -103,7 +103,7 @@ pro idl_batch_processor,folder,storage_folder
     loadct, 39
     
     ;Call Keith's code:0
-    out_k=keith_vest(x,wv1,wv2,wv3)
+    out_k=tobin_v_estimate(wv1,wv2,wv3,dt)
     print,out_k
           if out_k[0] ne -1 then begin ;print Keith's results if Keith's code finds anything 
                 printf, lun, 'V', out_k[0]
