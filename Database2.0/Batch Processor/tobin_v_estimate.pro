@@ -11,14 +11,16 @@
 ;If any of them do, use their derived velocity as a final width to
 ;make a last pass.
 ;
-;STILL NEED TO REVISE: Eliminate false-positives (good particles) when
+;Revised 3/18/14 : Added correction to eliminate false-positives when
 ;                      3rd detector is malformed waveform (perhaps
 ;                      particle hit detector 3).
 ;
 ;Revised 3/16/14 : Added correction for calculating charge properly
 ;                  for very slow particles.
 ;
-function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_data
+function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_data,$
+                               optimized_vguess=optimized_vguess
+  badparticle=0
   @definecolors
   detector_length = 0.18        ;[m] length of inner tube used for filter width
   ;;returndata might or might not include a charge estimate from this subroutine.
@@ -55,7 +57,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
   y2max = max(yf2,y2peakidx)
   y3max = max(yf3,y3peakidx)
 
-  ;;For slow particles (<1000 m/s), y#peakidx is too low.  This is
+  ;;For slow particles (<1200 m/s), y#peakidx is too low.  This is
   ;;because the waveforms are so distorted due to the drooping
   ;;detector signal that the peak of the convolution doesn't
   ;;occur in the center of the signal (as it normally does for faster
@@ -78,19 +80,20 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
   v_estimate = v_13
 
   ;;Test that the three velocities are consistent
-  badparticle = 0
+  badparticle_velocity=0
   max_variation = 0.08
-  if v_12 lt 0.0 then badparticle=1
-  if v_23 lt 0.0 then badparticle=1
-  if v_13 lt 0.0 then badparticle=1
-  if abs(v_12-v_13)/v_13 gt max_variation then badparticle=1
-  if abs(v_23-v_13)/v_13 gt max_variation then badparticle=1
-  if abs(y3peakidx-lastgoodidx3) le 3 then badparticle=1 ;artifact at end...
+  if v_12 lt 0.0 then badparticle_velocity=1
+  if v_23 lt 0.0 then badparticle_velocity=1
+  if v_13 lt 0.0 then badparticle_velocity=1
+  if abs(v_12-v_13)/v_13 gt max_variation then badparticle_velocity=1
+  if abs(v_23-v_13)/v_13 gt max_variation then badparticle_velocity=1
+  if abs(y3peakidx-lastgoodidx3) le 3 then badparticle_velocity=1 ;artifact at end...
+  if badparticle_velocity eq 1 then badparticle=1
 
-  ;address special case of v < 1000 m/s to correct y#peakidx
+  ;;Address special case of v < 1200 m/s to correct y#peakidx
   using_special_filter_routine = 0
   if not badparticle then begin
-     if v_13 gt 0.0 and v_13 lt 1000.0 then begin
+     if v_estimate gt 0.0 and v_estimate lt 1200.0 then begin
         using_special_filter_routine = 1
         ;;find the leading and trailing edges, and set y#peakidx to
         ;;the midpoint between them.
@@ -140,9 +143,165 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
         y1peakidx = (y1maxidx+y1minidx)/2
         y2peakidx = (y2maxidx+y2minidx)/2
         y3peakidx = (y3maxidx+y3minidx)/2
-
      endif
   endif
+
+  ;;Address problem of mal-formed waveform on detector 3.  This could
+  ;;be due to the particle hitting the detector.  This exhibits itself
+  ;;by the third detector not having a trailing edge at all, as if it
+  ;;loses its charge within the detector length.  Identify this
+  ;;"false positive" by looking for consistency between the size of
+  ;;the leading and trailing edge (via the derivative).
+  ;;***Only do this test if we're on the last pass, with the
+  ;;optimized filter function.
+  badparticle_asymmetric_waveform = 0
+  badparticle_spacing_consistency = 0
+  if keyword_set(optimized_vguess) then begin
+     if not badparticle then begin
+        full_length = n_elements(y1)
+        zoom0length = 0.75                         ;[m] look at part of waveform near actual signal
+        zoom1length = long(zoom0length/v_estimate/dt) ;[# samples]
+
+        zoom1_minidx = max([y1peakidx - zoom1length/2,0])
+        zoom2_minidx = max([y2peakidx - zoom1length/2,0])
+        zoom3_minidx = max([y3peakidx - zoom1length/2,0])
+        zoom1_maxidx = min([y1peakidx + zoom1length/2,full_length-1])
+        zoom2_maxidx = min([y2peakidx + zoom1length/2,full_length-1])
+        zoom3_maxidx = min([y3peakidx + zoom1length/2,full_length-1])
+        yzoom1 = y1(zoom1_minidx:zoom1_maxidx)
+        yzoom2 = y2(zoom2_minidx:zoom2_maxidx)
+        yzoom3 = y3(zoom3_minidx:zoom3_maxidx)
+        zoom1length = n_elements(yzoom3)
+
+        ;;Create smooth derivative function
+        smoothing_length0 = 0.001*2                           ;[m]
+        smoothing_length = long(smoothing_length0/v_estimate/dt) ;[# samples]
+        ;;print,'In check for malformed waveform, smoothing length = '+$
+        ;;      s2(smoothing_length)+' samples'
+
+        yzoom1f = smooth(yzoom1,2*smoothing_length,/edge_wrap)
+        yzoom1f = smooth(yzoom1f,smoothing_length,/edge_wrap)
+        yzoom1f = smooth(deriv(yzoom1f),20*smoothing_length)
+        yzoom2f = smooth(yzoom2,2*smoothing_length,/edge_wrap)
+        yzoom2f = smooth(yzoom2f,smoothing_length,/edge_wrap)
+        yzoom2f = smooth(deriv(yzoom2f),20*smoothing_length)
+        yzoom3f = smooth(yzoom3,2*smoothing_length,/edge_wrap)
+        yzoom3f = smooth(yzoom3f,smoothing_length,/edge_wrap)
+        yzoom3f = smooth(deriv(yzoom3f),20*smoothing_length)
+
+        ;;print,zoom1length,smoothing_length,n_elements(yzoom1f)
+
+        ;;Zero out the ends of the waveform to kill artifacts
+        yzoom1f(0:20*smoothing_length) = 0
+        yzoom1f(zoom1length-1-20*smoothing_length:zoom1length-1) = 0.0
+        yzoom2f(0:20*smoothing_length) = 0
+        yzoom2f(zoom1length-1-20*smoothing_length:zoom1length-1) = 0.0
+        yzoom3f(0:20*smoothing_length) = 0
+        yzoom3f(zoom1length-1-20*smoothing_length:zoom1length-1) = 0.0
+
+        yz1max = max(yzoom1f,yz1maxidx)
+        yz2max = max(yzoom2f,yz2maxidx)
+        yz3max = max(yzoom3f,yz3maxidx)
+        yz1min = min(yzoom1f,yz1minidx)
+        yz2min = min(yzoom2f,yz2minidx)
+        yz3min = min(yzoom3f,yz3minidx)
+
+        ;;Check that the waveform is not too asymmetric
+        asymmetry_threshold = 0.2
+        badparticle_d1 = 0
+        badparticle_d2 = 0
+        badparticle_d3 = 0
+        asymmetry1 = abs((yz1max+yz1min)/(yz1max-yz1min))
+        asymmetry2 = abs((yz2max+yz2min)/(yz2max-yz2min))
+        asymmetry3 = abs((yz3max+yz3min)/(yz3max-yz3min))
+        if asymmetry1 gt asymmetry_threshold then badparticle_d1=1
+        if asymmetry2 gt asymmetry_threshold then badparticle_d2=1
+        if asymmetry3 gt asymmetry_threshold then badparticle_d3=1
+        if badparticle_d1+badparticle_d2+badparticle_d3 ge 1 then begin
+           ;print,'failed test of symmetric signal heights'
+           badparticle_asymmetric_waveform=1
+           badparticle=1
+        endif
+
+        ;;Check that the locations of the derivative max and min are
+        ;;spaced somewhat consistently across the three detectors
+        y1peakspacing = yz1maxidx - yz1minidx
+        y2peakspacing = yz2maxidx - yz2minidx
+        y3peakspacing = yz3maxidx - yz3minidx
+        spacingtest_thresh = 0.2
+        spacingtest1 = abs(y3peakspacing-y1peakspacing)/float(y1peakspacing)
+        spacingtest2 = abs(y3peakspacing-y2peakspacing)/float(y2peakspacing)
+        ;;print,spacingtest1,spacingtest2
+        if spacingtest1 gt spacingtest_thresh or spacingtest2 gt spacingtest_thresh then begin
+           ;print,'failed test of signal-length consistency'
+           badparticle_spacing_consistency = 1
+           badparticle=1
+        endif
+
+        if keyword_set(verbose) then begin ;plot the asymmetry calculations
+           cs=2.0
+           window,0,xsize=900,ysize=800
+           !p.multi=[0,1,3]
+
+           ;;Normalize the filtered functions
+           norm1 = 0.5*max([abs(max(yzoom1)),abs(min(yzoom1))])/max([abs(max(yzoom1f)),abs(min(yzoom1f))])
+           norm2 = 0.5*max([abs(max(yzoom2)),abs(min(yzoom2))])/max([abs(max(yzoom2f)),abs(min(yzoom2f))])
+           norm3 = 0.5*max([abs(max(yzoom3)),abs(min(yzoom3))])/max([abs(max(yzoom3f)),abs(min(yzoom3f))])
+
+           plot,yzoom1,/xst,charsize=cs               ;raw waveform
+           oplot,yzoom1f*norm1,color=colors.blue,thick=2 ;fast filtered function
+           oplot,[0,zoom1length],0*[1,1],color=colors.red
+           oplot,[0,zoom1length],yz1max*norm1*[1,1],color=colors.red,linestyle=2
+           oplot,[0,zoom1length],yz1min*norm1*[1,1],color=colors.red,linestyle=2
+           oplot,yz1minidx*[1,1],[-10,10],color=colors.red,linestyle=2
+           oplot,yz1maxidx*[1,1],[-10,10],color=colors.red,linestyle=2
+
+           plot,yzoom2,/xst,charsize=cs
+           oplot,yzoom2f*norm2,color=colors.blue,thick=2 ;fast filtered function
+           oplot,[0,zoom1length],0*[1,1],color=colors.red
+           oplot,[0,zoom1length],yz2max*norm2*[1,1],color=colors.red,linestyle=2
+           oplot,[0,zoom1length],yz2min*norm2*[1,1],color=colors.red,linestyle=2
+           oplot,yz2minidx*[1,1],[-10,10],color=colors.red,linestyle=2
+           oplot,yz2maxidx*[1,1],[-10,10],color=colors.red,linestyle=2
+           
+           plot,yzoom3,/xst,charsize=cs
+           oplot,yzoom3f*norm3,color=colors.blue,thick=2 ;fast filtered function
+           oplot,[0,zoom1length],0*[1,1],color=colors.red
+           oplot,[0,zoom1length],yz3max*norm3*[1,1],color=colors.red,linestyle=2
+           oplot,[0,zoom1length],yz3min*norm3*[1,1],color=colors.red,linestyle=2
+           oplot,yz3minidx*[1,1],[-10,10],color=colors.red,linestyle=2
+           oplot,yz3maxidx*[1,1],[-10,10],color=colors.red,linestyle=2
+
+           xyouts,/normal,0.75,0.73,'Asymmetry = '+s2(asymmetry1,sigfigs=3),charsize=1.5
+           xyouts,/normal,0.75,0.40,'Asymmetry = '+s2(asymmetry2,sigfigs=3),charsize=1.5
+           xyouts,/normal,0.75,0.06,'Asymmetry = '+s2(asymmetry3,sigfigs=3),charsize=1.5
+           
+           if badparticle_d1 then begin
+              xyouts,/normal,0.75,0.93,'Bad heights',charsize=2.5,charthick=3,color=colors.red
+           endif else begin
+              xyouts,/normal,0.75,0.93,'Good heights',charsize=2.5,charthick=3,color=colors.green
+           endelse
+           if badparticle_d2 then begin
+              xyouts,/normal,0.75,0.93-.33,'Bad heights',charsize=2.5,charthick=3,color=colors.red
+           endif else begin
+              xyouts,/normal,0.75,0.93-.33,'Good heights',charsize=2.5,charthick=3,color=colors.green
+           endelse
+           if badparticle_d3 then begin
+              xyouts,/normal,0.75,0.93-.66,'Bad heights',charsize=2.5,charthick=3,color=colors.red
+           endif else begin
+              xyouts,/normal,0.75,0.93-.66,'Good heights',charsize=2.5,charthick=3,color=colors.green
+           endelse
+           if badparticle_spacing_consistency then begin
+              xyouts,/normal,0.1,0.93-.66,'Inconsistent spacing',charsize=2.5,charthick=3,color=colors.red
+           endif else begin
+              xyouts,/normal,0.1,0.93-.66,'Consistent spacing ',charsize=2.5,charthick=3,color=colors.green
+           endelse
+
+           ;;xyouts,/normal,0.1,0.95,'v_guess for filter = '+s2(v_guess),charsize=2,color=colors.orange
+        endif                   ;if verbose then do the plot
+     endif                      ;if not bad particle then check for bad det3 signal
+  endif                         ;if optimized_vguess
+
 
   ;;Remove special case: artifact appears at very end of filtered wf3
   ;if float(y3peakidx)/float(n_elements(yf3)) ge 0.98 then badparticle=1
@@ -178,17 +337,30 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
      endif
 
      if badparticle then begin
-        xyouts,/normal,0.85,0.93,'Bad',charsize=3,charthick=3,color=colors.red
+        xyouts,/normal,0.95,0.93,'Bad',charsize=3,charthick=3,color=colors.red,alignment=1.0
+        if badparticle_velocity then begin
+           xyouts,/normal,0.95,0.89,'(bad v estimate)',charsize=2.0,charthick=1,color=colors.red,alignment=1.0
+        endif
+        if badparticle_asymmetric_waveform then begin
+           xyouts,/normal,0.95,0.89,'(malformed waveforms)',charsize=2.0,charthick=1,color=colors.red,alignment=1.0
+        endif else begin
+           if badparticle_spacing_consistency then begin
+              xyouts,/normal,0.95,0.89,'(inconsistent signal lengths)',charsize=2.0,charthick=1,color=colors.red,alignment=1.0
+           endif
+        endelse
      endif else begin
         xyouts,/normal,0.85,0.93,'Good',charsize=3,charthick=3,color=colors.green
      endelse
 
-     xyouts,/normal,0.1,0.95,'v_guess for filter = '+s2(v_guess),charsize=2,color=colors.orange
+     if keyword_set(optimized_vguess) then text1=' (optimized)' else text1=''
+     xyouts,/normal,0.1,0.95,'v_guess for filter = '+s2(v_guess)+text1,charsize=2,color=colors.orange
      if using_special_filter_routine then begin
         xyouts,/normal,0.1,0.92,'***Using alternate filter for slow particles***',charsize=2,color=colors.pink
      endif
 
      result=get_kbrd()
+     device, window_state=openwindows ;delete window 0 if it is open
+     if openwindows(0) ne 0 then wdelete,0
   endif
 
   ;;Measure the charge from the peak of the convolved waveform... (reliable?)
@@ -316,9 +488,12 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
   endwhile
   if badparticle then which_vguess_worked = -1
 
-  if not badparticle then begin ;run through one last time with best velocity filter
+  ;;Run through one last time with best-guess velocity filter
+  ;;**NOTE: the velocity estimate subroutine does some extra checks to
+  ;;see if the waveform is messed up when /optimized_vguess is chosen. 
+  if not badparticle then begin
      v_guess = velocity         ;[m/s]
-     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_data)
+     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_data,/optimized_vguess)
      velocity = returndata.velocity
      y1peakidx = returndata.y1peakidx
      y2peakidx = returndata.y2peakidx
@@ -346,7 +521,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
      if abs(charge2-charge3)/abs(charge3) gt max_variation then badparticle=1
 
      if badparticle then begin
-        print,'failed charge test'
+        print,'failed charge consistency test'
         ;print,abs(charge1-charge3)/charge3,abs(charge2-charge3)/charge3
      endif
 
