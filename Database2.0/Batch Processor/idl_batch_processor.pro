@@ -52,7 +52,7 @@
 ;-
 
 
-pro idl_batch_processor,folder,storage_folder
+pro idl_batch_processor,folder,storage_folder,old_data=old_data
   input_file_id = folder + '\index.txt';create input file reference
   print,input_file_id
   shots=READ_CSV(input_file_id);read csv for shot index
@@ -82,6 +82,7 @@ pro idl_batch_processor,folder,storage_folder
     ENDELSE
     print,'file name:',files
     file_exsists=FILE_TEST(files)
+    print, file_exsists
     IF file_exsists eq 1 then begin
     ;get waveforms from hdf5 file
     out = ccldas_read_raw_file(files)
@@ -103,7 +104,7 @@ pro idl_batch_processor,folder,storage_folder
     loadct, 39
     
     ;Call Keith's code:0
-    out_k=tobin_v_estimate(wv1,wv2,wv3,dt)
+    out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=old_data)
     print,out_k
           if out_k[0] ne -1 then begin ;print Keith's results if Keith's code finds anything 
                 printf, lun, 'V', out_k[0]
@@ -112,7 +113,7 @@ pro idl_batch_processor,folder,storage_folder
                 printf, lun, 'Q', 1
                 printf, lun, 'P', out_k[3]/1
           endif  else begin                   ;Call Andrew's code if Keith's doesn't see anything:
-            out = triple_est_latest(wv1, wv2, wv3, dt)
+            out = triple_est_latest(wv1, wv2, wv3, dt,old_data=old_data)
               print, out
             ;/Andrew's code.
                   if out.quality lt qthreshold then begin ;if Andrew's code failed 

@@ -29,7 +29,7 @@
 ;             100: Full 3-detector fit succeeded
 ;
 ;-
-function triple_est_latest, sig1_x, sig2_x, sig3_x, dt, cal=cal, verbose=verbose
+function triple_est_latest, sig1_x, sig2_x, sig3_x, dt, cal=cal, verbose=verbose, old_data=old_data
 
   COMPILE_OPT IDL2
   
@@ -42,8 +42,8 @@ function triple_est_latest, sig1_x, sig2_x, sig3_x, dt, cal=cal, verbose=verbose
           idx3: long(0), idx1: long(0), idx2: long(0)}
   
   D_12 = 60e-2        ; distance 1->2
-  ;D_23 = 5.022        ; distance 2->3 Old as of 3/11/14
   D_23 = 3.3428       ; distance 2->3
+  if keyword_set(old_data) then D_23 = 5.022        ; distance 2->3 Old as of 3/11/14
   D_13 = D_23+D_12    ; distance 1->3
   
   TH = -2.0             ; Peak threshold for convolved signal
