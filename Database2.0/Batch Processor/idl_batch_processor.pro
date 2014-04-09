@@ -59,11 +59,11 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
   shotid=TAG_NAMES(shots);generate tag names   
   nshots=n_elements(shotid);determine number of shots to examine  
   output_file_id = folder + '\results.txt';create output file refe4rence
-  print,shots
+;  print,shots
   file_exsists=0
   
   
-  qthreshold=100;define the quality threshold for the first algorithm
+  qthreshold=50;define the quality threshold for the first algorithm
 
   openw, lun, output_file_id, /get_lun;open output file
   
@@ -72,93 +72,104 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
     filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
     
     IF filedata[2] eq 0 then begin
-    path_folder = folder
+      path_folder = folder
     ENDIF ELSE BEGIN path_folder = storage_folder
     ENDELSE 
     IF filedata[2] eq 1 then begin
-          files = STRCOMPRESS(path_folder + '\' + filedata[1] +'\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
+      files = STRCOMPRESS(path_folder + '\' + filedata[1] +'\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
     ENDIF ELSE BEGIN 
-        files = STRCOMPRESS(path_folder + '\' + filedata[1] +'\' + string(LONG(filedata[0])/1000) + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )    
+      files = STRCOMPRESS(path_folder + '\' + filedata[1] +'\' + string(LONG(filedata[0])/1000) + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )    
     ENDELSE
     print,'file name:',files
     file_exsists=FILE_TEST(files)
-    print, file_exsists
+ ;   print, file_exsists
     IF file_exsists eq 1 then begin
-    ;get waveforms from hdf5 file
-    out = ccldas_read_raw_file(files)
-    wv1 = out.first_detector.waveform
-    wv2 = out.second_detector.waveform
-    wv3 = out.third_detector.waveform
-    wv1size = SIZE(wv1,/N_ELEMENTS)
-    print,wv1size,'test2'
-    wv2size = SIZE(wv2,/N_ELEMENTS)
-        print,wv2size,'test2'
-    
-    wv3size = SIZE(wv3,/N_ELEMENTS)
-            print,wv3size,'test2'
+      ;get waveforms from hdf5 file
+      out = ccldas_read_raw_file(files)
+      wv1 = out.first_detector.waveform
+      wv2 = out.second_detector.waveform
+      wv3 = out.third_detector.waveform
+      wv1size = SIZE(wv1,/N_ELEMENTS)
+      print,wv1size,'test2'
+      wv2size = SIZE(wv2,/N_ELEMENTS)
+      print,wv2size,'test2'    
+      wv3size = SIZE(wv3,/N_ELEMENTS)
+      print,wv3size,'test2'
             
-    IF wv1size - wv2size lt 100 and wv2size - wv3size lt 100 Then begin
+      IF wv1size - wv2size lt 100 and wv2size - wv3size lt 100 Then begin
    
-    dt = out.first_detector.dt
-    x = findgen(n_elements(wv1))*dt;*1e6
-    loadct, 39
+        dt = out.first_detector.dt
+        x = findgen(n_elements(wv1))*dt;*1e6
+        loadct, 39
     
-    ;Call Keith's code:0
-    out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=old_data)
-    print,out_k
-          if out_k[0] ne -1 then begin ;print Keith's results if Keith's code finds anything 
-                printf, lun, 'V', out_k[0]
-                printf, lun, 'C', out_k[1]
-                printf, lun, 'S', 2
-                printf, lun, 'Q', 1
-                printf, lun, 'P', out_k[3]/1
+        ;Call Tobin's code:0
+        out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=old_data)
+        ;print,out_k
+          if out_k[0] GT 0 then begin ;print Tobin's results if Tobin's code finds anything 
+            printf, lun, 'V', out_k[0]
+            printf, lun, 'C', out_k[1]
+            printf, lun, 'S', 2
+            printf, lun, 'Q', 1
+            printf, lun, 'P', out_k[2]/1
+            print,out_k,' Tobins code'
           endif  else begin                   ;Call Andrew's code if Keith's doesn't see anything:
-            out = triple_est_latest(wv1, wv2, wv3, dt,old_data=old_data)
-              print, out
-            ;/Andrew's code.
-                  if out.quality lt qthreshold then begin ;if Andrew's code failed 
-                                      printf, lun, 'V', -1
-                                      printf, lun, 'C', -1
-                                      printf, lun, 'S', 1
-                                      printf, lun, 'Q', 0
-                                      printf, lun, 'P', 0
-                                      ;/Keith's code.
-                   endif  else begin                     ;print Andrew's results if his code worked:
-                      printf, lun, 'V', out.velocity
-                      printf, lun, 'C', out.charge
-                      printf, lun, 'S', 1
-                      printf, lun, 'Q', 1
-                      printf, lun, 'P', out.passed
-                  endelse
+            if out_k[0] eq -2 then begin ;print out that Tobin's code had an actual failure so we can find it and correct it
+              printf, lun, 'V', out_k[0]
+              printf, lun, 'C', -1
+              printf, lun, 'S', -1
+              printf, lun, 'Q', 0
+              printf, lun, 'P', 0
+              print,out_k,' Tobins code had an error'
+            endif else begin
+              out = triple_est_latest(wv1, wv2, wv3, dt,old_data=old_data)
+              ;print, out
+              ;/Andrew's code.
+              if out.quality lt qthreshold then begin ;if Andrew's code failed 
+                printf, lun, 'V', -1
+                printf, lun, 'C', -1
+                printf, lun, 'S', 1
+                printf, lun, 'Q', 0
+                printf, lun, 'P', 0
+                print,'both failed'
+              endif  else begin                     ;print Andrew's results if his code worked:
+                if out.quality eq 50 then begin
+                  printf, lun, 'V', -3
+                  printf, lun, 'C', -1
+                  printf, lun, 'S', -1
+                  printf, lun, 'Q', 0
+                  printf, lun, 'P', 0
+                  print,'Andrews code had an error'
+                endif else begin
+                  printf, lun, 'V', out.velocity
+                  printf, lun, 'C', out.charge
+                  printf, lun, 'S', 1
+                  printf, lun, 'Q', 1
+                  printf, lun, 'P', out.passed
+                  print,out,' Andrews code'
+                endelse
+              endelse
+            endelse
           endelse
+        endif else begin
+          printf, lun, 'V', -1
+          printf, lun, 'C', -1
+          printf, lun, 'S', -1
+          printf, lun, 'Q', 0
+          printf, lun, 'P', 0
+          print,'Waveforms are missing or bad'
+        endelse    
+      ; continueq = DIALOG_MESSAGE('Continue?', /question,/center)
+      ;if continueq eq 'No' then break
       endif else begin
-      printf, lun, 'V', -1
-      printf, lun, 'C', -1
-      printf, lun, 'S', -1
-      printf, lun, 'Q', 0
-      printf, lun, 'P', 0
-      endelse    
-printf, lun, ','                        ;print ',' to separate shot outputs 
- ; continueq = DIALOG_MESSAGE('Continue?', /question,/center)
-  ;if continueq eq 'No' then break
-  endif else begin
         printf, lun, 'V', -1
-      printf, lun, 'C', -1
-      printf, lun, 'S', -1
-      printf, lun, 'Q', 0
-      printf, lun, 'P', 0
-  endelse
-               CATCH, Error_status  
-   IF Error_status NE 0 THEN BEGIN  
-      printf, lun, 'V', -1
-      printf, lun, 'C', -1
-      printf, lun, 'S', -1
-      printf, lun, 'Q', 0
-      printf, lun, 'P', 0
-      Error_status = 0  
-      i=i+1
-      endif    
-
-endfor
-         free_lun, lun                        ;close file
+        printf, lun, 'C', -1
+        printf, lun, 'S', -1
+        printf, lun, 'Q', 0
+        printf, lun, 'P', 0
+        print,'File does not exist'
+      endelse 
+      printf, lun, ','                        ;print ',' to separate shot outputs 
+      print,'Iteration number: ',i
+  endfor
+  free_lun, lun                        ;close file
 end

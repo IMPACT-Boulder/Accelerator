@@ -26,12 +26,23 @@
 ;             1: Signal seen on 3rd detector
 ;             
 ;   .quality:   0: Velocity/charge fit failed
+;              50: Error was thrown
 ;             100: Full 3-detector fit succeeded
 ;
 ;-
 function triple_est_latest, sig1_x, sig2_x, sig3_x, dt, cal=cal, verbose=verbose, old_data=old_data
 
   COMPILE_OPT IDL2
+  
+  there_was_an_error = 0
+  catch, error_status
+  IF error_status NE 0 THEN BEGIN
+     catch, /cancel 
+     ;PRINT, 'Inside v_estimate_subroutine Error index: ', Error_status
+     if keyword_set(verbose) then print, 'Error message from triple_est_latest: ', !ERROR_STATE.MSG
+     there_was_an_error = 1
+     goto, error_jump_point  ;jump to end and set velocity = -3 to indicate error    
+  ENDIF
   
   FINAL_DET_CAL = 1.21e13
   if keyword_set(cal) then FINAL_DET_CAL = cal
@@ -89,9 +100,9 @@ function triple_est_latest, sig1_x, sig2_x, sig3_x, dt, cal=cal, verbose=verbose
     if vb then print, 'V1 (raw) -> ', vcan_1
     if vb then begin print, 'V2 (raw) -> ', vcan_2
      
-    print, 'mxmxmxm', max_p3[idx_3]
-    print, 'mxmxmxm', max_p1
-    print, 'mxmxmxm', max_p2
+      print, 'mxmxmxm', max_p3[idx_3]
+      print, 'mxmxmxm', max_p1
+      print, 'mxmxmxm', max_p2
     endif
     ; require amplitude to match within 50%
     wh_1 = where(abs((max_p1-max_p3[idx_3])/max_p3[idx_3]) lt 0.5)
@@ -133,37 +144,53 @@ function triple_est_latest, sig1_x, sig2_x, sig3_x, dt, cal=cal, verbose=verbose
   endfor ; third detector loop
   exit_loop:
   
-  if v eq -1 then goto, failed ; No matches on any 3rd detector peak
+  if v eq -1 then begin
+    out.velocity = -1
+    out.quality = 0
+    out.idx3 = 0
+    out.idx1 = 0
+    out.idx2 = 0
+  endif else begin ; No matches on any 3rd detector peak
   
-  out.velocity = v
-  out.quality = 100
-  out.idx3 = peaks_3[idx_3]
-  out.idx1 = out.idx3-((D_13/v)/dt)
-  out.idx2 = out.idx3-((D_23/v)/dt)
+    out.velocity = v
+    out.quality = 100
+    out.idx3 = peaks_3[idx_3]
+    out.idx1 = out.idx3-((D_13/v)/dt)
+    out.idx2 = out.idx3-((D_23/v)/dt)
   
-  ; Begin charge estimation
+    ; Begin charge estimation
 
-  sig3 = smooth(sig3_x,100)
-  sig3_start = peaks_3[idx_3] ; index near beginning of detector signal
+    sig3 = smooth(sig3_x,100)
+    sig3_start = peaks_3[idx_3] ; index near beginning of detector signal
   
-  ; Compute the signal height relative to the local signal,
-  ; in case of low-frequency noise or offset
-  bstart = sig3_start-200
-  if bstart lt 0 then bstart = 0
-  base = median(sig3[bstart:sig3_start])
+    ; Compute the signal height relative to the local signal,
+    ; in case of low-frequency noise or offset
+    bstart = sig3_start-200
+    if bstart lt 0 then bstart = 0
+    base = median(sig3[bstart:sig3_start])
   
-  pstop = sig3_start+2000
-  if pstop gt (n_elements(sig3)-1) then pstop = n_elements(sig3)-1
-  vpeak = max(abs(sig3[sig3_start:pstop]-base))
+    pstop = sig3_start+2000
+    if pstop gt (n_elements(sig3)-1) then pstop = n_elements(sig3)-1
+    vpeak = max(abs(sig3[sig3_start:pstop]-base))
 
-  if vb then print, 'Base -> ', base
-  if vb then print, 'Height -> ', vpeak
+    if vb then print, 'Base -> ', base
+    if vb then print, 'Height -> ', vpeak
 
-  out.charge = vpeak/FINAL_DET_CAL
+    out.charge = vpeak/FINAL_DET_CAL
+  endelse
+  
+  error_jump_point: ;print,'got to error jump point'
+  
+  if there_was_an_error then begin
+    out.velocity = -3.0
+    out.quality = 50
+    out.idx3 = 0
+    out.idx1 = 0
+    out.idx2 = 0
+  endif
   
   failed:
-  
-  print, 'Fit failed', peaks_3
+  ;print, 'Fit failed', peaks_3
   return, out
   
 end

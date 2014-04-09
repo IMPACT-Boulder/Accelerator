@@ -101,7 +101,7 @@ function ccldas_read_raw_file,filename,info=info
           dataset_id = STRLOWCASE(H5G_GET_MEMBER_NAME(file_id,'/',i))
           signal_id = H5D_OPEN(shot_group_id, dataset_id)
           dimension = H5D_GET_STORAGE_SIZE(signal_id)
-          print,dimension, 'test'
+;          print,dimension, 'test'
           IF dimension ne 0 then begin
           ;print,dataset_id ;sanity check to make sure all detectors are getting looked at
           signal_metadata={signal_metadata, dt:float(0),hardware_id:long(0),offset:float(0),signal_length:long(0)} 

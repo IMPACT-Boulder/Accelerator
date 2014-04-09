@@ -18,13 +18,13 @@
 ; it did not. NEWSHOT is used to separate dust events.     
 ;
 
-pro testbatch,verbose=verbose
+pro testbatch,file,verbose=verbose
   q_e = 1.602e-19
   ;;Read in waveforms from 'New_Database_Query.hdf5' for events 
   ;; 1545625 - 1545696
   nshots = 867;150;72;4224
   ;file_id = h5f_open('New_Database_Query72.hdf5') ;hdf5 file containing 72 shots
-  file_id = h5f_open('New_Database_Query.hdf5') ;hdf5 file containing 4224 shots
+  file_id = h5f_open(file) ;hdf5 file containing 4224 shots
   v_a = fltarr(nshots)         ;velocity from Andrew's code
   v_k = fltarr(nshots)-1       ;velocity from Keith's code
   v_t = fltarr(nshots)-1       ;velocity from Tobin's code

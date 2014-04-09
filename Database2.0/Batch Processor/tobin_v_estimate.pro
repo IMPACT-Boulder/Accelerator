@@ -11,15 +11,30 @@
 ;If any of them do, use their derived velocity as a final width to
 ;make a last pass.
 ;
+;Revised 4/8/14  : Added error-handling statements into
+;                  v_estimate_subroutine, including 'catch'
+;                  statement, error_jump_point, and variable
+;                  'there_was_an_error'.  
+;
 ;Revised 3/18/14 : Added correction to eliminate false-positives when
-;                      3rd detector is malformed waveform (perhaps
-;                      particle hit detector 3).
+;                  3rd detector is malformed waveform (perhaps
+;                  particle hit detector 3).
 ;
 ;Revised 3/16/14 : Added correction for calculating charge properly
 ;                  for very slow particles.
 ;
 function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_data,$
                                optimized_vguess=optimized_vguess
+  there_was_an_error = 0
+  catch, error_status
+  if error_status ne 0 then begin
+     catch,/cancel
+     ;PRINT, 'Inside v_estimate_subroutine Error index: ', Error_status
+     if keyword_set(verbose) then print,'Error message from within v_estimate_subroutine: ', !ERROR_STATE.MSG
+     there_was_an_error = 1
+     goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error     
+  endif
+
   badparticle=0
   @definecolors
   detector_length = 0.18        ;[m] length of inner tube used for filter width
@@ -159,7 +174,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
   if keyword_set(optimized_vguess) then begin
      if not badparticle then begin
         full_length = n_elements(y1)
-        zoom0length = 0.75                         ;[m] look at part of waveform near actual signal
+        zoom0length = 0.75                            ;[m] look at part of waveform near actual signal
         zoom1length = long(zoom0length/v_estimate/dt) ;[# samples]
 
         zoom1_minidx = max([y1peakidx - zoom1length/2,0])
@@ -171,7 +186,9 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
         yzoom1 = y1(zoom1_minidx:zoom1_maxidx)
         yzoom2 = y2(zoom2_minidx:zoom2_maxidx)
         yzoom3 = y3(zoom3_minidx:zoom3_maxidx)
-        zoom1length = n_elements(yzoom3)
+        zoom1length = n_elements(yzoom1) ;the lengths of zoom1-3 may be different...
+        zoom2length = n_elements(yzoom2) ;the lengths of zoom1-3 may be different...
+        zoom3length = n_elements(yzoom3) ;the lengths of zoom1-3 may be different...
 
         ;;Create smooth derivative function
         smoothing_length0 = 0.001*2                           ;[m]
@@ -189,15 +206,13 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
         yzoom3f = smooth(yzoom3f,smoothing_length,/edge_wrap)
         yzoom3f = smooth(deriv(yzoom3f),20*smoothing_length)
 
-        ;;print,zoom1length,smoothing_length,n_elements(yzoom1f)
-
         ;;Zero out the ends of the waveform to kill artifacts
         yzoom1f(0:20*smoothing_length) = 0
         yzoom1f(zoom1length-1-20*smoothing_length:zoom1length-1) = 0.0
         yzoom2f(0:20*smoothing_length) = 0
-        yzoom2f(zoom1length-1-20*smoothing_length:zoom1length-1) = 0.0
+        yzoom2f(zoom2length-1-20*smoothing_length:zoom2length-1) = 0.0
         yzoom3f(0:20*smoothing_length) = 0
-        yzoom3f(zoom1length-1-20*smoothing_length:zoom1length-1) = 0.0
+        yzoom3f(zoom3length-1-20*smoothing_length:zoom3length-1) = 0.0
 
         yz1max = max(yzoom1f,yz1maxidx)
         yz2max = max(yzoom2f,yz2maxidx)
@@ -385,6 +400,9 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
      returndata.y3minidx = y3minidx ;this is the beginning of the signal
   endif
 
+  error_jump_point: ;print,'got to error jump point'
+  if there_was_an_error then returndata.velocity = -2.0
+
   return,returndata
 end
 
@@ -460,6 +478,23 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
 end
 
 function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
+  ;there_was_an_error = 0
+  ;CATCH, Error_status
+  ;IF Error_status NE 0 THEN BEGIN
+  ;   PRINT, 'Inside Error index: ', Error_status
+  ;   PRINT, 'Error message: ', !ERROR_STATE.MSG
+  ;   ;; Take whatever action is necessary
+  ;   there_was_an_error = 1
+  ;   goto,error_state_particle  ;set particle v=-2 to indicate error
+
+  ;   CATCH, /CANCEL
+     
+  ;ENDIF
+
+
+
+
+
   @definecolors
   velocitycharge = fltarr(3)    ;set up output data array [velocity,charge,which_vguess_worked]
 
@@ -500,6 +535,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
      y3peakidx = returndata.y3peakidx
      ;smoothcharge = returndata.charge
      if velocity eq -1.0 then badparticle=1
+     if velocity eq -2.0 then badparticle=1 ;there was an error in the velocity subroutine
   endif
 
   ;;calculate charge
@@ -538,8 +574,14 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
   ;;subroutine also
   ;if not badparticle then print,'smoothcharge/charge = '+s2(smoothcharge/charge)
 
+  ;error_state_particle: print,'got to here' ;this is where it goes
+
   velocitycharge[0] = velocity
   velocitycharge[1] = charge
   velocitycharge[2] = which_vguess_worked ;for debugging purposes only
+
+
+  ;if there_was_an_error then velocitycharge[0] = -2.0
+
   return,velocitycharge
 end
