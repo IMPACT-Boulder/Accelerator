@@ -16,15 +16,20 @@
 ; detected and a 0 for false triggers. Passed returns a value of 1 if
 ; the particle is determined to have passed the 3rd detector and 0 if
 ; it did not. NEWSHOT is used to separate dust events.     
-;
+; 
+; fname: filename or path of hdf5 file
+; nshots: number of shots to analyze (don't use this if you want to run all shots in the file)
 
-pro testbatch,file,verbose=verbose
+pro testbatch,fname,nshots,verbose=verbose
   q_e = 1.602e-19
   ;;Read in waveforms from 'New_Database_Query.hdf5' for events 
-  ;; 1545625 - 1545696
-  nshots = 867;150;72;4224
-  ;file_id = h5f_open('New_Database_Query72.hdf5') ;hdf5 file containing 72 shots
-  file_id = h5f_open(file) ;hdf5 file containing 4224 shots
+  if n_elements(nshots) eq 0 then begin
+    info=h5_parse(fname)
+    nshots=n_tags(info)-8
+  endif
+  print,'Number of shots to analyze: ', nshots
+  
+  file_id = h5f_open(fname) ;hdf5 file containing 53 shots
   v_a = fltarr(nshots)         ;velocity from Andrew's code
   v_k = fltarr(nshots)-1       ;velocity from Keith's code
   v_t = fltarr(nshots)-1       ;velocity from Tobin's code
@@ -38,7 +43,7 @@ pro testbatch,file,verbose=verbose
   which_vguess_worked = intarr(6)
   for j = 0,nshots-1 do begin   ;0 to 71 or 4223 789
   ;for j = 195,500 do begin        ;use this line if looking at a subset...
-     ;print,'j = '+s2(j)
+     print,'particle = '+s2(j+1)+' of '+s2(nshots)
      shot_index = j
      shot_id = strcompress(string(shot_index),/remove_all)
      result = ccldas_read_shot(file_id, shot_id);, channel='first_detector')
@@ -68,7 +73,7 @@ pro testbatch,file,verbose=verbose
 
      ;;Call Tobin's code
      t0 = systime(/seconds)
-     out_t = tobin_v_estimate(wv1,wv2,wv3,dt,verbose=verbose)
+     out_t  = tobin_v_estimate(wv1,wv2,wv3,dt,verbose=verbose)
      comptime_t = comptime_t + systime(/seconds)-t0
      v_t(j) = out_t(0)
      c_t(j) = out_t(1)
@@ -82,7 +87,7 @@ pro testbatch,file,verbose=verbose
 
   n_found_andrew = n_elements(v_a(where(v_a ne 0.0)))
   n_found_keith  = n_elements(v_k(where(v_k ne -1)))
-  n_found_tobin  = n_elements(v_t(where(v_t ne -1)))
+  n_found_tobin  = n_elements(v_t(where(v_t gt -1))) ;bad particles have v= -2 or -1
   print,'Andrew found '+s2(n_found_andrew)+' good particles'
   print,'Keith  found '+s2(n_found_keith)+' good particles'
   print,'Tobin  found '+s2(n_found_tobin)+' good particles'
@@ -144,8 +149,6 @@ pro testbatch,file,verbose=verbose
   !p.multi=[0,1,1]
   xr=[0,max([max(v_a),max(v_k),max(v_t)])/(1000.0)]
   yr=[0,max([max(c_a),max(c_k),max(c_t)])/(1000*q_e)]
-  ;xr=[0,max([max(v_k),max(v_t)])/(1000.0)]
-  ;yr=[0,max([max(c_k),max(c_t)])/(1000*q_e)]
   plot,v_k/1000.0,c_k/(1000*q_e),psym=6,$
        xtitle = 'Velocity [km/s]',ytitle='Charge [1000 e-]',$
        xrange=xr,yrange=yr,charsize=1.0,/nodata
