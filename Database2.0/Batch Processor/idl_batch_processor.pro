@@ -53,6 +53,17 @@
 
 
 pro idl_batch_processor,folder,storage_folder,old_data=old_data
+
+  there_was_an_error = 0
+  catch, error_status
+  if error_status ne 0 then begin
+     catch,/cancel
+     ;PRINT, 'Inside v_estimate_subroutine Error index: ', Error_status
+     if keyword_set(verbose) then print,'Error message from within v_estimate_subroutine: ', !ERROR_STATE.MSG
+     there_was_an_error = 1
+     goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error     
+  endif
+
   input_file_id = folder + '\index.txt';create input file reference
   print,input_file_id
   shots=READ_CSV(input_file_id);read csv for shot index
@@ -172,4 +183,23 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
       print,'Iteration number: ',i
   endfor
   free_lun, lun                        ;close file
+  
+  error_jump_point: ;print,'got to error jump point'
+  if there_was_an_error then begin
+    if (fstat(lun)).open eq 0 then begin 
+      openw, lun, output_file_id, /get_lun
+    endif else begin
+      free_lun, lun
+      openw, lun, output_file_id, /get_lun
+    endelse    
+    printf, lun, 'V', -5
+    printf, lun, 'C', -5
+    printf, lun, 'S', -5
+    printf, lun, 'Q', 0
+    printf, lun, 'P', 0
+    printf, lun, ','
+    
+    free_lun, lun
+  endif
+  
 end
