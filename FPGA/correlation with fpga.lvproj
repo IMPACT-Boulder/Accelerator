@@ -6638,20 +6638,60 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 		<Item Name="connect in_FPGA.vi" Type="VI" URL="../connect in_FPGA.vi"/>
 		<Item Name="connect out_FPGA.vi" Type="VI" URL="../connect out_FPGA.vi"/>
 		<Item Name="constants_FPGA.vi" Type="VI" URL="../constants_FPGA.vi"/>
+		<Item Name="FPGA PSU.ico" Type="Document" URL="../../builds/FPGAController_v3/FPGA PSU.ico"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
-				<Item Name="General Error Handler.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/General Error Handler.vi"/>
-				<Item Name="Error Cluster From Error Code.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/error.llb/Error Cluster From Error Code.vi"/>
 				<Item Name="NI_Database_API.lvlib" Type="Library" URL="/&lt;vilib&gt;/addons/database/NI_Database_API.lvlib"/>
 				<Item Name="GOOP Object Repository Statistics.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/_goopsup.llb/GOOP Object Repository Statistics.ctl"/>
 				<Item Name="GOOP Object Repository Method.ctl" Type="VI" URL="/&lt;vilib&gt;/Utility/_goopsup.llb/GOOP Object Repository Method.ctl"/>
 				<Item Name="GOOP Object Repository.vi" Type="VI" URL="/&lt;vilib&gt;/Utility/_goopsup.llb/GOOP Object Repository.vi"/>
 				<Item Name="NI_Matrix.lvlib" Type="Library" URL="/&lt;vilib&gt;/Analysis/Matrix/NI_Matrix.lvlib"/>
 			</Item>
-			<Item Name="NiFpgaLv.dll" Type="Document" URL="NiFpgaLv.dll">
-				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
+		</Item>
+		<Item Name="Build Specifications" Type="Build">
+			<Item Name="FPGAController_v3" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{A735DD84-92E7-4BB7-AE92-D3B1CD7682B6}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{066568B9-A8AB-4949-A309-6D5E54301777}</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{96CFA2F5-F93B-4252-ABA0-294DC1C143F7}</Property>
+				<Property Name="Bld_buildSpecDescription" Type="Str">Controller for the FPGA PSU</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v3</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/FPGAController_v3</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{EB58BC73-1EBC-46EA-BBC5-098E93439B32}</Property>
+				<Property Name="Destination[0].destName" Type="Str">FPGA PSU.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/FPGAController_v3/FPGA PSU.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/FPGAController_v3/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/FPGA PSU.ico</Property>
+				<Property Name="Source[0].itemID" Type="Str">{96E8CDE9-621C-4B83-8300-EEA05833AFB8}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v3.vi</Property>
+				<Property Name="Source[1].properties[0].type" Type="Str">Show vertical scroll bar</Property>
+				<Property Name="Source[1].properties[0].value" Type="Bool">false</Property>
+				<Property Name="Source[1].properties[1].type" Type="Str">Show horizontal scroll bar</Property>
+				<Property Name="Source[1].properties[1].value" Type="Bool">false</Property>
+				<Property Name="Source[1].propertiesCount" Type="Int">2</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_companyName" Type="Str">CCLDAS</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v3</Property>
+				<Property Name="TgtF_fileVersion.major" Type="Int">1</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v3</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2014 CCLDAS</Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v3</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{67D3ED18-C593-4636-9236-CFE525B02307}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">FPGA PSU.exe</Property>
 			</Item>
 		</Item>
-		<Item Name="Build Specifications" Type="Build"/>
 	</Item>
 </Project>
