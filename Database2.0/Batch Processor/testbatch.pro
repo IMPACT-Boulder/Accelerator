@@ -46,6 +46,7 @@ pro testbatch,fname,nshots,verbose=verbose
      print,'particle = '+s2(j+1)+' of '+s2(nshots)
      shot_index = j
      shot_id = strcompress(string(shot_index),/remove_all)
+     print, shot_id
      result = ccldas_read_shot(file_id, shot_id);, channel='first_detector')
      wv1 = result.first_detector.waveform
      wv2 = result.second_detector.waveform
@@ -63,6 +64,17 @@ pro testbatch,fname,nshots,verbose=verbose
      c_a(j) = out_a.charge
      print,'Andrew: v='+s2(v_a(j)/1000.0)+'   c='+s2(c_a(j)/(1000*q_e))
 
+    ;;Call Tobin's code
+     t0 = systime(/seconds)
+     
+     out_t  = tobin_v_estimate(wv1,wv2,wv3,dt,verbose=verbose)
+     comptime_t = comptime_t + systime(/seconds)-t0
+     v_t(j) = out_t(0)
+     c_t(j) = out_t(1)
+     if out_t(2) ne -1 then which_vguess_worked(out_t(2)) = which_vguess_worked(out_t(2))+1
+     print,'Tobin: v='+s2(v_t(j)/1000.0)+'   c='+s2(c_t(j)/(1000*q_e))
+    
+    
      ;;Call Keith's code
      t0 = systime(/seconds)
      out_k  = keith_vest(t,wv1,wv2,wv3)
@@ -71,15 +83,7 @@ pro testbatch,fname,nshots,verbose=verbose
      c_k(j) = out_k(1)          ;charge [C]
      print,'Keith: v='+s2(v_k(j)/1000.0)+'   c='+s2(c_k(j)/(1000*q_e))
 
-     ;;Call Tobin's code
-     t0 = systime(/seconds)
-     out_t  = tobin_v_estimate(wv1,wv2,wv3,dt,verbose=verbose)
-     comptime_t = comptime_t + systime(/seconds)-t0
-     v_t(j) = out_t(0)
-     c_t(j) = out_t(1)
-     if out_t(2) ne -1 then which_vguess_worked(out_t(2)) = which_vguess_worked(out_t(2))+1
-     print,'Tobin: v='+s2(v_t(j)/1000.0)+'   c='+s2(c_t(j)/(1000*q_e))
-
+    
      ;if v_t(j) gt 40000.0 then result=get_kbrd() ;pause if a fast one is found
 
      print
