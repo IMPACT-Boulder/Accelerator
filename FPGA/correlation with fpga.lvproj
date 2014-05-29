@@ -7295,6 +7295,7 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 		<Item Name="constants_FPGA.vi" Type="VI" URL="../constants_FPGA.vi"/>
 		<Item Name="FPGA PSU.ico" Type="Document" URL="../../builds/FPGAController_v3/FPGA PSU.ico"/>
 		<Item Name="Network Shared Variables.lvlib" Type="Library" URL="../../Functional Global Variables/Network Shared Variables.lvlib"/>
+		<Item Name="FPGAController_v3.vi" Type="VI" URL="../FPGAController_v3.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="NI_Matrix.lvlib" Type="Library" URL="/&lt;vilib&gt;/Analysis/Matrix/NI_Matrix.lvlib"/>
