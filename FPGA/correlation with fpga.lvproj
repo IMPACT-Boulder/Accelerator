@@ -7342,6 +7342,18 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 			<Item Name="NiFpgaLv.dll" Type="Document" URL="NiFpgaLv.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
+			<Item Name="niFpgaWaitOnOcc.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/interface/common/niFpgaWaitOnOcc.vi"/>
+			<Item Name="niLvFpga_Close_PXI-7954R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PXI-7954R/niLvFpga_Close_PXI-7954R.vi"/>
+			<Item Name="niLvFpgaFormatErrorSource.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaFormatErrorSource.vi"/>
+			<Item Name="niLvFpgaErrorClusterFromErrorCode.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaErrorClusterFromErrorCode.vi"/>
+			<Item Name="nirviErrorClusterFromErrorCode.vi" Type="VI" URL="/&lt;vilib&gt;/RVI Host/nirviSupport.llb/nirviErrorClusterFromErrorCode.vi"/>
+			<Item Name="nirviWhatTheDeviceIsDoing.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/ClientSDK/nirviWhatTheDeviceIsDoing.ctl"/>
+			<Item Name="nirio_resource_hc.ctl" Type="VI" URL="/&lt;vilib&gt;/userdefined/High Color/nirio_resource_hc.ctl"/>
+			<Item Name="niLvFpga_Open_PXI-7954R.vi" Type="VI" URL="/&lt;vilib&gt;/FPGAPlugInAG/PXI-7954R/niLvFpga_Open_PXI-7954R.vi"/>
+			<Item Name="niLvFpgaWhatHappensToTopLevelVI.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaWhatHappensToTopLevelVI.ctl"/>
+			<Item Name="niFpgaNodeNameForErrorReporting.ctl" Type="VI" URL="/&lt;vilib&gt;/rvi/interface/common/niFpgaNodeNameForErrorReporting.ctl"/>
+			<Item Name="niLvFpgaAdjustHostInterfaceError.vi" Type="VI" URL="/&lt;vilib&gt;/rvi/errors/niLvFpgaAdjustHostInterfaceError.vi"/>
+			<Item Name="niFpgaViExecutionMode.ctl" Type="VI" URL="/&lt;vilib&gt;/FPGA/interface/niFpgaViExecutionMode.ctl"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build">
 			<Item Name="FPGAController_v3" Type="EXE">
@@ -7386,6 +7398,44 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2014 CCLDAS</Property>
 				<Property Name="TgtF_productName" Type="Str">FPGAController_v3</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{67D3ED18-C593-4636-9236-CFE525B02307}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">FPGA PSU.exe</Property>
+			</Item>
+			<Item Name="FPGAController_v4" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{9C6A0D4F-507A-4E14-BC6A-B0D666BF633C}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{F08C1FAB-4EF3-45F2-B9EF-C8FC20B4BA88}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{3809651A-26BA-4B33-85FA-32378FA98534}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v4</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{603C84EE-DED2-4A58-82CD-010E1CB5117D}</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">FPGA PSU.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4/FPGA PSU.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Source[0].itemID" Type="Str">{AC913D11-B4AD-417A-86F4-D594702B58AD}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v4.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_companyName" Type="Str">University of Colorado</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v4</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v4</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2014 University of Colorado</Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v4</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{E9C43B6D-4E3E-41D6-A81E-81B902F1CC87}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">FPGA PSU.exe</Property>
 			</Item>
 		</Item>
