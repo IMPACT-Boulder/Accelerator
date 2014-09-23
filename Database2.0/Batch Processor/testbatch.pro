@@ -25,7 +25,7 @@ pro testbatch,fname,nshots,verbose=verbose
   ;;Read in waveforms from 'New_Database_Query.hdf5' for events 
   if n_elements(nshots) eq 0 then begin
     info=h5_parse(fname)
-    nshots=n_tags(info)-8
+    nshots=n_tags(info)- 8
   endif
   print,'Number of shots to analyze: ', nshots
   
@@ -41,7 +41,7 @@ pro testbatch,fname,nshots,verbose=verbose
   comptime_k = 0.0              ;computation time
   comptime_t = 0.0              ;computation time
   which_vguess_worked = intarr(6)
-  for j = 0,nshots-1 do begin   ;0 to 71 or 4223 789
+  for j = 442,nshots-1 do begin   ;0 to 71 or 4223 789
   ;for j = 195,500 do begin        ;use this line if looking at a subset...
      print,'particle = '+s2(j+1)+' of '+s2(nshots)
      shot_index = j
@@ -49,6 +49,10 @@ pro testbatch,fname,nshots,verbose=verbose
      print, shot_id
      result = ccldas_read_shot(file_id, shot_id);, channel='first_detector')
      wv1 = result.first_detector.waveform
+     if size(wv1, /N_elements) eq 1 then begin
+      print, 'Particle waveform data is corrupted'
+      continue
+     endif 
      wv2 = result.second_detector.waveform
      wv3 = result.third_detector.waveform
      dt  = result.first_detector.dt    ;sampling rate [s]
