@@ -1,3 +1,0 @@
-Ablation Chamber	6.450000
-LEIL Chamber	4.318000
-Thid Detector	3.150390
