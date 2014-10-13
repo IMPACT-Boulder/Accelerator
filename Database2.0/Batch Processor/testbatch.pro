@@ -18,18 +18,20 @@
 ; it did not. NEWSHOT is used to separate dust events.     
 ;
 
-pro testbatch,filename,nshots,verbose=verbose
+pro testbatch,filename,nshots,start,verbose=verbose
   q_e = 1.602e-19
+  if n_elements(start) eq 0 then start=1
   ;;Read in waveforms from 'New_Database_Query.hdf5' for events 
   ;; 1545625 - 1545696
-  ;nshots = 283;53;4224;150;72;4224
+  ;nshots = 2031;283;53;4224;150;72;4224
   ;file_id = h5f_open('New_Database_Query72.hdf5') ;hdf5 file containing 72 shots
   ;file_id = h5f_open('New_Database_Query4224.hdf5') ;hdf5 file containing 4224 shots
   ;file_id = h5f_open('2014_03_11_test0.hdf5') ;hdf5 file containing 1508 shots
   ;file_id = h5f_open('2014_03_11_test0_good.hdf5') ;hdf5 file containing 53 shots
   ;file_id = h5f_open('bad_waveform_1.hdf5') ;hdf5 file containing 1 shot with indexing problem
   ;file_id = h5f_open('fast_particles_tobin.hdf5') ;hdf5 file containing 53 shots
-  file_id = h5f_open(filename)     ;hdf5 file containing 283 shots with large HV spike
+  ;file_id = h5f_open('2014_09_16_test0.hdf5')     ;hdf5 file containing 283 shots with large HV spike
+  file_id = h5f_open(filename)     ;hdf5 file containing 2031 shots with large HV spike
   v_a = fltarr(nshots)         ;velocity from Andrew's code
   v_k = fltarr(nshots)-1       ;velocity from Keith's code
   v_t = fltarr(nshots)-1       ;velocity from Tobin's code
@@ -41,20 +43,23 @@ pro testbatch,filename,nshots,verbose=verbose
   comptime_k = 0.0              ;computation time
   comptime_t = 0.0              ;computation time
   which_vguess_worked = intarr(6)
-  ;for j = 0 ,nshots-1 do begin   ;
-  for j = 0,nshots-1 do begin        ;use this line if looking at a subset...
+  for j = start-1 ,nshots-1 do begin   ;
+  ;for j = 234,282 do begin        ;use this line if looking at a subset...
      print,'Particle = '+s2(j+1)+' of '+s2(nshots)
      shot_index = j
      shot_id = strcompress(string(shot_index),/remove_all)
      result = ccldas_read_shot(file_id, shot_id);, channel='first_detector')
      wv1 = result.first_detector.waveform
+
      if size(wv1, /N_elements) eq 1 then begin
       print, 'Particle waveform data is corrupted'
+      ;result=get_kbrd()
       continue
      endif 
+
      wv2 = result.second_detector.waveform
      wv3 = result.third_detector.waveform
-     dt  = result.first_detector.dt    ;sampling rate [s]
+     dt  = result.first_detector.dt    ;sampling rate [s] 
      t   = findgen(n_elements(wv1))*dt ;full timebase [s]
 
      ;;Call Andrew's code
