@@ -23,8 +23,8 @@
 ;Revised 3/16/14 : Added correction for calculating charge properly
 ;                  for very slow particles.
 ;
-function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_data,$
-                               optimized_vguess=optimized_vguess
+function v_estimate_subroutine,y1,y2,y3,dt,v_guess,index,verbose=verbose,old_data=old_data,$
+                               optimized_vguess=optimized_vguess,particle_number=particle_number
   there_was_an_error = 0
   catch, error_status
   if error_status ne 0 then begin
@@ -45,6 +45,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
 
   ;create filter of width somewhat wider than v_guess
   width1 = long(detector_length/v_guess/dt)
+
   yf1 = -3.0*(smooth(y1,width1,/edge_truncate)-smooth(y1,3*width1,/edge_truncate)) ;imperfect but fast
   yf2 = -3.0*(smooth(y2,width1,/edge_truncate)-smooth(y2,3*width1,/edge_truncate)) ;imperfect but fast
   yf3 = -3.0*(smooth(y3,width1,/edge_truncate)-smooth(y3,3*width1,/edge_truncate)) ;imperfect but fast
@@ -67,6 +68,10 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
   yf1(lastgoodidx1+1:lastidx) = mean(yf1)
   yf2(lastgoodidx2+1:lastidx) = mean(yf2)
   yf3(lastgoodidx3+1:lastidx) = mean(yf3)
+
+  yf1(index)=replicate(0,n_elements(index))
+  yf2(index)=replicate(0,n_elements(index))
+  yf3(index)=replicate(0,n_elements(index))
 
   y1max = max(yf1,y1peakidx)
   y2max = max(yf2,y2peakidx)
@@ -144,7 +149,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
         yf1(0:firstgoodidx) = mean(yf1)
         yf2(0:firstgoodidx) = mean(yf2)
         yf3(0:firstgoodidx) = mean(yf3)
-        yf1(lastgoodidx1+1:lastidx) = mean(yf1)
+        yf1(lastgoodidx1+1:lastidx) = mean(yf1) 
         yf2(lastgoodidx2+1:lastidx) = mean(yf2)
         yf3(lastgoodidx3+1:lastidx) = mean(yf3)
 
@@ -263,7 +268,9 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
            norm2 = 0.5*max([abs(max(yzoom2)),abs(min(yzoom2))])/max([abs(max(yzoom2f)),abs(min(yzoom2f))])
            norm3 = 0.5*max([abs(max(yzoom3)),abs(min(yzoom3))])/max([abs(max(yzoom3f)),abs(min(yzoom3f))])
 
-           plot,yzoom1,/xst,charsize=cs               ;raw waveform
+           if keyword_set(particle_number) then title1='Particle # '+s2(particle_number) else title1=''
+
+           plot,yzoom1,/xst,charsize=cs,title=title1     ;raw waveform
            oplot,yzoom1f*norm1,color=colors.blue,thick=2 ;fast filtered function
            oplot,[0,zoom1length],0*[1,1],color=colors.red
            oplot,[0,zoom1length],yz1max*norm1*[1,1],color=colors.red,linestyle=2
@@ -327,7 +334,9 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
      window,1,xsize=900,ysize=800
      !p.multi=[0,1,3]
 
-     plot,y1,/xst,charsize=cs   ;raw waveform
+     if keyword_set(particle_number) then title1='Particle # '+s2(particle_number) else title1=''
+
+     plot,y1,/xst,charsize=cs,title=title1            ;raw waveform
      oplot,yf1,color=colors.blue,thick=3 ;fast filtered function
      oplot,y1peakidx*[1,1],10*[-1,1],color=colors.red
      if using_special_filter_routine then begin
@@ -407,7 +416,8 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_
 end
 
 function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetector,verbose=verbose,$
-                               used_alternate_peakroutine=used_alternate_peakroutine,yminidx=yminidx
+                               used_alternate_peakroutine=used_alternate_peakroutine,yminidx=yminidx,$
+                               particle_number=particle_number
   case whichdetector of 
      1: det_cal = 1.14e13       ;detector 1 calibration factor [CSA 2]
      2: det_cal = 1.24e13       ;detector 2 calibration factor [CSA 3]
@@ -459,7 +469,9 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
      endif else wset,6
      if whichdetector eq 1 then !p.multi=[0,1,3]
 
-     title='Detector '+strcompress(string(whichdetector),/remove_all)
+     if keyword_set(particle_number) then title1=', Particle # '+s2(particle_number) else title1=''
+
+     title='Detector '+strcompress(string(whichdetector),/remove_all)+title1
      plot,zoom,charsize=2.0,title=title
      oplot,findgen(new_signal_length)+first_idx_of_signal_within_zoom,$
            y(signal_minidx:signal_maxidx),color=colors.red
@@ -477,7 +489,7 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
   return,charge
 end
 
-function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
+function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle_number=particle_number
   ;there_was_an_error = 0
   ;CATCH, Error_status
   ;IF Error_status NE 0 THEN BEGIN
@@ -486,15 +498,12 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
   ;   ;; Take whatever action is necessary
   ;   there_was_an_error = 1
   ;   goto,error_state_particle  ;set particle v=-2 to indicate error
-
-  ;   CATCH, /CANCEL
-     
+  ;   CATCH, /CANCEL     
   ;ENDIF
 
-
-
-
-
+  ;;First thing -- remove big voltage spike from deflection plates (if it exists)
+  tobin_v_despike,y1,y2,y3,dt,verbose=verbose,index=index
+  ;index=[0]
   @definecolors
   velocitycharge = fltarr(3)    ;set up output data array [velocity,charge,which_vguess_worked]
 
@@ -508,7 +517,9 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
   done = 0
   j=0
   while not done do begin
-     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess(j),verbose=verbose,old_data=old_data)
+     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess(j),index,$
+                                        verbose=verbose,old_data=old_data,$
+                                        particle_number=particle_number)
      velocity = returndata.velocity
      if j eq n_elements(v_guess)-1 then begin ;ran out of tries
         badparticle=1
@@ -528,8 +539,10 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
   ;;see if the waveform is messed up when /optimized_vguess is chosen. 
   if not badparticle then begin
      v_guess = velocity         ;[m/s]
-     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess,verbose=verbose,old_data=old_data,/optimized_vguess)
-     velocity = returndata.velocity
+     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess,index,$
+                                        verbose=verbose,old_data=old_data,$
+                                        /optimized_vguess,particle_number=particle_number)
+      velocity = returndata.velocity
      y1peakidx = returndata.y1peakidx
      y2peakidx = returndata.y2peakidx
      y3peakidx = returndata.y3peakidx
@@ -543,18 +556,21 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data
      ;;calculate charge based on first detector
      charge1 = c_estimate_subroutine(y1,dt,velocity,y1peakidx,whichdetector=1,verbose=verbose,$
                                      used_alternate_peakroutine=returndata.used_alternate_peakroutine,$
-                                     yminidx=returndata.y1minidx)
+                                     yminidx=returndata.y1minidx,particle_number=particle_number)
      charge2 = c_estimate_subroutine(y2,dt,velocity,y2peakidx,whichdetector=2,verbose=verbose,$
                                      used_alternate_peakroutine=returndata.used_alternate_peakroutine,$
-                                     yminidx=returndata.y2minidx)
+                                     yminidx=returndata.y2minidx,particle_number=particle_number)
      charge3 = c_estimate_subroutine(y3,dt,velocity,y3peakidx,whichdetector=3,verbose=verbose,$
                                      used_alternate_peakroutine=returndata.used_alternate_peakroutine,$
-                                     yminidx=returndata.y3minidx)
+                                     yminidx=returndata.y3minidx,particle_number=particle_number)
 
      ;;Test that the three charges are very loosely consistent
      max_variation = 0.35
      if abs(charge1-charge3)/abs(charge3) gt max_variation then badparticle=1
      if abs(charge2-charge3)/abs(charge3) gt max_variation then badparticle=1
+     ;print,charge1,charge2,charge3
+     ;print,abs(charge1-charge3)/abs(charge3)
+     ;print,abs(charge2-charge3)/abs(charge3)
 
      if badparticle then begin
         print,'failed charge consistency test'

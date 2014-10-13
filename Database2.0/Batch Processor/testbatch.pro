@@ -16,20 +16,20 @@
 ; detected and a 0 for false triggers. Passed returns a value of 1 if
 ; the particle is determined to have passed the 3rd detector and 0 if
 ; it did not. NEWSHOT is used to separate dust events.     
-; 
-; fname: filename or path of hdf5 file
-; nshots: number of shots to analyze (don't use this if you want to run all shots in the file)
+;
 
-pro testbatch,fname,nshots,verbose=verbose
+pro testbatch,filename,nshots,verbose=verbose
   q_e = 1.602e-19
   ;;Read in waveforms from 'New_Database_Query.hdf5' for events 
-  if n_elements(nshots) eq 0 then begin
-    info=h5_parse(fname)
-    nshots=n_tags(info)- 8
-  endif
-  print,'Number of shots to analyze: ', nshots
-  
-  file_id = h5f_open(fname) ;hdf5 file containing 53 shots
+  ;; 1545625 - 1545696
+  ;nshots = 283;53;4224;150;72;4224
+  ;file_id = h5f_open('New_Database_Query72.hdf5') ;hdf5 file containing 72 shots
+  ;file_id = h5f_open('New_Database_Query4224.hdf5') ;hdf5 file containing 4224 shots
+  ;file_id = h5f_open('2014_03_11_test0.hdf5') ;hdf5 file containing 1508 shots
+  ;file_id = h5f_open('2014_03_11_test0_good.hdf5') ;hdf5 file containing 53 shots
+  ;file_id = h5f_open('bad_waveform_1.hdf5') ;hdf5 file containing 1 shot with indexing problem
+  ;file_id = h5f_open('fast_particles_tobin.hdf5') ;hdf5 file containing 53 shots
+  file_id = h5f_open(filename)     ;hdf5 file containing 283 shots with large HV spike
   v_a = fltarr(nshots)         ;velocity from Andrew's code
   v_k = fltarr(nshots)-1       ;velocity from Keith's code
   v_t = fltarr(nshots)-1       ;velocity from Tobin's code
@@ -41,12 +41,11 @@ pro testbatch,fname,nshots,verbose=verbose
   comptime_k = 0.0              ;computation time
   comptime_t = 0.0              ;computation time
   which_vguess_worked = intarr(6)
-  for j = 0,nshots-1 do begin   ;0 to 71 or 4223 789
-  ;for j = 195,500 do begin        ;use this line if looking at a subset...
-     print,'particle = '+s2(j+1)+' of '+s2(nshots)
+  ;for j = 0 ,nshots-1 do begin   ;
+  for j = 0,nshots-1 do begin        ;use this line if looking at a subset...
+     print,'Particle = '+s2(j+1)+' of '+s2(nshots)
      shot_index = j
      shot_id = strcompress(string(shot_index),/remove_all)
-     print, shot_id
      result = ccldas_read_shot(file_id, shot_id);, channel='first_detector')
      wv1 = result.first_detector.waveform
      if size(wv1, /N_elements) eq 1 then begin
@@ -58,8 +57,6 @@ pro testbatch,fname,nshots,verbose=verbose
      dt  = result.first_detector.dt    ;sampling rate [s]
      t   = findgen(n_elements(wv1))*dt ;full timebase [s]
 
-     if keyword_set(verbose) then print,'Particle '+s2(j)
-
      ;;Call Andrew's code
      t0 = systime(/seconds)
      out_a  = triple_est_latest(wv1,wv2,wv3,dt)
@@ -68,17 +65,10 @@ pro testbatch,fname,nshots,verbose=verbose
      c_a(j) = out_a.charge
      print,'Andrew: v='+s2(v_a(j)/1000.0)+'   c='+s2(c_a(j)/(1000*q_e))
 
-    ;;Call Tobin's code
-     t0 = systime(/seconds)
-     
-     out_t  = tobin_v_estimate(wv1,wv2,wv3,dt,verbose=verbose)
-     comptime_t = comptime_t + systime(/seconds)-t0
-     v_t(j) = out_t(0)
-     c_t(j) = out_t(1)
-     if out_t(2) ne -1 then which_vguess_worked(out_t(2)) = which_vguess_worked(out_t(2))+1
-     print,'Tobin: v='+s2(v_t(j)/1000.0)+'   c='+s2(c_t(j)/(1000*q_e))
-    
-    
+     ;window,2
+     ;!p.multi=[0,1,2]
+     ;plot,wv1,title='before Keith code'
+
      ;;Call Keith's code
      t0 = systime(/seconds)
      out_k  = keith_vest(t,wv1,wv2,wv3)
@@ -87,7 +77,21 @@ pro testbatch,fname,nshots,verbose=verbose
      c_k(j) = out_k(1)          ;charge [C]
      print,'Keith: v='+s2(v_k(j)/1000.0)+'   c='+s2(c_k(j)/(1000*q_e))
 
-    
+
+     ;plot,wv1,title='after Keith code'
+     ;result=get_kbrd()
+     ;wdelete,2
+
+     ;;Call Tobin's code
+     t0 = systime(/seconds)
+     particle_number=j+1        ;for labeling the plots within tobin_v_estimate
+     out_t  = tobin_v_estimate(wv1,wv2,wv3,dt,verbose=verbose,particle_number=particle_number)
+     comptime_t = comptime_t + systime(/seconds)-t0
+     v_t(j) = out_t(0)
+     c_t(j) = out_t(1)
+     if out_t(2) ne -1 then which_vguess_worked(out_t(2)) = which_vguess_worked(out_t(2))+1
+     print,'Tobin: v='+s2(v_t(j)/1000.0)+'   c='+s2(c_t(j)/(1000*q_e))
+
      ;if v_t(j) gt 40000.0 then result=get_kbrd() ;pause if a fast one is found
 
      print
