@@ -23,7 +23,8 @@
 ;Revised 3/16/14 : Added correction for calculating charge properly
 ;                  for very slow particles.
 ;
-function v_estimate_subroutine,y1,y2,y3,dt,v_guess,index,verbose=verbose,old_data=old_data,$
+function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
+                               verbose=verbose,old_data=old_data,$
                                optimized_vguess=optimized_vguess,particle_number=particle_number
   there_was_an_error = 0
   catch, error_status
@@ -45,10 +46,17 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,index,verbose=verbose,old_dat
 
   ;create filter of width somewhat wider than v_guess
   width1 = long(detector_length/v_guess/dt)
-
+  ;filter waveforms with convolution
   yf1 = -3.0*(smooth(y1,width1,/edge_truncate)-smooth(y1,3*width1,/edge_truncate)) ;imperfect but fast
   yf2 = -3.0*(smooth(y2,width1,/edge_truncate)-smooth(y2,3*width1,/edge_truncate)) ;imperfect but fast
   yf3 = -3.0*(smooth(y3,width1,/edge_truncate)-smooth(y3,3*width1,/edge_truncate)) ;imperfect but fast
+
+  ;zero out voltage spike region from filtered waveform
+  if thereisaspike then begin
+     yf1(spike_indices) = 0.0
+     yf2(spike_indices) = 0.0
+     yf3(spike_indices) = 0.0
+  endif
 
   ;remove filter artifacts from very beginning and end
   lastidx = n_elements(yf3)-1
@@ -68,10 +76,6 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,index,verbose=verbose,old_dat
   yf1(lastgoodidx1+1:lastidx) = mean(yf1)
   yf2(lastgoodidx2+1:lastidx) = mean(yf2)
   yf3(lastgoodidx3+1:lastidx) = mean(yf3)
-
-  yf1(index)=replicate(0,n_elements(index))
-  yf2(index)=replicate(0,n_elements(index))
-  yf3(index)=replicate(0,n_elements(index))
 
   y1max = max(yf1,y1peakidx)
   y2max = max(yf2,y2peakidx)
@@ -134,6 +138,13 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,index,verbose=verbose,old_dat
         yf3 = smooth(yf3,smoothing_length,/edge_truncate)
         yf3 = 500.0*smooth(deriv(yf3),20*smoothing_length)
 
+        ;;zero out voltage spike region from filtered waveform
+        if thereisaspike then begin
+           yf1(spike_indices) = 0.0
+           yf2(spike_indices) = 0.0
+           yf3(spike_indices) = 0.0
+        endif
+
         ;;remove filter artifacts from very beginning and end
         lastidx = n_elements(yf3)-1
         lastgoodidx_basic           = long(0.97*lastidx)
@@ -149,7 +160,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,index,verbose=verbose,old_dat
         yf1(0:firstgoodidx) = mean(yf1)
         yf2(0:firstgoodidx) = mean(yf2)
         yf3(0:firstgoodidx) = mean(yf3)
-        yf1(lastgoodidx1+1:lastidx) = mean(yf1) 
+        yf1(lastgoodidx1+1:lastidx) = mean(yf1)
         yf2(lastgoodidx2+1:lastidx) = mean(yf2)
         yf3(lastgoodidx3+1:lastidx) = mean(yf3)
 
@@ -336,7 +347,14 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,index,verbose=verbose,old_dat
 
      if keyword_set(particle_number) then title1='Particle # '+s2(particle_number) else title1=''
 
-     plot,y1,/xst,charsize=cs,title=title1            ;raw waveform
+     yr1 = [min(y1),max(y1)]
+     yr2 = [min(y2),max(y2)]
+     if thereisaspike then begin
+        yr1 = 0.05*[-1,1]
+        yr2 = 0.05*[-1,1]
+     endif
+
+     plot,y1,/xst,charsize=cs,title=title1,yrange=yr1;,xrange=1.0e4*[3.5,4.5] ;raw waveform
      oplot,yf1,color=colors.blue,thick=3 ;fast filtered function
      oplot,y1peakidx*[1,1],10*[-1,1],color=colors.red
      if using_special_filter_routine then begin
@@ -344,7 +362,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,index,verbose=verbose,old_dat
         oplot,y1maxidx*[1,1],10*[-1,1],color=colors.pink,linestyle=1
      endif
 
-     plot,y2,/xst,charsize=cs
+     plot,y2,/xst,charsize=cs,yrange=yr2;,xrange=1.0e4*[3.5,4.5]
      oplot,yf2,color=colors.blue,thick=3  ;fast filtered function
      oplot,y2peakidx*[1,1],10*[-1,1],color=colors.red
      if using_special_filter_routine then begin
@@ -501,9 +519,10 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
   ;   CATCH, /CANCEL     
   ;ENDIF
 
-  ;;First thing -- remove big voltage spike from deflection plates (if it exists)
-  tobin_v_despike,y1,y2,y3,dt,verbose=verbose,index=index
-  ;index=[0]
+  ;;First thing -- identify big voltage spike from deflection plates (if it exists)
+  ;tobin_v_despike,y1,y2,y3,dt,thereisaspike,$
+  ;                spike_peakidx,spike_indices,verbose=verbose
+
   @definecolors
   velocitycharge = fltarr(3)    ;set up output data array [velocity,charge,which_vguess_worked]
 
@@ -517,7 +536,12 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
   done = 0
   j=0
   while not done do begin
-     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess(j),index,$
+     ;;First identify big voltage spike from deflection plates (if it exists)
+     tobin_v_despike,y1,y2,y3,dt,v_guess(j),thereisaspike,$
+                     spike_peakidx,spike_indices,verbose=verbose
+
+     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess(j),$
+                                        thereisaspike,spike_indices,$
                                         verbose=verbose,old_data=old_data,$
                                         particle_number=particle_number)
      velocity = returndata.velocity
@@ -539,10 +563,22 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
   ;;see if the waveform is messed up when /optimized_vguess is chosen. 
   if not badparticle then begin
      v_guess = velocity         ;[m/s]
-     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess,index,$
+     ;;;double the area on which to squash the voltage spike for slow particles
+     ;if v_guess le 1500.0 and thereisaspike then begin 
+     ;   spike_width = max(spike_indices)-min(spike_indices)
+     ;   spike_center = (min(spike_indices) + max(spike_indices)) / 2
+     ;   spike_indices = spike_center - long(1.5*spike_width) + lindgen(3*spike_width)
+     ;endif
+
+     ;;First identify big voltage spike from deflection plates (if it exists)
+     tobin_v_despike,y1,y2,y3,dt,v_guess,thereisaspike,$
+                     spike_peakidx,spike_indices,verbose=verbose
+
+     returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess,$
+                                        thereisaspike,spike_indices,$
                                         verbose=verbose,old_data=old_data,$
                                         /optimized_vguess,particle_number=particle_number)
-      velocity = returndata.velocity
+     velocity = returndata.velocity
      y1peakidx = returndata.y1peakidx
      y2peakidx = returndata.y2peakidx
      y3peakidx = returndata.y3peakidx
