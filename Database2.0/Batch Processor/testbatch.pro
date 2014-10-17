@@ -18,39 +18,41 @@
 ; it did not. NEWSHOT is used to separate dust events.     
 ;
 
-pro testbatch,filename,nshots,start,verbose=verbose
+pro testbatch,filename,nshots,start,verbose=verbose,old_data=old_data
+  if n_elements(start) eq 0 then start=0
+  ;dir = 'data_hdf5/'
   q_e = 1.602e-19
-  if n_elements(start) eq 0 then start=1
   ;;Read in waveforms from 'New_Database_Query.hdf5' for events 
   ;; 1545625 - 1545696
-  ;nshots = 2031;283;53;4224;150;72;4224
-  ;file_id = h5f_open('New_Database_Query72.hdf5') ;hdf5 file containing 72 shots
-  ;file_id = h5f_open('New_Database_Query4224.hdf5') ;hdf5 file containing 4224 shots
-  ;file_id = h5f_open('2014_03_11_test0.hdf5') ;hdf5 file containing 1508 shots
-  ;file_id = h5f_open('2014_03_11_test0_good.hdf5') ;hdf5 file containing 53 shots
-  ;file_id = h5f_open('bad_waveform_1.hdf5') ;hdf5 file containing 1 shot with indexing problem
-  ;file_id = h5f_open('fast_particles_tobin.hdf5') ;hdf5 file containing 53 shots
-  ;file_id = h5f_open('2014_09_16_test0.hdf5')     ;hdf5 file containing 283 shots with large HV spike
-  file_id = h5f_open(filename)     ;hdf5 file containing 2031 shots with large HV spike
+  ;nshots = 2031
+  ;file_id = h5f_open(dir+'New_Database_Query72.hdf5') ;72 shots -- use /old_data
+  ;file_id = h5f_open(dir+'New_Database_Query4224.hdf5') ;4224 shots -- use /old_data
+  ;file_id = h5f_open(dir+'2014_03_11_test0.hdf5') ;1508 shots
+  ;file_id = h5f_open(dir+'2014_03_11_test0_good.hdf5') ;hdf5 file containing 53 shots
+  ;file_id = h5f_open(dir+'bad_waveform_1.hdf5') ;hdf5 file containing 1 shot with indexing problem
+  ;file_id = h5f_open(dir+'fast_particles_tobin.hdf5') ;hdf5 file containing 53 shots
+  ;file_id = h5f_open(dir+'2014_09_16_test0.hdf5')     ;hdf5 file containing 283 shots with large HV spike
+  file_id = h5f_open(filename) ;hdf5 file containing 2031 shots with large HV spike
+
   v_a = fltarr(nshots)         ;velocity from Andrew's code
   v_k = fltarr(nshots)-1       ;velocity from Keith's code
   v_t = fltarr(nshots)-1       ;velocity from Tobin's code
   c_a = fltarr(nshots)         ;charge from Andrew's code
   c_k = fltarr(nshots)         ;charge from Keith's code
   c_t = fltarr(nshots)         ;charge from Tobin's code
+  q_t = intarr(nshots)         ;quality factor from Tobin's code
 
   comptime_a = 0.0              ;computation time
   comptime_k = 0.0              ;computation time
   comptime_t = 0.0              ;computation time
   which_vguess_worked = intarr(6)
-  for j = start-1 ,nshots-1 do begin   ;
-  ;for j = 234,282 do begin        ;use this line if looking at a subset...
+  for j = start-1 ,nshots-1 do begin   ;start at 238 or 1001
+  ;for j = 0,500 do begin        ;use this line if looking at a subset...
      print,'Particle = '+s2(j+1)+' of '+s2(nshots)
      shot_index = j
      shot_id = strcompress(string(shot_index),/remove_all)
      result = ccldas_read_shot(file_id, shot_id);, channel='first_detector')
      wv1 = result.first_detector.waveform
-
      if size(wv1, /N_elements) eq 1 then begin
       print, 'Particle waveform data is corrupted'
       ;result=get_kbrd()
@@ -59,7 +61,7 @@ pro testbatch,filename,nshots,start,verbose=verbose
 
      wv2 = result.second_detector.waveform
      wv3 = result.third_detector.waveform
-     dt  = result.first_detector.dt    ;sampling rate [s] 
+     dt  = result.first_detector.dt    ;sampling rate [s]
      t   = findgen(n_elements(wv1))*dt ;full timebase [s]
 
      ;;Call Andrew's code
@@ -82,22 +84,26 @@ pro testbatch,filename,nshots,start,verbose=verbose
      c_k(j) = out_k(1)          ;charge [C]
      print,'Keith: v='+s2(v_k(j)/1000.0)+'   c='+s2(c_k(j)/(1000*q_e))
 
+     ;kill weird particles from Keith code
+     if v_k(j) gt 150000.0 then v_k(j) = 0.0
 
      ;plot,wv1,title='after Keith code'
      ;result=get_kbrd()
      ;wdelete,2
 
      ;;Call Tobin's code
-     t0 = systime(/seconds)
      particle_number=j+1        ;for labeling the plots within tobin_v_estimate
-     out_t  = tobin_v_estimate(wv1,wv2,wv3,dt,verbose=verbose,particle_number=particle_number)
+     t0 = systime(/seconds)
+     out_t  = tobin_v_estimate(wv1,wv2,wv3,dt,verbose=verbose,particle_number=particle_number,old_data=old_data)
      comptime_t = comptime_t + systime(/seconds)-t0
-     v_t(j) = out_t(0)
-     c_t(j) = out_t(1)
-     if out_t(2) ne -1 then which_vguess_worked(out_t(2)) = which_vguess_worked(out_t(2))+1
-     print,'Tobin: v='+s2(v_t(j)/1000.0)+'   c='+s2(c_t(j)/(1000*q_e))
+     v_t(j) = out_t(0)          ;velocity
+     c_t(j) = out_t(1)          ;charge
+     q_t(j) = fix(out_t(2))     ;quality
+     if out_t(3) ne -1 then which_vguess_worked(out_t(3)) = which_vguess_worked(out_t(3))+1
+     print,'Tobin: v='+s2(v_t(j)/1000.0)+'   c='+s2(c_t(j)/(1000*q_e))+'   quality='+s2(q_t(j))
 
-     ;if v_t(j) gt 40000.0 then result=get_kbrd() ;pause if a fast one is found
+     if v_t(j) gt 50000.0 then result=get_kbrd() ;pause if a fast one is found
+     ;if v_a(j) gt 90000.0 then result=get_kbrd() ;pause if andrew finds a really fast one
 
      print
   endfor
@@ -164,11 +170,11 @@ pro testbatch,filename,nshots,start,verbose=verbose
   @definecolors
   window,0,xsize=800,ysize=600
   !p.multi=[0,1,1]
-  xr=[0,max([max(v_a),max(v_k),max(v_t)])/(1000.0)]
-  yr=[0,max([max(c_a),max(c_k),max(c_t)])/(1000*q_e)]
+  xr=[0.1,max([max(v_a),max(v_k),max(v_t)])/(1000.0)]
+  yr=[0.01,max([max(c_a),max(c_k),max(c_t)])/(1000*q_e)]
   plot,v_k/1000.0,c_k/(1000*q_e),psym=6,$
        xtitle = 'Velocity [km/s]',ytitle='Charge [1000 e-]',$
-       xrange=xr,yrange=yr,charsize=1.0,/nodata
+       xrange=xr,yrange=yr,charsize=1.0,/nodata,/xlog,/ylog
   oplot,v_a/1000.0,c_a/(1000*q_e),psym=5,color=colors.green
   oplot,v_k/1000.0,c_k/(1000*q_e),psym=6,color=colors.red
   oplot,v_t/1000.0,c_t/(1000*q_e),psym=4,color=colors.skyblue

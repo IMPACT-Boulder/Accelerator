@@ -23,6 +23,33 @@
 ;Revised 3/16/14 : Added correction for calculating charge properly
 ;                  for very slow particles.
 ;
+;Revised 10/16/14: Added quality factor assessment, as follows:
+;                  quality is valued from 0-4 (4 is the highest, like
+;                  getting a grade of 'A'.  Particles start out with a
+;                  4, then accumulate 'demerits' based on various
+;                  criteria:
+;
+;                - max_variation = 0.08 is a measure of velocity
+;                  consistency across the 3 detectors.
+;                  A 1-point demerit is assigned if it only passes a
+;                  looser max_variation2 = 0.15 . 
+;
+;                - asymmetry_threshold = 0.2 is a measure of how
+;                  well-formed the waveform heights are.  
+;                  A 1-point demerit is assigned if it only passes a
+;                  looser asymmetry_threshold2 = 0.5 .
+;
+;                - spacingtest_thresh = 0.2 is a measure of how
+;                  consistent the signal lengths are across the three
+;                  detectors.
+;                  A 1-point demerit is assigned if it only passes a
+;                  looser spacingtest_thresh2 = 0.5.
+;
+;                - inconsistent_charge max_variation = 0.35 is a
+;                  measure of how consistent the charge measurements
+;                  are across the three detectors.
+;                  A 1-point demerit is assigned if they are inconsistent.
+
 function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
                                verbose=verbose,old_data=old_data,$
                                optimized_vguess=optimized_vguess,particle_number=particle_number
@@ -36,13 +63,15 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
      goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error     
   endif
 
-  badparticle=0
+  badparticle = 0
+  demerits    = 0               ;we all start life as angels
   @definecolors
   detector_length = 0.18        ;[m] length of inner tube used for filter width
   ;;returndata might or might not include a charge estimate from this subroutine.
   ;returndata = { velocity:float(0),charge:float(0),y1peakidx:long(0),y2peakidx:long(0),y3peakidx:long(0)}
   returndata = { velocity:float(0),y1peakidx:long(0),y2peakidx:long(0),y3peakidx:long(0),$
-               y1minidx:long(0),y2minidx:long(0),y3minidx:long(0),used_alternate_peakroutine:fix(0)}
+               y1minidx:long(0),y2minidx:long(0),y3minidx:long(0),used_alternate_peakroutine:fix(0),$
+               quality:fix(0)}
 
   ;create filter of width somewhat wider than v_guess
   width1 = long(detector_length/v_guess/dt)
@@ -55,7 +84,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
   if thereisaspike then begin
      yf1(spike_indices) = 0.0
      yf2(spike_indices) = 0.0
-     yf3(spike_indices) = 0.0
+     ;yf3(spike_indices) = 0.0
   endif
 
   ;remove filter artifacts from very beginning and end
@@ -105,12 +134,24 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
 
   ;;Test that the three velocities are consistent
   badparticle_velocity=0
-  max_variation = 0.08
+  max_variation  = 0.08         ;this is the full-quality value
+  max_variation2 = 0.15         ;this is the looser threshold for still passing but with a quality demerit 
   if v_12 lt 0.0 then badparticle_velocity=1
   if v_23 lt 0.0 then badparticle_velocity=1
   if v_13 lt 0.0 then badparticle_velocity=1
-  if abs(v_12-v_13)/v_13 gt max_variation then badparticle_velocity=1
-  if abs(v_23-v_13)/v_13 gt max_variation then badparticle_velocity=1
+  ;if abs(v_12-v_13)/v_13 gt max_variation then badparticle_velocity=1
+  ;if abs(v_23-v_13)/v_13 gt max_variation then badparticle_velocity=1
+  tester = max([abs(v_12-v_13)/v_13,abs(v_23-v_13)/v_13])
+  ;if keyword_set(verbose) then print,'velocity tester value: '+s2(tester,sigfigs=3)
+  if tester gt max_variation then begin     ;failed the toughest threshold
+     ;;see if it passes the looser threshold
+     if tester gt max_variation2 then begin ;failed the looser threshold
+        badparticle_velocity=1
+     endif else begin           ;passed the looser threshold
+        demerits = demerits+1
+        if keyword_set(verbose) then print,'  Demerit from velocity calculation.'
+     endelse
+  endif
   if abs(y3peakidx-lastgoodidx3) le 3 then badparticle_velocity=1 ;artifact at end...
   if badparticle_velocity eq 1 then badparticle=1
 
@@ -238,35 +279,78 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
         yz3min = min(yzoom3f,yz3minidx)
 
         ;;Check that the waveform is not too asymmetric
-        asymmetry_threshold = 0.2
+        asymmetry_threshold  = 0.2 ;toughest threshold
+        asymmetry_threshold2 = 0.5 ;lenient threshold; particle passes but gets 1 demerit
         badparticle_d1 = 0
         badparticle_d2 = 0
         badparticle_d3 = 0
         asymmetry1 = abs((yz1max+yz1min)/(yz1max-yz1min))
         asymmetry2 = abs((yz2max+yz2min)/(yz2max-yz2min))
         asymmetry3 = abs((yz3max+yz3min)/(yz3max-yz3min))
-        if asymmetry1 gt asymmetry_threshold then badparticle_d1=1
-        if asymmetry2 gt asymmetry_threshold then badparticle_d2=1
-        if asymmetry3 gt asymmetry_threshold then badparticle_d3=1
+        ;if asymmetry1 gt asymmetry_threshold then badparticle_d1=1
+        ;if asymmetry2 gt asymmetry_threshold then badparticle_d2=1
+        ;if asymmetry3 gt asymmetry_threshold then badparticle_d3=1
+        asymmetry_demerits = 0
+        if asymmetry1 gt asymmetry_threshold then begin     ;failed the toughest threshold
+           ;;see if it passes the looser threshold
+           if asymmetry1 gt asymmetry_threshold2 then begin ;failed the looser threshold
+              badparticle_d1 = 1
+           endif else begin     ;passes, but gets a demerit
+              asymmetry_demerits = 1
+           endelse
+        endif
+        if asymmetry2 gt asymmetry_threshold then begin     ;failed the toughest threshold
+           ;;see if it passes the looser threshold
+           if asymmetry2 gt asymmetry_threshold2 then begin ;failed the looser threshold
+              badparticle_d2 = 1
+           endif else begin     ;passes, but gets a demerit
+              asymmetry_demerits = 1
+           endelse
+        endif
+        if asymmetry3 gt asymmetry_threshold then begin     ;failed the toughest threshold
+           ;;see if it passes the looser threshold
+           if asymmetry3 gt asymmetry_threshold2 then begin ;failed the looser threshold
+              badparticle_d3 = 1
+           endif else begin     ;passes, but gets a demerit
+              asymmetry_demerits = 1
+           endelse
+        endif
+        ;if ANY of them fail the looser threshold, then the particle fails
         if badparticle_d1+badparticle_d2+badparticle_d3 ge 1 then begin
            ;print,'failed test of symmetric signal heights'
-           badparticle_asymmetric_waveform=1
+           badparticle_asymmetric_waveform = 1
            badparticle=1
-        endif
+        endif else begin        ;otherwise it might have gotten a demerit
+           demerits = demerits + asymmetry_demerits ;maximum 1 for multiple detectors
+           if keyword_set(verbose) and asymmetry_demerits eq 1 then print,'  Demerit from asymmetry calculation.'
+        endelse
 
         ;;Check that the locations of the derivative max and min are
         ;;spaced somewhat consistently across the three detectors
         y1peakspacing = yz1maxidx - yz1minidx
         y2peakspacing = yz2maxidx - yz2minidx
         y3peakspacing = yz3maxidx - yz3minidx
-        spacingtest_thresh = 0.2
+        spacingtest_thresh  = 0.2
+        spacingtest_thresh2 = 100.0 ;essentially removing this as a failure mode
         spacingtest1 = abs(y3peakspacing-y1peakspacing)/float(y1peakspacing)
         spacingtest2 = abs(y3peakspacing-y2peakspacing)/float(y2peakspacing)
-        ;;print,spacingtest1,spacingtest2
-        if spacingtest1 gt spacingtest_thresh or spacingtest2 gt spacingtest_thresh then begin
-           ;print,'failed test of signal-length consistency'
-           badparticle_spacing_consistency = 1
-           badparticle=1
+        print,spacingtest1,spacingtest2
+        ;if spacingtest1 gt spacingtest_thresh or spacingtest2 gt spacingtest_thresh then begin
+        ;   ;print,'failed test of signal-length consistency'
+        ;   badparticle_spacing_consistency = 1
+        ;   badparticle=1
+        ;endif
+        tester = max([spacingtest1,spacingtest2])
+        if tester gt spacingtest_thresh then begin     ;failed the toughest threshold
+           ;;see if it passes the looser threshold
+           if tester gt spacingtest_thresh2 then begin ;failed the looser threshold
+              ;;print,'failed test of signal-length consistency'
+              badparticle_spacing_consistency = 1
+              badparticle=1
+           endif else begin     ;passed the looser threshold
+              demerits = demerits + 1
+              if keyword_set(verbose) then print,'  Demerit from signal length consistency.'
+           endelse
         endif
 
         if keyword_set(verbose) then begin ;plot the asymmetry calculations
@@ -335,12 +419,13 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
      endif                      ;if not bad particle then check for bad det3 signal
   endif                         ;if optimized_vguess
 
+  quality = 4-demerits          ;possibly up to 3 demerits (velocity, asymmetry, signal lengths)
+  if badparticle then quality = 0
 
   ;;Remove special case: artifact appears at very end of filtered wf3
   ;if float(y3peakidx)/float(n_elements(yf3)) ge 0.98 then badparticle=1
 
   if keyword_set(verbose) then begin
-
      cs=2.0
      window,1,xsize=900,ysize=800
      !p.multi=[0,1,3]
@@ -400,6 +485,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
         xyouts,/normal,0.1,0.92,'***Using alternate filter for slow particles***',charsize=2,color=colors.pink
      endif
 
+     ;if keyword_set(verbose) then print,'quality factor right now is '+s2(quality)
      result=get_kbrd()
      device, window_state=openwindows ;delete window 0 if it is open
      if openwindows(0) ne 0 then wdelete,0
@@ -414,6 +500,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
 
   if badparticle then v_estimate = -1.0
 
+  returndata.quality  = quality
   returndata.velocity  = v_estimate
   ;returndata.charge    = charge
   returndata.y1peakidx = y1peakidx ;this is the midpoint of the signal
@@ -507,6 +594,9 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
   return,charge
 end
 
+;;Modification 10/16/14 : Added field for quality factor, on a 0-4
+;;integer scale (4 is best, 0 is worst)
+;;
 function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle_number=particle_number
   ;there_was_an_error = 0
   ;CATCH, Error_status
@@ -519,16 +609,13 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
   ;   CATCH, /CANCEL     
   ;ENDIF
 
-  ;;First thing -- identify big voltage spike from deflection plates (if it exists)
-  ;tobin_v_despike,y1,y2,y3,dt,thereisaspike,$
-  ;                spike_peakidx,spike_indices,verbose=verbose
-
   @definecolors
-  velocitycharge = fltarr(3)    ;set up output data array [velocity,charge,which_vguess_worked]
+  velocitycharge = fltarr(4)    ;set up output data array [velocity,charge,quality,which_vguess_worked]
+  quality = 0.0                 ;initialize quality factor
 
   ;cycle through until a good particle is found or we run out of tries
-  v_guess = 1000.0*[100,50,20,10,5,2] ;[m/s] takes 0.0379 sec avg.
-  v_guess = 1000.0*[100,50,20,10,5]   ;[m/s] takes 0.0322 sec avg.
+  ;v_guess = 1000.0*[100,50,20,10,5,2] ;[m/s] takes 0.0379 sec avg.
+  ;v_guess = 1000.0*[100,50,20,10,5]   ;[m/s] takes 0.0322 sec avg.
   v_guess = 1000.0*[100,50,20,5]      ;[m/s] takes 0.0253 sec avg.
 
   ;;MIGHT BE ABLE TO REDUCE THE NUMBER OF SLOW VELOCITIES AND STILL
@@ -563,13 +650,6 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
   ;;see if the waveform is messed up when /optimized_vguess is chosen. 
   if not badparticle then begin
      v_guess = velocity         ;[m/s]
-     ;;;double the area on which to squash the voltage spike for slow particles
-     ;if v_guess le 1500.0 and thereisaspike then begin 
-     ;   spike_width = max(spike_indices)-min(spike_indices)
-     ;   spike_center = (min(spike_indices) + max(spike_indices)) / 2
-     ;   spike_indices = spike_center - long(1.5*spike_width) + lindgen(3*spike_width)
-     ;endif
-
      ;;First identify big voltage spike from deflection plates (if it exists)
      tobin_v_despike,y1,y2,y3,dt,v_guess,thereisaspike,$
                      spike_peakidx,spike_indices,verbose=verbose
@@ -582,6 +662,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
      y1peakidx = returndata.y1peakidx
      y2peakidx = returndata.y2peakidx
      y3peakidx = returndata.y3peakidx
+     quality   = returndata.quality
      ;smoothcharge = returndata.charge
      if velocity eq -1.0 then badparticle=1
      if velocity eq -2.0 then badparticle=1 ;there was an error in the velocity subroutine
@@ -601,16 +682,26 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
                                      yminidx=returndata.y3minidx,particle_number=particle_number)
 
      ;;Test that the three charges are very loosely consistent
+     ;;DON'T fail the particle -- just lower its quality rating by 1 point
      max_variation = 0.35
-     if abs(charge1-charge3)/abs(charge3) gt max_variation then badparticle=1
-     if abs(charge2-charge3)/abs(charge3) gt max_variation then badparticle=1
+     inconsistent_charge = 0
+     ;if abs(charge1-charge3)/abs(charge3) gt max_variation then badparticle=1
+     ;if abs(charge2-charge3)/abs(charge3) gt max_variation then badparticle=1
+     ;;print,charge1,charge2,charge3
+     ;;print,abs(charge1-charge3)/abs(charge3)
+     ;;print,abs(charge2-charge3)/abs(charge3)
+     ;if badparticle then begin
+     ;   print,'failed charge consistency test'
+     ;   ;print,abs(charge1-charge3)/charge3,abs(charge2-charge3)/charge3
+     ;endif
+     if abs(charge1-charge3)/abs(charge3) gt max_variation then inconsistent_charge = 1
+     if abs(charge2-charge3)/abs(charge3) gt max_variation then inconsistent_charge = 1
      ;print,charge1,charge2,charge3
      ;print,abs(charge1-charge3)/abs(charge3)
      ;print,abs(charge2-charge3)/abs(charge3)
-
-     if badparticle then begin
-        print,'failed charge consistency test'
-        ;print,abs(charge1-charge3)/charge3,abs(charge2-charge3)/charge3
+     if inconsistent_charge then begin
+        if keyword_set(verbose) then print,'  Demerit from charge consistency test.'
+        quality = quality-1
      endif
 
      if not badparticle then begin
@@ -630,7 +721,8 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
 
   velocitycharge[0] = velocity
   velocitycharge[1] = charge
-  velocitycharge[2] = which_vguess_worked ;for debugging purposes only
+  velocitycharge[2] = quality             ;0-4 integer
+  velocitycharge[3] = which_vguess_worked ;for debugging purposes only
 
 
   ;if there_was_an_error then velocitycharge[0] = -2.0

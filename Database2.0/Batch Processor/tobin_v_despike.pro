@@ -68,7 +68,7 @@ pro tobin_v_despike,wv1,wv2,wv3,dt,v_guess,thereisaspike,$
 
 
   if total(spike_existence_criteria - [1,1,1]) eq 0 then begin ;Found a spike, now remove it
-     if keyword_set(verbose) then print,'Voltage spike found.'
+     if keyword_set(reallyverbose) then print,'          Voltage spike found; removing it.'
      thereisaspike = 1          ;existence
      spike_peakidx = peakidx1    ;location
      extrawidth = 0
