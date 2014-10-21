@@ -18,25 +18,30 @@
 ; it did not. NEWSHOT is used to separate dust events.     
 ;
 
-pro testbatch,filename,nshots,start,verbose=verbose,old_data=old_data
-  if n_elements(start) eq 0 then start=0
-  ;dir = 'data_hdf5/'
+pro testbatch,verbose=verbose,old_data=old_data,filename=filename,nshots=nshots,start=start,pickfile=pickfile
   q_e = 1.602e-19
-  ;;Read in waveforms from 'New_Database_Query.hdf5' for events 
-  ;; 1545625 - 1545696
-  ;nshots = 2031
-  ;file_id = h5f_open(dir+'New_Database_Query72.hdf5') ;72 shots -- use /old_data
-  ;file_id = h5f_open(dir+'New_Database_Query4224.hdf5') ;4224 shots -- use /old_data
-  ;file_id = h5f_open(dir+'2014_03_11_test0.hdf5') ;1508 shots
-  ;file_id = h5f_open(dir+'2014_03_11_test0_good.hdf5') ;hdf5 file containing 53 shots
-  ;file_id = h5f_open(dir+'bad_waveform_1.hdf5') ;hdf5 file containing 1 shot with indexing problem
-  ;file_id = h5f_open(dir+'fast_particles_tobin.hdf5') ;hdf5 file containing 53 shots
-  ;file_id = h5f_open(dir+'2014_09_16_test0.hdf5')     ;hdf5 file containing 283 shots with large HV spike
-  file_id = h5f_open(filename) ;hdf5 file containing 2031 shots with large HV spike
+  dir=''
+  if not keyword_set(filename) then begin
+     dir = 'data_hdf5/'
+     ;filename = 'New_Database_Query72.hdf5'     ;72 shots -- use /old_data
+     ;filename = 'New_Database_Query4224.hdf5'   ;4224 shots -- use /old_data
+     ;filename = '2014_03_11_test0.hdf5'         ;1508 shots
+     ;filename = '2014_03_11_test0_good.hdf5'    ;hdf5 file containing 53 shots
+     ;filename = 'bad_waveform_1.hdf5'           ;hdf5 file containing 1 shot with indexing problem
+     ;filename = 'fast_particles_tobin.hdf5'     ;hdf5 file containing 53 shots
+     ;filename = '2014_09_16_test0.hdf5'         ;hdf5 file containing 283 shots with large HV spike
+     filename = '2014_10_10_EricChristian.hdf5' ;hdf5 file containing 2031 shots with large HV spike
+  endif
+  filename_with_dir = dir+filename
+  if keyword_set(pickfile) then begin
+     filename_with_dir = dialog_pickfile(/read)
+  endif
+  file_id = h5f_open(filename_with_dir)
+  if not keyword_set(nshots) then nshots =  h5g_get_num_objs(file_id)
 
-  v_a = fltarr(nshots)         ;velocity from Andrew's code
-  v_k = fltarr(nshots)-1       ;velocity from Keith's code
-  v_t = fltarr(nshots)-1       ;velocity from Tobin's code
+  v_a = fltarr(nshots)         ;velocity from Andrew's code (initialized to 0.0)
+  v_k = fltarr(nshots)-1       ;velocity from Keith's code (initialized to -1.0)
+  v_t = fltarr(nshots)-1       ;velocity from Tobin's code (initialized to -1.0)
   c_a = fltarr(nshots)         ;charge from Andrew's code
   c_k = fltarr(nshots)         ;charge from Keith's code
   c_t = fltarr(nshots)         ;charge from Tobin's code
@@ -46,8 +51,8 @@ pro testbatch,filename,nshots,start,verbose=verbose,old_data=old_data
   comptime_k = 0.0              ;computation time
   comptime_t = 0.0              ;computation time
   which_vguess_worked = intarr(6)
-  for j = start-1 ,nshots-1 do begin   ;start at 238 or 1001
-  ;for j = 0,500 do begin        ;use this line if looking at a subset...
+  if not keyword_set(start) then start=0
+  for j = start ,nshots-1 do begin
      print,'Particle = '+s2(j+1)+' of '+s2(nshots)
      shot_index = j
      shot_id = strcompress(string(shot_index),/remove_all)
