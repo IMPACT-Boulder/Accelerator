@@ -116,7 +116,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
         ;Call Tobin's code:0
         out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=old_data)
         ;print,out_k
-          if out_k[0] GT 0 && out_k[1] GT 0 then begin ;print Tobin's results if Tobin's code finds anything 
+          if out_k[0] GT 0 && out_k[1] GT 0 && out_k[2] GT 1 then begin ;print Tobin's results if Tobin's code finds anything 
             printf, lun, 'V', out_k[0]
             printf, lun, 'C', out_k[1]
             printf, lun, 'S', 2
