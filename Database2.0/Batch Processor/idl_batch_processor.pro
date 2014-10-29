@@ -128,7 +128,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
               printf, lun, 'V', out_k[0]
               printf, lun, 'C', -1
               printf, lun, 'S', -1
-              printf, lun, 'Q', 0
+              printf, lun, 'Q', -1
               printf, lun, 'P', 0
               print,out_k,' Tobins code had an error'
             endif else begin
@@ -142,15 +142,15 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
                 printf, lun, 'Q', 0
                 printf, lun, 'P', 0
                 print,'both failed'
-              endif  else begin                     ;print Andrew's results if his code worked:
+              endif  else begin                     
                 if out.quality eq 50 then begin
                   printf, lun, 'V', -3
                   printf, lun, 'C', -1
                   printf, lun, 'S', -1
-                  printf, lun, 'Q', 0
+                  printf, lun, 'Q', -2
                   printf, lun, 'P', 0
                   print,'Andrews code had an error'
-                endif else begin
+                endif else begin  ;print Andrew's results if his code worked:
                   printf, lun, 'V', out.velocity
                   printf, lun, 'C', out.charge
                   printf, lun, 'S', 1
@@ -165,7 +165,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
           printf, lun, 'V', -1
           printf, lun, 'C', -1
           printf, lun, 'S', -1
-          printf, lun, 'Q', 0
+          printf, lun, 'Q', -3
           printf, lun, 'P', 0
           print,'Waveforms are missing or bad'
         endelse    
@@ -175,7 +175,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
         printf, lun, 'V', -1
         printf, lun, 'C', -1
         printf, lun, 'S', -1
-        printf, lun, 'Q', 0
+        printf, lun, 'Q', -4
         printf, lun, 'P', 0
         print,'File does not exist'
       endelse 
@@ -195,7 +195,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
     printf, lun, 'V', -5
     printf, lun, 'C', -5
     printf, lun, 'S', -5
-    printf, lun, 'Q', 0
+    printf, lun, 'Q', -5
     printf, lun, 'P', 0
     printf, lun, ','
     
