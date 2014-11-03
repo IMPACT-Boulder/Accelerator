@@ -82,7 +82,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
   For i=0,nshots-1 do begin;examine all shots 
     filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
     
-    IF filedata[2] eq 0 then begin
+    IF filedata[2] eq -4 then begin
       path_folder = folder
     ENDIF ELSE BEGIN path_folder = storage_folder
     ENDELSE 
