@@ -24,10 +24,9 @@
 ;                  for very slow particles.
 ;
 ;Revised 10/16/14: Added quality factor assessment, as follows:
-;                  quality is valued from 0-4 (4 is the highest, like
-;                  getting a grade of 'A'.  Particles start out with a
-;                  4, then accumulate 'demerits' based on various
-;                  criteria:
+;                  quality is valued from 1-5 (5 is the highest).
+;                  Particles start out with a 5, then accumulate
+;                  'demerits' based on various criteria:
 ;
 ;                - max_variation = 0.08 is a measure of velocity
 ;                  consistency across the 3 detectors.
@@ -49,6 +48,12 @@
 ;                  measure of how consistent the charge measurements
 ;                  are across the three detectors.
 ;                  A 1-point demerit is assigned if they are inconsistent.
+;
+;Revised 10/24/14: Changed quality scale from 0-4 to 1-5.  This was
+;                  done by changing two lines:
+;                  quality = 5-demerits (near line 425 or so)
+;                  quality = 1.0        (near line 620 or so)
+;
 
 function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
                                verbose=verbose,old_data=old_data,$
@@ -419,8 +424,8 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
      endif                      ;if not bad particle then check for bad det3 signal
   endif                         ;if optimized_vguess
 
-  quality = 4-demerits          ;possibly up to 3 demerits (velocity, asymmetry, signal lengths)
-  if badparticle then quality = 0
+  quality = 5-demerits          ;possibly up to 3 demerits (velocity, asymmetry, signal lengths)
+  if badparticle then quality = 1
 
   ;;Remove special case: artifact appears at very end of filtered wf3
   ;if float(y3peakidx)/float(n_elements(yf3)) ge 0.98 then badparticle=1
@@ -594,8 +599,8 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
   return,charge
 end
 
-;;Modification 10/16/14 : Added field for quality factor, on a 0-4
-;;integer scale (4 is best, 0 is worst)
+;;Modification 10/16/14 : Added field for quality factor, on a 1-5
+;;integer scale (5 is best, 1 is worst)
 ;;
 function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle_number=particle_number
   ;there_was_an_error = 0
@@ -611,7 +616,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
 
   @definecolors
   velocitycharge = fltarr(4)    ;set up output data array [velocity,charge,quality,which_vguess_worked]
-  quality = 0.0                 ;initialize quality factor
+  quality = 1.0                 ;initialize quality factor
 
   ;cycle through until a good particle is found or we run out of tries
   ;v_guess = 1000.0*[100,50,20,10,5,2] ;[m/s] takes 0.0379 sec avg.
@@ -721,7 +726,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
 
   velocitycharge[0] = velocity
   velocitycharge[1] = charge
-  velocitycharge[2] = quality             ;0-4 integer
+  velocitycharge[2] = quality             ;1-5 integer
   velocitycharge[3] = which_vguess_worked ;for debugging purposes only
 
 
