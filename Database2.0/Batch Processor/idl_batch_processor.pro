@@ -128,7 +128,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
               printf, lun, 'V', out_k[0]
               printf, lun, 'C', -1
               printf, lun, 'S', -1
-              printf, lun, 'Q', -1
+              printf, lun, 'Q', -2
               printf, lun, 'P', 0
               print,out_k,' Tobins code had an error'
             endif else begin
@@ -147,7 +147,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
                   printf, lun, 'V', -3
                   printf, lun, 'C', -1
                   printf, lun, 'S', -1
-                  printf, lun, 'Q', -2
+                  printf, lun, 'Q', -1
                   printf, lun, 'P', 0
                   print,'Andrews code had an error'
                 endif else begin  ;print Andrew's results if his code worked:
