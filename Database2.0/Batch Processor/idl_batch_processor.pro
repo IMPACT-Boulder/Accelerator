@@ -198,6 +198,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
     printf, lun, 'Q', -5
     printf, lun, 'P', 0
     printf, lun, ','
+    print,'IDL Batch Processor failed'
     
     free_lun, lun
   endif
