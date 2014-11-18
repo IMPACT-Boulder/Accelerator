@@ -49,7 +49,7 @@
 ;
 ; MODIFICATION HISTORY:
 ; Written September 2012 by Spenser Burrows
-;-
+; Edited November 2014 by Forrest Barnes
 
 
 pro idl_batch_processor,folder,storage_folder,old_data=old_data
@@ -82,14 +82,14 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
   For i=0,nshots-1 do begin;examine all shots 
     filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
     
-    IF filedata[2] eq -4 then begin
+    IF filedata[1] eq -4 then begin
       path_folder = folder
     ENDIF ELSE BEGIN path_folder = storage_folder
     ENDELSE 
-    IF filedata[2] eq 1 then begin
-      files = STRCOMPRESS(path_folder + '\' + filedata[1] +'\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
+    IF filedata[1] eq 1 then begin
+      files = STRCOMPRESS(path_folder + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
     ENDIF ELSE BEGIN 
-      files = STRCOMPRESS(path_folder + '\' + filedata[1] +'\' + string(LONG(filedata[0])/1000) + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )    
+      files = STRCOMPRESS(path_folder + '\' + string(LONG(filedata[0])/1000) + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )    
     ENDELSE
     print,'file name:',files
     file_exsists=FILE_TEST(files)
