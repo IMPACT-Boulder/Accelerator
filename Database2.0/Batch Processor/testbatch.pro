@@ -30,7 +30,19 @@ pro testbatch,verbose=verbose,old_data=old_data,filename=filename,nshots=nshots,
      ;filename = 'bad_waveform_1.hdf5'           ;hdf5 file containing 1 shot with indexing problem
      ;filename = 'fast_particles_tobin.hdf5'     ;hdf5 file containing 53 shots
      ;filename = '2014_09_16_test0.hdf5'         ;hdf5 file containing 283 shots with large HV spike
-     filename = '2014_10_10_EricChristian.hdf5' ;hdf5 file containing 2031 shots with large HV spike
+     ;filename = '2014_10_10_EricChristian.hdf5' ;hdf5 file containing 2031 shots with large HV spike
+     ;filename = '2014_10_18_file1.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file2.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file3.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file4.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file5.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file6.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file7.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file8.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file9.hdf5'         ;hdf5 file from first gas target run
+     ;filename = '2014_10_18_file10.hdf5'        ;hdf5 file from first gas target run
+     ;filename = '2014_11_14_big_particles_few_weird_ones.hdf5'
+     filename='2015_02_10_GT80.hdf5' ;hdf5 file with v>80 km/s
   endif
   filename_with_dir = dir+filename
   if keyword_set(pickfile) then begin
@@ -105,10 +117,15 @@ pro testbatch,verbose=verbose,old_data=old_data,filename=filename,nshots=nshots,
      c_t(j) = out_t(1)          ;charge
      q_t(j) = fix(out_t(2))     ;quality
      if out_t(3) ne -1 then which_vguess_worked(out_t(3)) = which_vguess_worked(out_t(3))+1
-     print,'Tobin: v='+s2(v_t(j)/1000.0)+'   c='+s2(c_t(j)/(1000*q_e))+'   quality='+s2(q_t(j))
+     print,'Tobin: v='+s2(v_t(j)/1000.0)+' [km/s]   c='+s2(c_t(j)/(1000*q_e))+' [thousand electrons]   quality='+s2(q_t(j))
 
-     if v_t(j) gt 50000.0 then result=get_kbrd() ;pause if a fast one is found
+     if c_t(j) gt 16000.0*q_e then result=get_kbrd() ;pause if there is a large particle
+
+     if v_t(j) gt 50000.0 then begin
+        beep
+        result=get_kbrd()       ;pause if a fast one is found
      ;if v_a(j) gt 90000.0 then result=get_kbrd() ;pause if andrew finds a really fast one
+     endif
 
      print
   endfor

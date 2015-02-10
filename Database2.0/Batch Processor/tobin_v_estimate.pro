@@ -55,6 +55,14 @@
 ;                  quality = 1.0        (near line 620 or so)
 ;
 
+function convofilter,y,v_filter,dt
+  detector_length = 0.18        ;[m] length of inner tube used for filter width
+  ;create filter of width somewhat wider than v_guess
+  filterwidth = long(detector_length/v_filter/dt)
+  y_filtered = -3.0*(smooth(y,filterwidth,/edge_truncate)-smooth(y,3*filterwidth,/edge_truncate))
+  return,y_filtered
+end
+
 function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
                                verbose=verbose,old_data=old_data,$
                                optimized_vguess=optimized_vguess,particle_number=particle_number
@@ -71,19 +79,16 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
   badparticle = 0
   demerits    = 0               ;we all start life as angels
   @definecolors
-  detector_length = 0.18        ;[m] length of inner tube used for filter width
   ;;returndata might or might not include a charge estimate from this subroutine.
   ;returndata = { velocity:float(0),charge:float(0),y1peakidx:long(0),y2peakidx:long(0),y3peakidx:long(0)}
   returndata = { velocity:float(0),y1peakidx:long(0),y2peakidx:long(0),y3peakidx:long(0),$
                y1minidx:long(0),y2minidx:long(0),y3minidx:long(0),used_alternate_peakroutine:fix(0),$
                quality:fix(0)}
 
-  ;create filter of width somewhat wider than v_guess
-  width1 = long(detector_length/v_guess/dt)
   ;filter waveforms with convolution
-  yf1 = -3.0*(smooth(y1,width1,/edge_truncate)-smooth(y1,3*width1,/edge_truncate)) ;imperfect but fast
-  yf2 = -3.0*(smooth(y2,width1,/edge_truncate)-smooth(y2,3*width1,/edge_truncate)) ;imperfect but fast
-  yf3 = -3.0*(smooth(y3,width1,/edge_truncate)-smooth(y3,3*width1,/edge_truncate)) ;imperfect but fast
+  yf1 = convofilter(y1,v_guess,dt)
+  yf2 = convofilter(y2,v_guess,dt)
+  yf3 = convofilter(y3,v_guess,dt)
 
   ;zero out voltage spike region from filtered waveform
   if thereisaspike then begin
@@ -569,6 +574,10 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
   offset    = mean(y(offset_minidx:offset_maxidx))
      
   if keyword_set(verbose) then begin ;plot waveforms and sampled part for charge est.
+
+     ;Do filtering just to show on graphics...
+     y_filtered = convofilter(y,velocity,dt)
+
      @definecolors
      first_idx_of_signal_within_zoom = signal_minidx-zoom_minidx
      first_idx_of_offset_within_zoom = offset_minidx-zoom_minidx
@@ -579,10 +588,12 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
      endif else wset,6
      if whichdetector eq 1 then !p.multi=[0,1,3]
 
-     if keyword_set(particle_number) then title1=', Particle # '+s2(particle_number) else title1=''
+     if keyword_set(particle_number) then title1=', Particle # '+s2(particle_number)+$
+        ', v = '+s2(velocity/1000.0,sigfigs=2)+' km/s' else title1=''
 
      title='Detector '+strcompress(string(whichdetector),/remove_all)+title1
      plot,zoom,charsize=2.0,title=title
+     oplot,2.0*y_filtered(zoom_minidx:zoom_maxidx),color=colors.orange,thick=3
      oplot,findgen(new_signal_length)+first_idx_of_signal_within_zoom,$
            y(signal_minidx:signal_maxidx),color=colors.red
      oplot,findgen(offset_length)+first_idx_of_offset_within_zoom,$
@@ -630,7 +641,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
   while not done do begin
      ;;First identify big voltage spike from deflection plates (if it exists)
      tobin_v_despike,y1,y2,y3,dt,v_guess(j),thereisaspike,$
-                     spike_peakidx,spike_indices,verbose=verbose
+                     spike_peakidx,spike_indices;,verbose=verbose
 
      returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess(j),$
                                         thereisaspike,spike_indices,$
@@ -657,7 +668,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
      v_guess = velocity         ;[m/s]
      ;;First identify big voltage spike from deflection plates (if it exists)
      tobin_v_despike,y1,y2,y3,dt,v_guess,thereisaspike,$
-                     spike_peakidx,spike_indices,verbose=verbose
+                     spike_peakidx,spike_indices;,verbose=verbose
 
      returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess,$
                                         thereisaspike,spike_indices,$
