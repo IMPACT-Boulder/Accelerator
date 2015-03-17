@@ -109,8 +109,8 @@ function ccldas_read_shot, file_id, shot_id, channel=channel, metadata=metadata
                 'experiment_name', $
                 'experiment_description', $
                 $
-                'passed_3rd_detector', $ ;TODO: change this in file to "passed"
-                'estimate_source', $
+;                'passed_3rd_detector', $ ;TODO: change this in file to "passed"
+;               'estimate_source', $
                 'estimate_quality', $
                 $
                 'high_voltage', $
