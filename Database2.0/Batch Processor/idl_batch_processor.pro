@@ -119,17 +119,13 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
           if out_k[0] GT 0 && out_k[1] GT 0 && out_k[2] GT 1 then begin ;print Tobin's results if Tobin's code finds anything 
             printf, lun, 'V', out_k[0]
             printf, lun, 'C', out_k[1]
-            printf, lun, 'S', 2
             printf, lun, 'Q', out_k[2]
-            printf, lun, 'P', 1
             print,out_k,' Tobins code'
           endif  else begin                   ;Call Andrew's code if Keith's doesn't see anything:
             if out_k[0] eq -2 then begin ;print out that Tobin's code had an actual failure so we can find it and correct it
               printf, lun, 'V', out_k[0]
               printf, lun, 'C', -1
-              printf, lun, 'S', -1
               printf, lun, 'Q', -2
-              printf, lun, 'P', 0
               print,out_k,' Tobins code had an error'
             endif else begin
               out = triple_est_latest(wv1, wv2, wv3, dt,old_data=old_data)
@@ -138,24 +134,18 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
               if out.quality lt qthreshold then begin ;if Andrew's code failed 
                 printf, lun, 'V', -1
                 printf, lun, 'C', -1
-                printf, lun, 'S', 1
                 printf, lun, 'Q', 0
-                printf, lun, 'P', 0
                 print,'both failed'
               endif  else begin                     
                 if out.quality eq 50 then begin
                   printf, lun, 'V', -3
                   printf, lun, 'C', -1
-                  printf, lun, 'S', -1
                   printf, lun, 'Q', -1
-                  printf, lun, 'P', 0
                   print,'Andrews code had an error'
                 endif else begin  ;print Andrew's results if his code worked:
                   printf, lun, 'V', out.velocity
                   printf, lun, 'C', out.charge
-                  printf, lun, 'S', 1
                   printf, lun, 'Q', 1
-                  printf, lun, 'P', out.passed
                   print,out,' Andrews code'
                 endelse
               endelse
@@ -164,9 +154,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
         endif else begin
           printf, lun, 'V', -1
           printf, lun, 'C', -1
-          printf, lun, 'S', -1
           printf, lun, 'Q', -3
-          printf, lun, 'P', 0
           print,'Waveforms are missing or bad'
         endelse    
       ; continueq = DIALOG_MESSAGE('Continue?', /question,/center)
@@ -174,9 +162,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
       endif else begin
         printf, lun, 'V', -1
         printf, lun, 'C', -1
-        printf, lun, 'S', -1
         printf, lun, 'Q', -4
-        printf, lun, 'P', 0
         print,'File does not exist'
       endelse 
       printf, lun, ','                        ;print ',' to separate shot outputs 
@@ -194,9 +180,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
     endelse    
     printf, lun, 'V', -5
     printf, lun, 'C', -5
-    printf, lun, 'S', -5
     printf, lun, 'Q', -5
-    printf, lun, 'P', 0
     printf, lun, ','
     print,'IDL Batch Processor failed'
     
