@@ -52,7 +52,7 @@
 ; Edited November 2014 by Forrest Barnes
 
 
-pro idl_batch_processor_small,folder,storage_folder,old_data=old_data
+pro idl_batch_processor_small,folder,storage_folder
 
   there_was_an_error = 0
   catch, error_status
@@ -71,7 +71,7 @@ pro idl_batch_processor_small,folder,storage_folder,old_data=old_data
   nshots=n_elements(shotid);determine number of shots to examine  
   output_file_id = folder + '\results_small.txt';create output file refe4rence
 ;  print,shots
-  file_exsists=0
+  file_exists=0
   
   
   qthreshold=50;define the quality threshold for the first algorithm
@@ -84,7 +84,8 @@ pro idl_batch_processor_small,folder,storage_folder,old_data=old_data
     
     IF filedata[1] eq -4 then begin
       path_folder = folder
-    ENDIF ELSE BEGIN path_folder = storage_folder
+    ENDIF ELSE BEGIN
+      path_folder = storage_folder
     ENDELSE 
     IF filedata[1] eq -4 then begin
       files = STRCOMPRESS(path_folder + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
@@ -92,29 +93,26 @@ pro idl_batch_processor_small,folder,storage_folder,old_data=old_data
       files = STRCOMPRESS(path_folder + '\' + string(LONG(filedata[0])/1000) + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )    
     ENDELSE
     print,'file name:',files
-    file_exsists=FILE_TEST(files)
- ;   print, file_exsists
-    IF file_exsists eq 1 then begin
+    file_exists=FILE_TEST(files)
+ ;   print, file_exists
+    IF file_exists eq 1 then begin
       ;get waveforms from hdf5 file
       out = ccldas_read_raw_file(files)
       wv1 = out.first_detector.waveform
       wv2 = out.second_detector.waveform
-      wv3 = out.third_detector.waveform
       wv1size = SIZE(wv1,/N_ELEMENTS)
       print,wv1size,'test2'
       wv2size = SIZE(wv2,/N_ELEMENTS)
       print,wv2size,'test2'    
-      wv3size = SIZE(wv3,/N_ELEMENTS)
-      print,wv3size,'test2'
             
-      IF wv1size - wv2size lt 100 and wv2size - wv3size lt 100 Then begin
+      IF wv1size - wv2size lt 100 Then begin
    
         dt = out.first_detector.dt
         x = findgen(n_elements(wv1))*dt;*1e6
         loadct, 39
     
         ;Call Tobin's code:0
-        out_k=tobin_v_estimate_small_accelerator(wv1,wv2,wv3,dt,old_data=old_data)
+        out_k=tobin_v_estimate_small_accelerator(wv1,wv2,dt)
         ;print,out_k
           if out_k[0] GT 0 && out_k[1] GT 0 && out_k[2] GT 1 then begin ;print Tobin's results if Tobin's code finds anything 
             printf, lun, 'V', out_k[0]

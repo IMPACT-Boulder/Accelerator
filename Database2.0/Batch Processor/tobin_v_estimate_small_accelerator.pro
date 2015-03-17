@@ -269,7 +269,7 @@ function v_estimate_subroutine_small_accelerator,y1,y2,dt,v_guess,$
      yr2 = [min(y2),max(y2)]
 
      plot,y1,/xst,charsize=cs,title=title1,yrange=yr1;,xrange=1.0e4*[3.5,4.5] ;raw waveform
-     oplot,yf1,color=colors.blue,thick=3 ;fast filtered function
+     oplot,yf1/10,color=colors.blue,thick=3 ;fast filtered function
      oplot,y1peakidx*[1,1],10*[-1,1],color=colors.red
      if using_special_filter_routine then begin
         oplot,y1minidx*[1,1],10*[-1,1],color=colors.pink,linestyle=1
@@ -277,7 +277,7 @@ function v_estimate_subroutine_small_accelerator,y1,y2,dt,v_guess,$
      endif
 
      plot,y2,/xst,charsize=cs,yrange=yr2;,xrange=1.0e4*[3.5,4.5]
-     oplot,yf2,color=colors.blue,thick=3  ;fast filtered function
+     oplot,yf2/10,color=colors.blue,thick=3  ;fast filtered function
      oplot,y2peakidx*[1,1],10*[-1,1],color=colors.red
      if using_special_filter_routine then begin
         oplot,y2minidx*[1,1],10*[-1,1],color=colors.pink,linestyle=1
@@ -408,7 +408,7 @@ end
 ;;Modification 10/16/14 : Added field for quality factor, on a 1-5
 ;;integer scale (5 is best, 1 is worst)
 ;;
-function tobin_v_estimate_small_accelerator,y1,y2,dt,verbose=verbose,old_data=old_data,particle_number=particle_number
+function tobin_v_estimate_small_accelerator,y1,y2,dt,verbose=verbose,particle_number=particle_number
   @definecolors
   velocitycharge = fltarr(4)    ;set up output data array [velocity,charge,quality,which_vguess_worked]
   quality = 1.0                 ;initialize quality factor
