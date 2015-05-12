@@ -40,12 +40,6 @@
 ; the labview vi "batch processor.vi" using information retreived from the ccldas database. The results text file is then read by the same labview vi
 ; and used to update the database. batch processor.vi calls this program from the idl command line, so direct interaction with this procedure by users 
 ; is not necessary under normal circumstances.
-; 
-; 
-;
-; MODIFICATION HISTORY:
-; Written (based on idl_batch_processor) May 2015 by Forrest Barnes
-
 
 pro idl_batch_processor_small,folder,storage_folder
 
