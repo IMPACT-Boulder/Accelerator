@@ -408,7 +408,7 @@ end
 ;;Modification 10/16/14 : Added field for quality factor, on a 1-5
 ;;integer scale (5 is best, 1 is worst)
 ;;
-function tobin_v_estimate_small_accelerator,y1,y2,dt,verbose=verbose,old_data=old_data,particle_number=particle_number
+function tobin_v_estimate_small_accelerator,y1,y2,dt,verbose=verbose,particle_number=particle_number
   @definecolors
   velocitycharge = fltarr(4)    ;set up output data array [velocity,charge,quality,which_vguess_worked]
   quality = 1.0                 ;initialize quality factor
