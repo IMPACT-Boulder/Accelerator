@@ -113,7 +113,11 @@ pro idl_batch_processor_small,folder,storage_folder
               printf, lun, 'C', -1
               printf, lun, 'Q', -2
               print,out_k,' Tobins code had an error'
-            endif ;else begin
+            endif else begin
+              printf, lun, 'V', out_k[0]
+              printf, lun, 'C', -1
+              printf, lun, 'Q', -2
+              print,out_k,' Tobins code had an error'
               ;out = triple_est_latest_small(wv1, wv2, dt)
               ;print, out
               ;/Andrew's code.
@@ -135,7 +139,7 @@ pro idl_batch_processor_small,folder,storage_folder
 ;                  print,out,' Andrews code'
 ;                endelse
 ;              endelse
-;            endelse
+            endelse
           endelse
         endif else begin
           printf, lun, 'V', -1
