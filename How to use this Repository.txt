@@ -50,6 +50,12 @@ Click the green button. This will add you to the IMPACT-Boulder github group and
 Now you can make changes to the repository. Make a change (this can be as simple as changing the location of a wire in a vi, adding a comment to the IDL code, getting rid of a typo in the documentation, or adding a new text document), and come back here once you're done.
 To give you some intuition about how git works, I'll refer to different "levels" of change in git. Level 1 is the online repository. Level 2 is the clone of the online repository on your computer. Level 4 (yes, I skipped 3) is your personal file system, including the changes you just made. Level 3 is a temporary stage where a file is placed after it's been saved, but before it's been commited to the local repository (Level 2) or the online repository (Level 1).
 More concisely, any change you make to the code has to be "staged" temporarily, "commited" to the local repository, and then "pushed" to the online repository.
+Now enter the following command:
+
+	git pull origin master
+
+DO THIS EVERY TIME YOU START OR FINISH MAKING CHANGES TO THE REPOSITORY.
+This pulls all changes from the online repository (Level 1) onto your local repository. It does not change anything you've done to the files (Level 3-4), but it makes sure that the things you commit to Level 2 don't conflict with something somebody else has done. This is particularly important with Labview code, where resolving these conflicting changes is an incredible headache.
 
 	git status
 
@@ -63,12 +69,6 @@ Now if you use the "git status" command again, you'll see that the file you stag
 
 	git reset HEAD <file>
 
-Now enter the following command:
-
-	git pull origin master
-
--->This honestly should be done before you stage your files, but it can also be done before you commit them. This pulls all changes from the online repository onto your local repository.
-
 If you're certain the change you made was okay, enter the following command:
 
 	git commit -m "message" --author="name <email>"
@@ -79,12 +79,22 @@ For instance, on 20 May 2015, Forrest altered Live_Plot.vi and Query_Dust_Event_
 	git add Database2.0/User\ Interface/Query_Dust_Event_v2.vi
 	git commit -m "Added Radius axis to Live Plot. Fixed Radius axis for Query Dust Event v2." --author="Forrest Barnes <forrest.barnes@colorado.edu>"
 
-The "--author=" option helps us keep track of who did what. The "-m" message tells us what changes were made, and when. This is particularly important in Labview vis, because it's often virtually impossible to tell where a change happened in  that mess. Github helps, because it narrows the changes down to a particular file, but it's not always enough. Be detailed.
+The "--author=" option helps us keep track of who did what. The "-m" option tells us what changes were made, and when. This is particularly important in Labview vis, because it's often virtually impossible to tell where a change happened in  that mess. Github helps, because it narrows the changes down to a particular file, but it's usually not enough. Be detailed.
+Now it's time to push your changes to the repository. If you've forgotten to enter the command "git pull origin master" yet, you should do that before continuing.
 
-git log starts at 11 November, 2013.
+	git push origin master
+
+Since we're using an online repository, we will need to verify that a legitimate user is making these changes. This means you need to enter your git username and password. Entering your password will seem to do nothing, but that's just git hiding your password from prying eyes. If you're certain that you are the only person who  In the next section, I'll talk about reviewing these changes and working with Github online.
 
 NOTE ON POSSIBLE ERRORS:
 If git complains about the difference between a "matching" and "simple" push value, enter the following command into the git bash:
 
 	git config --global push.default simple
+
+
+
+3. To review changes, manage issues, and use Github
+
+
+git log starts at 11 November 2013.
 
