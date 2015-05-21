@@ -1,0 +1,90 @@
+1. To create a clone of this repository on your computer
+
+Create the new folder in which you would like to store the repository.
+Right-click in the new folder.
+Select the option "Git Bash". If you can't find this option, you need to download and install the latest version of git. This should take no more than 5-10 minutes.
+In the git bash, type in these commands, and press enter after each one:
+
+	git init
+	git remote add origin https://github.com/IMPACT-Boulder/Accelerator
+	git pull origin master
+
+The first command creates a blank repository in your chosen folder.
+The second command sets up "origin" as the name of this repository on your computer.
+The third command takes the online repository and copies it into the folder. This should take about two minutes to complete.
+The word "origin" can be replaced with whatever you want to call the repository. For consistency's sake, please use "origin" on computers in the lab.
+Whenever you need the latest version of the code, simply re-enter the command:
+
+	git pull origin master
+
+NOTE ON POSSIBLE ERRORS:
+If there is an error connecting to the online repository, please check your firewall or antivirus settings.
+If you accidentally modify a piece of code, and want to change it back to our version, go to the git bash and enter the command:
+
+	git status
+
+This will pull up all of your changes to the contents of the repository in red. To get rid of any particular change, enter the command:
+
+	git checkout -- <file>
+
+For example:
+
+	git checkout -- Database2.0/User\ Interface/Live_Plot.vi
+
+removes all of your changes to the file Database2.0/User Interface/Live_Plot.vi, and revert it to the repository version.
+<file> should exactly match one line of the red text you see following the "git status" command (except for spaces, which are preceded by a "\"). Protip: If you feel like being a boss, you can use the Tab key to autofill this.
+THIS IS A PERMANENT CHANGE. Anything you've done to the file will be completely undone when you enter that comand. It will not even send your version to the trash.
+If you think your change makes the code better, keep reading. That is covered in the next section.
+
+NOTE: Which folder you're in when you open the git bash matters. I recommend being in the folder that contains the entire git repository, or the folder that contains the file(s) you changed.
+
+
+2. To edit code or otherwise modify the repository:
+
+Create an account on Github.com (if you don't already have one).
+Contact Forrest (forrest.barnes@colorado.edu), Zach, or whoever is the current code dev. for IMPACT and ask for permission to modify the online repository.
+One of us will invite you to the IMPACT-Boulder github group. You will get an email about this.
+Click on the link in the email (it should look like https://github.com/orgs/IMPACT-Boulder/invitation?via_email=1), and log into github.com.
+Click the green button. This will add you to the IMPACT-Boulder github group and let you make changes to the online repository.
+
+Now you can make changes to the repository. Make a change (this can be as simple as changing the location of a wire in a vi, adding a comment to the IDL code, getting rid of a typo in the documentation, or adding a new text document), and come back here once you're done.
+To give you some intuition about how git works, I'll refer to different "levels" of change in git. Level 1 is the online repository. Level 2 is the clone of the online repository on your computer. Level 4 (yes, I skipped 3) is your personal file system, including the changes you just made. Level 3 is a temporary stage where a file is placed after it's been saved, but before it's been commited to the local repository (Level 2) or the online repository (Level 1).
+More concisely, any change you make to the code has to be "staged" temporarily, "commited" to the local repository, and then "pushed" to the online repository.
+
+	git status
+
+The above command is your bread and butter. It shows you every difference between your code (Level 4) and the local repository (Level 2). It also shows what changes have been staged (Level 3) but not commited to the local repository yet.
+To stage a file (prepare to put it in the local repository), use the following command:
+
+	git add <file>
+
+Protip: Enter the first two or more characters of the file or folder name, then press Tab. git will auto-fill the file or folder for you. If git comes up with more than one result, you can enter more characters or keep pressing Tab until you get to the right file or folder.
+Now if you use the "git status" command again, you'll see that the file you staged is in green text. This means that it's ready to commit to the local repository. If you change and save the file again before commiting it, it will become unstaged again and go back to red text. As you can see in the "git status" text, you can also unstage it by entering the command:
+
+	git reset HEAD <file>
+
+Now enter the following command:
+
+	git pull origin master
+
+-->This honestly should be done before you stage your files, but it can also be done before you commit them. This pulls all changes from the online repository onto your local repository.
+
+If you're certain the change you made was okay, enter the following command:
+
+	git commit -m "message" --author="name <email>"
+
+For instance, on 20 May 2015, Forrest altered Live_Plot.vi and Query_Dust_Event_v2.vi with changes to the radius axis in both vis. His commands were probably:
+
+	git add Database2.0/User\ Interface/Live_Plot.vi
+	git add Database2.0/User\ Interface/Query_Dust_Event_v2.vi
+	git commit -m "Added Radius axis to Live Plot. Fixed Radius axis for Query Dust Event v2." --author="Forrest Barnes <forrest.barnes@colorado.edu>"
+
+The "--author=" option helps us keep track of who did what. The "-m" message tells us what changes were made, and when. This is particularly important in Labview vis, because it's often virtually impossible to tell where a change happened in  that mess. Github helps, because it narrows the changes down to a particular file, but it's not always enough. Be detailed.
+
+git log starts at 11 November, 2013.
+
+NOTE ON POSSIBLE ERRORS:
+If git complains about the difference between a "matching" and "simple" push value, enter the following command into the git bash:
+
+	git config --global push.default simple
+
