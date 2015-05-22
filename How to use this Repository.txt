@@ -96,18 +96,20 @@ To stage a file (prepare to put it in the local repository), use the following c
 	git add <file>
 
 Protip: Enter the first two or more characters of the file or folder name, then press Tab. git will auto-fill the file or folder for you. If git comes up with more than one result, you can enter more characters or keep pressing Tab until it displays the right file or folder.
-Now if you use the "git status" command again, you'll see that the file you staged is in green text. This means that it's ready to commit to the local repository. If you change and save the file again before commiting it, it will become unstaged again and go back to red text. As you can see in the "git status" text, you can also unstage it by entering the command:
+Now if you use the "git status" command again, you'll see that the file you staged is in green text. This means that it's ready to commit to the local repository. If you change and save the file again before commiting it, you will have to stage the file again with the new changes. As you can see in the "git status" text, you can also unstage it by entering the command:
 
 	git reset HEAD <file>
 
-If you're certain the change you made was okay, enter the following command:
+If you're certain the change you made should be added to the repository, enter the following command:
 
 	git commit -m "message" --author="name <email>"
 
-For instance, on 20 May 2015, Forrest altered Live_Plot.vi and Query_Dust_Event_v2.vi with changes to the radius axis in both vis. His commands were probably:
+As an example, on 20 May 2015, Forrest altered Live_Plot.vi and Query_Dust_Event_v2.vi with changes to the radius axis in both vis. His commands were probably:
 
 	git add Database2.0/User\ Interface/Live_Plot.vi
+
 	git add Database2.0/User\ Interface/Query_Dust_Event_v2.vi
+
 	git commit -m "Added Radius axis to Live Plot. Fixed Radius axis for Query Dust Event v2." --author="Forrest Barnes <forrest.barnes@colorado.edu>"
 
 The "--author=" option helps us keep track of who did what. The "-m" option tells us what changes were made. This is particularly important in Labview vis, because it's often virtually impossible to tell where a change happened in  that mess. Github helps, because it narrows the changes down to a particular file, but it's usually not enough. Be detailed.
