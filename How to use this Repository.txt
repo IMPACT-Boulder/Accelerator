@@ -13,6 +13,8 @@ git reset HEAD <file>			unstages a file
 git commit				commits all staged changes
 	-m "message"		option (required) to add a message about the changes you've made
 	--author="name <email>"	option (highly recommeded) to label a commit with your name and email
+	--amend			used to change the most recent commit
+	--no-edit			option when using --amend to not open the edit window, and change only the elements shown.
 git log				shows all past changes to repository
 git shortlog				shows summary of "git log" by author
 
