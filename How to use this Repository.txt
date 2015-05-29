@@ -212,3 +212,19 @@ If you believe the code needs changing in some way, this is a good place to stat
 Another useful feature is easy to see from github.com/IMPACT-Boulder/Accelerator. From here, we can see how long ago each file and folder has been changed, what the change was, and who did it. In addition, the latest change is shown at the top of the menu.
 
 There are many features git has that we don't use, such as branching. If you find them useful, feel free to use them. Also, feel free to update this resource and speak with Tobin Munsat or one of the code devs concerning anything potentially useful about git or github.
+
+
+
+5. Testing code on an external computer
+
+Download and install Labview 2013. Don't buy it, IMPACT has a license you can use if you've been hired.
+Open the VI Package Manager
+Download and install the h5labview library and all OpenG libraries
+The Database Connection library is currently unavailable in VIPM or online. This is because the 2014 version of that library is packaged with Labview 2014. To get this library, you'll have to talk with someone on the project.
+
+Download and install MySQL Workbench using the IMPACT license
+On one of the lab computers, go to saha.colorado.edu/admin/ This site has daily backups of the entire SQL Database.
+The username and password to access this is on our local database in Z:/CCLDAS/
+Download the latest backup of the database.
+Get this backup onto your personal computer somehow (WITHOUT USING THIS PUBLIC REPOSITORY), and open it in MySQL Workbench.
+
