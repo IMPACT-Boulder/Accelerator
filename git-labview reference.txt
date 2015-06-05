@@ -22,7 +22,7 @@ git shortlog				shows summary of "git log" by author
 
 1. Creating a clone of the repository on your computer
 
-Create the new folder in which you would like to store the repository.
+Create the new folder in which you would like to store the repository. I recommend simply creating a folder on the desktop.
 Right-click in the new folder.
 Select the option "Git Bash". If you can't find this option, you need to download and install the latest version of git. This should take no more than 5-10 minutes. (You can also use the Git GUI, but you'll have to learn it on your own)
 In the git bash, type in these commands, and press enter after each one:
@@ -215,16 +215,45 @@ There are many features git has that we don't use, such as branching. If you fin
 
 
 
-5. Testing code on an external computer
+5. Testing code on an external computer (unfinished section)
 
 Download and install Labview 2013. Don't buy it, IMPACT has a license you can use if you've been hired.
-Open the VI Package Manager
-Download and install the h5labview library and all OpenG libraries
+Open the VI Package Manager.
+Download and install the h5labview library and all OpenG libraries.
 The Database Connection library is currently unavailable in VIPM or online. This is because the 2014 version of that library is packaged with Labview 2014. To get this library, you'll have to talk with someone on the project.
 
-Download and install MySQL Workbench using the IMPACT license
 On one of the lab computers, go to saha.colorado.edu/admin/ This site has daily backups of the entire SQL Database.
 The username and password to access this is on our local database in Z:/CCLDAS/
 Download the latest backup of the database.
-Get this backup onto your personal computer somehow (WITHOUT USING THIS PUBLIC REPOSITORY), and open it in MySQL Workbench.
+Get this backup onto your personal computer somehow (WITHOUT USING THIS PUBLIC REPOSITORY).
 
+On your own computer, follow all the steps from part 1 to get the code onto your computer.
+Download 7-Zip or a similar program to decompress the .bz2 backup file.
+Download MySQL Installer - Community.
+Download and install MySQL Server, MySQL Workbench, MySQL Fabric & MySQL Utilites, and Connector/ODBC (get the x86, 32-bit version of Connector/ODBC, to match 32-bit Labview).
+When you download MySQL Server, you will be prompted to go through a few steps. The first step is to check the "Named Pipe" checkbox. Leave everything else to default.
+In the next step, create a password. This doesn't have to be complicated, and you should write it down somewhwere. If you don't remember it after today, the worst thing that could happen is you'll have to reconfigure MySQL Server and do all this again.
+In the next step, Make sure "Configure MySQL Server as a Windows Service" and "Start MySQL Server at System Startup" are both checked.
+Click Next, click Execute, wait for it to finish, and close the window.
+
+In MySQL Workbench, go to the Database menu and click Manage Connections.
+Click "New" in the bottom left corner.
+Make the Connection Name whatever you want. I recommend making it "CCLDAS_TEST".
+Click "Store in Vault". Enter the password you used to configure the SQL Server above.
+Once you're done, close the window. You should now have a connection called "CCLDAS_TEST" in the main window of MySQL Workbench. Click on it. If you clicked on the right fifth of the button, you'll have to click "Connect" in the bottom right corner.
+You should now be in a new Workbench tab called CCLDAS_TEST. On the left there is a toolbar. Click on the link that says "Data Import/Restore."
+Select "Import from self-contained file," then click the "..." button at right.
+Find and select the .sql file you decompressed using 7-zip a while back. Click "Open."
+Next to Default Target Schema, click "New." Name this schema "CCLDAS_TEST".
+Click "Start Import" in the bottom right corner. This will take a while to run, but you can do other things while it's working. If it errors, just do it all over again.
+Once the import has finished, go back to "Manage Connections," and make the "Default Target Schema" "CCLDAS_TEST."
+
+Open the program "Data Sources (ODBC)".
+Click "Add" in the "User DSN" tab.
+Select "Unicode Driver", then press "Finsh."
+In "Data Source Name:", enter "CCLDAS_TEST" exactly. This value is non-negotiable.
+Select the "Named Pipe" option. In the "User:" space, enter "root", and in the "Password:" space, enter the password you created earlier. In the "Database:" space, select the "CCLDAS_TEST" database.
+
+If you want to test the connection to the database, go to the git folder, then go to Database 2.0/Private/Database and open "Connect in.vi". If this vi runs without errors, your connection is sound. If it creates an error, you may have entered your password or something else wrong in Data Sources (ODBC).
+
+To make sure all the data is on the database, go to Database 2.0/User Interface and open "Query_Dust_Event_v2.vi". You should see points in the plot. If not, bring the "Lower Timestamp Range" down to 1/1/1900, decrease the "Limit to _ events" control to 100 events, and press "Plot." Depending on how good your computer is, this may take 30 seconds or even a minute. If you still see no events, you probably have to import the .sql backup file again.
