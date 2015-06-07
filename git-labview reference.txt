@@ -224,7 +224,7 @@ The Database Connection library is currently unavailable in VIPM or online. This
 
 On one of the lab computers, go to saha.colorado.edu/admin/ This site has daily backups of the entire SQL Database.
 The username and password to access this is on our local database in Z:/CCLDAS/
-Download the latest backup of the database.
+Go to the "Shares" tab. Then open datastore>mysql. Find and download the most recent backup.
 Get this backup onto your personal computer somehow (WITHOUT USING THIS PUBLIC REPOSITORY).
 
 On your own computer, follow all the steps from part 1 to get the code onto your computer.
