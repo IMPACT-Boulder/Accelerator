@@ -70,9 +70,8 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
   shotid=TAG_NAMES(shots);generate tag names   
   nshots=n_elements(shotid);determine number of shots to examine  
   output_file_id = folder + '\results.txt';create output file refe4rence
-;  print,shots
+  ;print,shots
   file_exsists=0
-  
   
   qthreshold=50;define the quality threshold for the first algorithm
 
@@ -81,14 +80,10 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
   i=0
   For i=0,nshots-1 do begin;examine all shots 
     filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
-    
     IF filedata[1] eq -4 then begin
       IF keyword_set(sub_folder) then begin
-        print, folder
-        print, filedata[0]
-        print, Round(filedata[0]/1000)
-        print, Round(filedata[0]/1000, /down)
-        path_folder = STRCOMPRESS(folder + '\' + Round(filedata[0]/1000, /down))
+        subfolder = STRTRIM(LONG(filedata[0])/1000, 2)
+        path_folder = STRCOMPRESS(folder + '\' + subfolder,/REMOVE_ALL )
       ENDIF ELSE BEGIN
         path_folder = folder
       ENDELSE
