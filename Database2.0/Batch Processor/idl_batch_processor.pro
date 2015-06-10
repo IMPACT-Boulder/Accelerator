@@ -52,7 +52,7 @@
 ; Edited November 2014 by Forrest Barnes
 
 
-pro idl_batch_processor,folder,storage_folder,old_data=old_data
+pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_folder
 
   there_was_an_error = 0
   catch, error_status
@@ -83,8 +83,13 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
     filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
     
     IF filedata[1] eq -4 then begin
-      path_folder = folder
-    ENDIF ELSE BEGIN path_folder = storage_folder
+      IF keyword_set(sub_folder) then begin
+        path_folder = STRCOMPRESS(folder + '\' + Round(filedata[0]/1000, /down),/REMOVE_ALL )
+      ENDIF ELSE BEGIN
+        path_folder = folder
+      ENDELSE
+    ENDIF ELSE BEGIN
+      path_folder = storage_folder
     ENDELSE 
     IF filedata[1] eq -4 then begin
       files = STRCOMPRESS(path_folder + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
