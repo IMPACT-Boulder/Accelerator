@@ -84,7 +84,11 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
     
     IF filedata[1] eq -4 then begin
       IF keyword_set(sub_folder) then begin
-        path_folder = STRCOMPRESS(folder + '\' + Round(filedata[0]/1000, /down),/REMOVE_ALL )
+        print, folder
+        print, filedata[0]
+        print, Round(filedata[0]/1000)
+        print, Round(filedata[0]/1000, /down)
+        path_folder = STRCOMPRESS(folder + '\' + Round(filedata[0]/1000, /down))
       ENDIF ELSE BEGIN
         path_folder = folder
       ENDELSE
