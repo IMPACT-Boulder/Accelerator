@@ -230,7 +230,7 @@ Get this backup onto your personal computer somehow (WITHOUT USING THIS PUBLIC R
 On your own computer, follow all the steps from part 1 to get the code onto your computer.
 Download 7-Zip or a similar program to decompress the .bz2 backup file.
 Download MySQL Installer - Community.
-Download and install MySQL Server, MySQL Workbench, MySQL Fabric & MySQL Utilites, and Connector/ODBC (get the x86, 32-bit version of Connector/ODBC, to match 32-bit Labview).
+Download and install MySQL Server, MySQL Workbench, MySQL Fabric & MySQL Utilites, and Connector/ODBC (There seems to be something odd in that you need both the 32-bit and 64-bit versions of the Connector/ODBC. The 64-bit version provides the correct driver, but is itself incompatible with our version of 32-bit LabVIEW).
 When you download MySQL Server, you will be prompted to go through a few steps. The first step is to check the "Named Pipe" checkbox. Leave everything else to default.
 In the next step, create a password. This doesn't have to be complicated, and you should write it down somewhwere. If you don't remember it after today, the worst thing that could happen is you'll have to reconfigure MySQL Server and do all this again.
 In the next step, Make sure "Configure MySQL Server as a Windows Service" and "Start MySQL Server at System Startup" are both checked.
