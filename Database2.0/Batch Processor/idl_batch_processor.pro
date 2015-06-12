@@ -52,7 +52,7 @@
 ; Edited November 2014 by Forrest Barnes
 
 
-pro idl_batch_processor,folder,storage_folder,old_data=old_data
+pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_folder
 
   there_was_an_error = 0
   catch, error_status
@@ -70,9 +70,8 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
   shotid=TAG_NAMES(shots);generate tag names   
   nshots=n_elements(shotid);determine number of shots to examine  
   output_file_id = folder + '\results.txt';create output file refe4rence
-;  print,shots
+  ;print,shots
   file_exsists=0
-  
   
   qthreshold=50;define the quality threshold for the first algorithm
 
@@ -81,10 +80,15 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data
   i=0
   For i=0,nshots-1 do begin;examine all shots 
     filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
-    
     IF filedata[1] eq -4 then begin
-      path_folder = folder
-    ENDIF ELSE BEGIN path_folder = storage_folder
+      IF keyword_set(sub_folder) then begin
+        subfolder = STRTRIM(LONG(filedata[0])/1000, 2)
+        path_folder = STRCOMPRESS(folder + '\' + subfolder,/REMOVE_ALL )
+      ENDIF ELSE BEGIN
+        path_folder = folder
+      ENDELSE
+    ENDIF ELSE BEGIN
+      path_folder = storage_folder
     ENDELSE 
     IF filedata[1] eq -4 then begin
       files = STRCOMPRESS(path_folder + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
