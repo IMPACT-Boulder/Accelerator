@@ -41,7 +41,7 @@
 ; and used to update the database. batch processor.vi calls this program from the idl command line, so direct interaction with this procedure by users 
 ; is not necessary under normal circumstances.
 
-pro idl_batch_processor_small,folder,storage_folder
+pro idl_batch_processor_small,folder,storage_folder,sub_folder=sub_folder
 
   there_was_an_error = 0
   catch, error_status
@@ -72,7 +72,12 @@ pro idl_batch_processor_small,folder,storage_folder
     filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
     
     IF filedata[1] eq -4 then begin
-      path_folder = folder
+      IF keyword_set(sub_folder) then begin
+        subfolder = STRTRIM(LONG(filedata[0])/1000, 2)
+        path_folder = STRCOMPRESS(folder + '\' + subfolder,/REMOVE_ALL )
+      ENDIF ELSE BEGIN
+        path_folder = folder
+      ENDELSE
     ENDIF ELSE BEGIN path_folder = storage_folder
     ENDELSE 
     IF filedata[1] eq -4 then begin
