@@ -53,12 +53,12 @@ pro idl_batch_processor_small,path_folder
      goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error     
   endif
 
-  input_file_id = folder + '\index_small.txt';create input file reference
+  input_file_id = path_folder + '\index_small.txt';create input file reference
   print,input_file_id
   shots=READ_CSV(input_file_id);read csv for shot index
   shotid=TAG_NAMES(shots);generate tag names   
   nshots=n_elements(shotid);determine number of shots to examine  
-  output_file_id = folder + '\results_small.txt';create output file refe4rence
+  output_file_id = path_folder + '\results_small.txt';create output file refe4rence
 ;  print,shots
   file_exists=0
   

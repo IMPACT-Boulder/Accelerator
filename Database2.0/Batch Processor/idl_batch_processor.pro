@@ -67,12 +67,12 @@ pro idl_batch_processor,path_folder
   
   last_old_particle=1664759 ;id_dust_event of the last particle run on the old acc length.
   
-  input_file_id = folder + '\index.txt';create input file reference
+  input_file_id = path_folder + '\index.txt';create input file reference
   print,input_file_id
   shots=READ_CSV(input_file_id);read csv for shot index
   shotid=TAG_NAMES(shots);generate tag names
   nshots=n_elements(shotid);determine number of shots to examine
-  output_file_id = folder + '\results.txt';create output file reference
+  output_file_id = path_folder + '\results.txt';create output file reference
   ;print,shots
   file_exists=0
   
