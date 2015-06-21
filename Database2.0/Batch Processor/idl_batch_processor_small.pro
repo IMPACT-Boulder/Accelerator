@@ -41,7 +41,7 @@
 ; and used to update the database. batch processor.vi calls this program from the idl command line, so direct interaction with this procedure by users 
 ; is not necessary under normal circumstances.
 
-pro idl_batch_processor_small,folder,storage_folder,sub_folder=sub_folder
+pro idl_batch_processor_small,path_folder
 
   there_was_an_error = 0
   catch, error_status
@@ -60,7 +60,7 @@ pro idl_batch_processor_small,folder,storage_folder,sub_folder=sub_folder
   nshots=n_elements(shotid);determine number of shots to examine  
   output_file_id = folder + '\results_small.txt';create output file refe4rence
 ;  print,shots
-  file_exsists=0
+  file_exists=0
   
   
   qthreshold=50;define the quality threshold for the first algorithm
@@ -69,26 +69,14 @@ pro idl_batch_processor_small,folder,storage_folder,sub_folder=sub_folder
   
   i=0
   For i=0,nshots-1 do begin;examine all shots 
-    filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
+    id_dust_event=shots.(long(i))
     
-    IF filedata[1] eq -4 then begin
-      IF keyword_set(sub_folder) then begin
-        subfolder = STRTRIM(LONG(filedata[0])/1000, 2)
-        path_folder = STRCOMPRESS(folder + '\' + subfolder,/REMOVE_ALL )
-      ENDIF ELSE BEGIN
-        path_folder = folder
-      ENDELSE
-    ENDIF ELSE BEGIN path_folder = storage_folder
-    ENDELSE 
-    IF filedata[1] eq -4 then begin
-      files = STRCOMPRESS(path_folder + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
-    ENDIF ELSE BEGIN 
-      files = STRCOMPRESS(path_folder + '\' + string(LONG(filedata[0])/1000) + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )    
-    ENDELSE
+    file = STRCOMPRESS(path_folder + '\' + string(id_dust_event/1000) + '\' + string(id_dust_event) +'.hdf5' ,/REMOVE_ALL)    
+    
     print,'file name:',files
-    file_exsists=FILE_TEST(files)
- ;   print, file_exsists
-    IF file_exsists eq 1 then begin
+    file_exists=FILE_TEST(files)
+ ;   print, file_exists
+    IF file_exists eq 1 then begin
       ;get waveforms from hdf5 file
       out = ccldas_read_raw_file(files)
       wv1 = out.first_detector.waveform
@@ -97,13 +85,13 @@ pro idl_batch_processor_small,folder,storage_folder,sub_folder=sub_folder
       print,wv1size,'test2'
       wv2size = SIZE(wv2,/N_ELEMENTS)
       print,wv2size,'test2'    
-            
+      
       IF wv1size - wv2size lt 100 Then begin
-   
+        
         dt = out.first_detector.dt
         x = findgen(n_elements(wv1))*dt;*1e6
         loadct, 39
-    
+        
         ;Call Tobin's code:0
         out_k=tobin_v_estimate_small_accelerator(wv1,wv2,dt)
         ;print,out_k
@@ -181,5 +169,4 @@ pro idl_batch_processor_small,folder,storage_folder,sub_folder=sub_folder
     
     free_lun, lun
   endif
-  
 end
