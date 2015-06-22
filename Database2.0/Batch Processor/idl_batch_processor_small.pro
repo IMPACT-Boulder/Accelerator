@@ -69,7 +69,7 @@ pro idl_batch_processor_small,path_folder
   
   i=0
   For i=0,nshots-1 do begin;examine all shots 
-    id_dust_event=shots.(long(i))
+    id_dust_event=ulong64(shots.(string(i)))
     
     file = STRCOMPRESS(path_folder + '\' + string(id_dust_event/1000) + '\' + string(id_dust_event) +'.hdf5' ,/REMOVE_ALL)    
     

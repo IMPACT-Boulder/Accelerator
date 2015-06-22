@@ -82,7 +82,7 @@ pro idl_batch_processor,path_folder
   
   i=0
   For i=0,nshots-1 do begin;examine all shots 
-    id_dust_event=shots.(long(i))
+    id_dust_event = ULONG64(shots.(STRING(i)))
     
     file = STRCOMPRESS(path_folder + '\' + string(id_dust_event/1000) + '\' + string(id_dust_event) +'.hdf5' ,/REMOVE_ALL)
     
@@ -109,7 +109,7 @@ pro idl_batch_processor,path_folder
         
         ;Call Tobin's code:0
         ;Particle number 1664759
-        out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=not(id_dust_event gt last_old_particle))
+        out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=(id_dust_event le last_old_particle))
         ;print,out_k
           if out_k[0] GT 0 && out_k[1] GT 0 && out_k[2] GT 1 then begin ;print Tobin's results if Tobin's code finds anything
             printf, lun, 'V', out_k[0]
@@ -123,7 +123,7 @@ pro idl_batch_processor,path_folder
               printf, lun, 'Q', -2
               print,out_k,' Tobins code had an error'
             endif else begin
-              out = triple_est_latest(wv1, wv2, wv3, dt,old_data=not(id_dust_event gt last_old_particle))
+              out = triple_est_latest(wv1, wv2, wv3, dt,old_data=(id_dust_event le last_old_particle))
               ;print, out
               ;/Andrew's code.
               if out.quality lt qthreshold then begin ;if Andrew's code failed 
