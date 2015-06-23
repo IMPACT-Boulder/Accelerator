@@ -50,10 +50,11 @@
 ; MODIFICATION HISTORY:
 ; Written September 2012 by Spenser Burrows
 ; Edited November 2014 by Forrest Barnes
+; Edited June 2015 by Forrest Barnes
 
 
-pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_folder
-
+pro idl_batch_processor,path_folder
+  
   there_was_an_error = 0
   catch, error_status
   if error_status ne 0 then begin
@@ -61,66 +62,56 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
      ;PRINT, 'Inside v_estimate_subroutine Error index: ', Error_status
      if keyword_set(verbose) then print,'Error message from within v_estimate_subroutine: ', !ERROR_STATE.MSG
      there_was_an_error = 1
-     goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error     
+     goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error
   endif
-
-  input_file_id = folder + '\index.txt';create input file reference
+  
+  last_old_particle=1664759 ;id_dust_event of the last particle run on the old acc length.
+  
+  input_file_id = path_folder + '\index.txt';create input file reference
   print,input_file_id
   shots=READ_CSV(input_file_id);read csv for shot index
-  shotid=TAG_NAMES(shots);generate tag names   
-  nshots=n_elements(shotid);determine number of shots to examine  
-  output_file_id = folder + '\results.txt';create output file refe4rence
+  shotid=TAG_NAMES(shots);generate tag names
+  nshots=n_elements(shotid);determine number of shots to examine
+  output_file_id = path_folder + '\results.txt';create output file reference
   ;print,shots
-  file_exsists=0
+  file_exists=0
   
   qthreshold=50;define the quality threshold for the first algorithm
-
+  
   openw, lun, output_file_id, /get_lun;open output file
   
   i=0
   For i=0,nshots-1 do begin;examine all shots 
-    filedata=STRSPLIT(shots.(string(i)),' ',/EXTRACT)
-    IF filedata[1] eq -4 then begin
-      IF keyword_set(sub_folder) then begin
-        subfolder = STRTRIM(LONG(filedata[0])/1000, 2)
-        path_folder = STRCOMPRESS(folder + '\' + subfolder,/REMOVE_ALL )
-      ENDIF ELSE BEGIN
-        path_folder = folder
-      ENDELSE
-    ENDIF ELSE BEGIN
-      path_folder = storage_folder
-    ENDELSE 
-    IF filedata[1] eq -4 then begin
-      files = STRCOMPRESS(path_folder + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )
-    ENDIF ELSE BEGIN 
-      files = STRCOMPRESS(path_folder + '\' + string(LONG(filedata[0])/1000) + '\' + filedata[0] +'.hdf5' ,/REMOVE_ALL )    
-    ENDELSE
-    print,'file name:',files
-    file_exsists=FILE_TEST(files)
- ;   print, file_exsists
-    IF file_exsists eq 1 then begin
+    id_dust_event = ULONG64(shots.(STRING(i)))
+    
+    file = STRCOMPRESS(path_folder + '\' + string(id_dust_event/1000) + '\' + string(id_dust_event) +'.hdf5' ,/REMOVE_ALL)
+    
+    print,'file name:',file
+    file_exists=FILE_TEST(file)
+ ;   print, file_exists
+    IF file_exists eq 1 then begin
       ;get waveforms from hdf5 file
-      out = ccldas_read_raw_file(files)
+      out = ccldas_read_raw_file(file)
       wv1 = out.first_detector.waveform
       wv2 = out.second_detector.waveform
       wv3 = out.third_detector.waveform
       wv1size = SIZE(wv1,/N_ELEMENTS)
       print,wv1size,'test2'
       wv2size = SIZE(wv2,/N_ELEMENTS)
-      print,wv2size,'test2'    
+      print,wv2size,'test2'
       wv3size = SIZE(wv3,/N_ELEMENTS)
       print,wv3size,'test2'
-            
+      
       IF wv1size - wv2size lt 100 and wv2size - wv3size lt 100 Then begin
-   
         dt = out.first_detector.dt
         x = findgen(n_elements(wv1))*dt;*1e6
         loadct, 39
-    
+        
         ;Call Tobin's code:0
-        out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=old_data)
+        ;Particle number 1664759
+        out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=(id_dust_event le last_old_particle))
         ;print,out_k
-          if out_k[0] GT 0 && out_k[1] GT 0 && out_k[2] GT 1 then begin ;print Tobin's results if Tobin's code finds anything 
+          if out_k[0] GT 0 && out_k[1] GT 0 && out_k[2] GT 1 then begin ;print Tobin's results if Tobin's code finds anything
             printf, lun, 'V', out_k[0]
             printf, lun, 'C', out_k[1]
             printf, lun, 'Q', out_k[2]
@@ -132,7 +123,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
               printf, lun, 'Q', -2
               print,out_k,' Tobins code had an error'
             endif else begin
-              out = triple_est_latest(wv1, wv2, wv3, dt,old_data=old_data)
+              out = triple_est_latest(wv1, wv2, wv3, dt,old_data=(id_dust_event le last_old_particle))
               ;print, out
               ;/Andrew's code.
               if out.quality lt qthreshold then begin ;if Andrew's code failed 
@@ -140,7 +131,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
                 printf, lun, 'C', -1
                 printf, lun, 'Q', 0
                 print,'both failed'
-              endif  else begin                     
+              endif  else begin
                 if out.quality eq 50 then begin
                   printf, lun, 'V', -3
                   printf, lun, 'C', -1
@@ -160,7 +151,7 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
           printf, lun, 'C', -1
           printf, lun, 'Q', -3
           print,'Waveforms are missing or bad'
-        endelse    
+        endelse
       ; continueq = DIALOG_MESSAGE('Continue?', /question,/center)
       ;if continueq eq 'No' then break
       endif else begin
@@ -168,20 +159,20 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
         printf, lun, 'C', -1
         printf, lun, 'Q', -4
         print,'File does not exist'
-      endelse 
-      printf, lun, ','                        ;print ',' to separate shot outputs 
+      endelse
+      printf, lun, ','                        ;print ',' to separate shot outputs
       print,'Iteration number: ',i
   endfor
   free_lun, lun                        ;close file
   
   error_jump_point: ;print,'got to error jump point'
   if there_was_an_error then begin
-    if (fstat(lun)).open eq 0 then begin 
+    if (fstat(lun)).open eq 0 then begin
       openw, lun, output_file_id, /get_lun
     endif else begin
       free_lun, lun
       openw, lun, output_file_id, /get_lun
-    endelse    
+    endelse
     printf, lun, 'V', -5
     printf, lun, 'C', -5
     printf, lun, 'Q', -5
@@ -190,5 +181,4 @@ pro idl_batch_processor,folder,storage_folder,old_data=old_data,sub_folder=sub_f
     
     free_lun, lun
   endif
-  
 end
