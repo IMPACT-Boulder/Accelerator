@@ -53,25 +53,24 @@ pro idl_batch_processor_small,path_folder
      goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error     
   endif
 
-  input_file_id = path_folder + '\index_small.txt';create input file reference
+  input_file_id = path_folder + '\index.txt';create input file reference
   print,input_file_id
   shots=READ_CSV(input_file_id);read csv for shot index
-  shotid=TAG_NAMES(shots);generate tag names   
-  nshots=n_elements(shotid);determine number of shots to examine  
-  output_file_id = path_folder + '\results_small.txt';create output file refe4rence
+  shotid=TAG_NAMES(shots);generate tag names
+  nshots=n_elements(shotid);determine number of shots to examine
+  output_file_id = path_folder + '\results.txt';create output file refe4rence
 ;  print,shots
   file_exists=0
   
   
   qthreshold=50;define the quality threshold for the first algorithm
-
   openw, lun, output_file_id, /get_lun;open output file
   
   i=0
   For i=0,nshots-1 do begin;examine all shots 
     id_dust_event=ulong64(shots.(string(i)))
     
-    file = STRCOMPRESS(path_folder + '\' + string(id_dust_event/1000) + '\' + string(id_dust_event) +'.hdf5' ,/REMOVE_ALL)    
+    files = STRCOMPRESS(path_folder + '\' + string(id_dust_event/1000) + '\' + string(id_dust_event) +'.hdf5' ,/REMOVE_ALL)
     
     print,'file name:',files
     file_exists=FILE_TEST(files)
