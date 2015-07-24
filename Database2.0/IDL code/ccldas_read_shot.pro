@@ -75,6 +75,12 @@
 ; MODIFICATION HISTORY:
 ; Written August 2012 by Spenser Burrows
 ; Updated 8/17/2012 by Andrew Collette: added docs & refactor
+; Updated 7/15/2015 by Tobin Munsat: changed how dust_event_id is
+; treated (now uses the actual dust event id, rather than a sequential
+; number within a given hdf5 file).  This corresponds to the way that
+; the hdf5 files are now written.
+; ALSO removed attributes passed_third_detector and estimate_source,
+; which are no longer saved in hdf5 files.
 ;-
 
 
@@ -103,14 +109,14 @@ function ccldas_read_shot, file_id, shot_id, channel=channel, metadata=metadata
                 'charge', $
                 'radius', $
                 $
-                'integer_timestamp', $  ; TODO: change this in file to "timestamp"
-                'id_dust_event', $    ; TODO: change this in file to "dust_event"
-                'id_groups', $        ; TODO: change this in file to "group"
+                'integer_timestamp', $ ; TODO: change this in file to "timestamp"
+                'id_dust_event', $     ; TODO: change this in file to "dust_event"
+                'id_groups', $         ; TODO: change this in file to "group"
                 'experiment_name', $
                 'experiment_description', $
                 $
 ;                'passed_3rd_detector', $ ;TODO: change this in file to "passed"
-;               'estimate_source', $
+;                'estimate_source', $
                 'estimate_quality', $
                 $
                 'high_voltage', $
@@ -130,8 +136,8 @@ function ccldas_read_shot, file_id, shot_id, channel=channel, metadata=metadata
                 experiment_name: '', $
                 experiment_description: '', $
                 $
-                passed: byte(0), $
-                estimate_source: byte(0), $
+;                passed: byte(0), $            ;removed 7/15/15 TLM
+;                estimate_source: byte(0), $   ;removed 7/15/15 TLM
                 estimate_quality: fix(0), $
                 $
                 high_voltage: float(0), $
@@ -140,8 +146,14 @@ function ccldas_read_shot, file_id, shot_id, channel=channel, metadata=metadata
                 dust_type: '', $
                 dust_density: float(0)}
 
+  dust_event_id = H5G_GET_OBJ_NAME_BY_IDX(file_id, STRCOMPRESS(STRING(shot_id),/REMOVE_ALL));inserted 7/8/15 TLM
+  ;print
+  ;print,'dust_event_id: '+s2(dust_event_id)
+  ;;shot_group_id = H5G_OPEN(file_id,STRCOMPRESS(STRING(shot_id),/REMOVE_ALL));original, pre 7/15/15
+  shot_group_id = H5G_OPEN(file_id, dust_event_id) ; inserted 7/8/15 TLM
+  ;print,'shot_group_id: '+s2(shot_group_id)
+  ;print
 
-  shot_group_id = H5G_OPEN(file_id, STRCOMPRESS(STRING(shot_id),/REMOVE_ALL))
   
   ; Read metadata and populate struct
   FOR i=0, N_ELEMENTS(db_names)-1 DO BEGIN
@@ -187,6 +199,10 @@ function ccldas_read_shot, file_id, shot_id, channel=channel, metadata=metadata
     H5D_CLOSE, dsid
     
     sm = signal_meta  ; easier to type
+
+    ;help,sm
+    ;result=get_kbrd()
+
     
     CASE dsname OF
       'first_detector':   first_detector =  { waveform: waveform, dt: sm.dt, offset: sm.offset, signal_length: sm.signal_length, hardware_id: sm.hardware_id}
@@ -200,6 +216,7 @@ function ccldas_read_shot, file_id, shot_id, channel=channel, metadata=metadata
     ENDCASE
     
   ENDFOR ; End loop over datasets in the signal group
+
   
   H5G_CLOSE, shot_group_id
   
