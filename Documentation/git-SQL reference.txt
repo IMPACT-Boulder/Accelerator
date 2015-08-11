@@ -1,0 +1,261 @@
+For best results reading this file, use 12 pt. Times New Roman font and turn on text wrapping.
+
+
+
+0. Common git commands:
+
+git push origin master			updates online repository with your new commits
+git pull origin master			updates local repository with any new online commits
+git status				shows all file changes, staging
+git add <file>			stages a change to be committed
+git checkout -- <file>			deletes changes to an unstaged file
+git reset HEAD <file>			unstages a file
+git commit				commits all staged changes
+	-m "message"		option (required) to add a message about the changes you've made
+	--author="name <email>"	option (highly recommeded) to label a commit with your name and email
+	--amend			used to change the most recent commit
+	--no-edit			option when using --amend to not open the edit window, and change only the elements shown.
+git log				shows all past changes to repository
+git shortlog				shows summary of "git log" by author
+
+
+
+1. Creating a clone of the repository on your computer
+
+Create the new folder in which you would like to store the repository. I recommend simply creating a folder on the desktop.
+Right-click in the new folder.
+Select the option "Git Bash". If you can't find this option, you need to download and install the latest version of git. This should take no more than 5-10 minutes. (You can also use the Git GUI, but you'll have to learn it on your own)
+In the git bash, type in these commands, and press enter after each one:
+
+	git init
+	git remote add origin https://github.com/IMPACT-Boulder/Accelerator
+	git pull origin master
+
+The first command creates a blank repository in your chosen folder.
+The second command sets up "origin" as the name of the IMPACT-Boulder repository on your computer.
+The third command takes the online repository and copies it into your folder. This should take about two minutes to complete.
+The word "origin" can be replaced with whatever you want to call the repository. For consistency's sake, please use "origin" on computers in the lab.
+Whenever you need the latest version of the code, simply re-enter the command:
+
+	git pull origin master
+
+I recommend doing this once a week or so.
+
+NOTE ON POSSIBLE ERRORS:
+If there is an error connecting to the online repository, please check your firewall or antivirus settings.
+If you accidentally modify a piece of code, and want to change it back to our version, go to the git bash and enter the command:
+
+	git status
+
+This will pull up all of your changes to the contents of the repository in red. To get rid of any particular change, enter the command:
+
+	git checkout -- <file>
+
+For example:
+
+	git checkout -- User\ Interface/Query_Dust_Event_v2.vi
+
+This command removes all of your changes to the file "Database2.0/User Interface/Query_Dust_Event_v2.vi", and reverts the file to the repository version.
+Protip: If you feel like being a boss, you can type in:
+
+	git checkout -- us
+
+Then press Tab, and git will autofill to:
+
+	git checkout -- User\ Interface/
+
+THE CHECKOUT COMMAND IS A PERMANENT CHANGE. Anything you've done to the file will be completely undone when you enter this command. It will not even send your version to the trash.
+If you think your change makes the code better, keep reading. That is covered in the next section.
+
+NOTE: Which folder you're in when you open the git bash matters, unless you're doing a "git pull" command. I recommend opening the git bash in the folder that contains the entire git repository.
+
+
+
+2. Modifying the repository
+
+Create an account on github.com (if you don't already have one).
+Contact Forrest <forrest.barnes@colorado.edu>, Zach Ulibarry, or whoever is a current code dev. for IMPACT and ask for permission to modify the online repository.
+One of us will invite you to become a member of IMPACT-Boulder on github. You will get an email about this.
+Click on the link in the email (it should look something like https://github.com/orgs/IMPACT-Boulder/invitation?via_email=1), and log into github.com.
+Click the green button. This will make you a member of the IMPACT-Boulder github repository and let you make changes.
+
+Make a change (this can be as simple as changing the location of a wire in a vi, adding a comment to the IDL code, getting rid of a typo in the documentation, or adding a new text document), and come back here once you're done.
+
+To give you some intuition about how git works, I'll temporarily refer to different "levels" of change in git. Level 1 is the online repository. Level 2 is the clone of the online repository on your computer. Level 4 (yes, I've skipped 3) is your personal file system, including the changes you just made. Level 3 is a temporary stage where a file is placed after it's been saved, but bevfore it's been committed to the local repository (Level 2) or the online repository (Level 1).
+More concisely, any change you make to the code has to be "staged" temporarily, "committed" to the local repository, and then "pushed" to the online repository.
+Now enter the following command:
+
+	git pull origin master
+
+DO THIS EVERY TIME YOU START OR FINISH MAKING CHANGES TO THE REPOSITORY.
+This pulls all changes from the online repository (Level 1) onto your local repository. It does not change anything you've done to the files (Level 3-4), but it makes sure that the things you commit to the local repository (Level 2) don't conflict with something somebody else has done. This is particularly important with Labview code, where resolving these conflicting changes is an incredible headache.
+
+	git status
+
+The above command is your bread and butter. It shows you every difference between your code (Level 4) and the local repository (Level 2). It also shows what changes have been staged (Level 3) but not committed to the local repository yet.
+To stage a file (prepare to put it in the local repository), use the following command:
+
+	git add <file>
+
+Protip: Enter the first two or more characters of the file or folder name, then press Tab. git will auto-fill the file or folder for you. If git comes up with more than one result, you can enter more characters or keep pressing Tab until it displays the right file or folder.
+Now if you use the "git status" command again, you'll see that the file you staged is in green text. This means that it's ready to commit to the local repository. If you change and save the file again before commiting it, you will have to stage the file again with the new changes. As you can see in the "git status" text, you can also unstage it by entering the command:
+
+	git reset HEAD <file>
+
+If you're certain the change you made should be added to the repository, enter the following command:
+
+	git commit -m "message" --author="name <email>"
+
+As an example, on 20 May 2015, Forrest altered Live_Plot.vi and Query_Dust_Event_v2.vi with changes to the radius axis in both vis. His commands were probably:
+
+	git add Database2.0/User\ Interface/Live_Plot.vi
+
+	git add Database2.0/User\ Interface/Query_Dust_Event_v2.vi
+
+	git commit -m "Added Radius axis to Live Plot. Fixed Radius axis for Query Dust Event v2." --author="Forrest Barnes <forrest.barnes@colorado.edu>"
+
+The "--author=" option helps us keep track of who did what. The "-m" option tells us what changes were made. This is particularly important in Labview vis, because it's often virtually impossible to tell where a change happened in that mess. Github helps, because it narrows the changes down to a particular file, but it's usually not enough. Be detailed.
+
+PROTIP 1:
+If you want to skip a tedious number of "git add" commands, you can use the command:
+
+	git commit -a -m "message" --author=
+
+The "-a" automatically stages all changes and deletions (but not new files) to the repository.
+
+PROTIP 2:
+If you're going to be using one computer for a while, you can change the default name and email address using the following commands:
+
+	git config --global user.name "Your Name"
+	git config --global user.email "your.email@example.com"
+
+Now it's time to push your changes to the repository. If you've forgotten to enter the command "git pull origin master" yet, you should do that before continuing.
+
+	git push origin master
+
+Since we're using an online repository, we will need to verify that a legitimate user is making these changes. This means you need to enter your git username and password. Entering your password will look like you're typing nothing, but that's just git hiding your password from prying eyes.
+
+If you're certain that you are the only person who will be using a particular computer for a period of time, you can enter this command to save your github username and password on the disk:
+
+	git config credential.helper store
+
+The next time you do a "git push" and enter your username and password, git will remember those credentials and save them (unencrypted, but unavailable to other users) in a file called .git-credentials. On Windows, this can be found in C:/Users/<your username>/.git-credentials. If you stop using the computer, delete this file, and your credentials will go away with it. I recommend against using this shortcut except on personal test computers.
+
+NOTE ON POSSIBLE ERRORS:
+If git complains about the difference between a "matching" and "simple" push value, enter the following command into the git bash:
+
+	git config --global push.default simple
+
+If "git pull" gives you a merge error, you probably committed a change to your local respoitory that conflicts with a change somebody made to the online repository. This means somebody has to sort through the differences between your local repository and the online repository. For now, enter the command:
+
+	git status
+
+This shows all conflicting files. DO NOT AUTO-MERGE THE FILES. This may work for some text-based programming issues, but it won't work for Labview. What you have to do instead is somewhat weird. Copy all files with merge errors to your desktop or some other convenient location. Then use the command:
+
+	git diff --theirs
+
+This should switch all files with merge errors to the version you're trying to pull. Now figure out which version you want: yours or the one you're pulling. If you like pieces of both, you'll have to merge the files yourself. Once you're done, put the new files into the repository, do another git commit, and you're done. This sort of thing shouldn't happen too often if you are vigilant about your pushes and pulls. I will explain what some of the above commands do in the next section.
+
+
+
+3. Reviewing/managing changes
+
+Open the git bash and enter the command:
+
+	git log
+
+This shows all past changes to the git respository. This log goes all the way back to 11 November 2013, when Anthony Shu first put these files into git. You will notice that each commit has a hash code, for instance:
+
+	commit afe0e5f471b462ac4a974dbf56b5d5e571899d1e
+	author:	Andrew Collette
+	date:	Tue May 19 16:48:27 2015 -0600
+	
+		Create README.md
+
+If you want to see what the code looked like just after this commit, you can use the command:
+
+	git checkout afe0e5f471b462ac4a974dbf56b5d5e571899d1e
+
+You only need the first few characters to make this command work, just enough to have a unique code, different from all the other hash codes in the log. This will reset the local repository to that commit. If you want to delete all commits until that point (rid them from the repository forever), use the command:
+
+	git reset --hard afe0e5
+
+Please don't do this. A better command is "git revert", which leaves the previous versions still in the git log. This effectively creates a new commit that is the exact opposite of the previous commit(s). To revert all the commits back to just after Andrew's commit, use the command:
+
+	git revert -n afe0e5..HEAD
+
+The "-n" option is not necessary, but recommended. It effectively compiles all the commit-undoing into one big commit-undo.
+To revert the last 3 changes, the command is:
+
+	git revert -n HEAD~3..HEAD
+
+Now use "git commit" to apply the change.
+
+If you accidentally commit without adding an author, you can go back and edit the last commit with this command:
+
+	git commit --amend --author "name <email>" --no-edit
+
+You can also change the text of the commit using
+
+	git commit --amend
+
+This will open up a very colorful text-editing window. Press the Insert button on your keyboard to modify the commit. To exit this window with all changes saved, press Esc : w q. To exit the window without saving any changes, press Esc : q. The colon in that sequence is rather important.
+
+
+
+4. Using Github
+
+Log in to github.com/
+If you are a member of IMPACT-Boulder, you can click on your name in the top left part of the screen and "Switch dashboard context" to IMPACT-Boulder. This is just a fancy way of getting to github.com/IMPACT-Boulder/
+
+The most important feature github gives us is "Issues". This is a tab on the far right, just below "< > Code".
+If you believe the code needs changing in some way, this is a good place to state what you want and assign somebody to make it happen. If you are working on something that takes more than a day to do, you can create an issue and assign it to yourself, to let other people know what you're doing.
+
+Another useful feature is easy to see from github.com/IMPACT-Boulder/Accelerator. From here, we can see how long ago each file and folder has been changed, what the change was, and who did it. In addition, the latest change is shown at the top of the menu.
+
+There are many features git has that we don't use, such as branching. If you find them useful, feel free to use them. Also, feel free to update this resource and speak with Tobin Munsat or one of the code devs concerning anything potentially useful about git or github.
+
+
+
+5. Testing code on an external computer (unfinished section)
+
+Download and install Labview 2013. Don't buy it, IMPACT has a license you can use if you've been hired.
+Open the VI Package Manager.
+Download and install the h5labview library and all OpenG libraries.
+The Database Connection library is currently unavailable in VIPM or online. This is because the 2014 version of that library is packaged with Labview 2014. To get this library, you'll have to talk with someone on the project.
+
+On one of the lab computers, go to saha.colorado.edu/admin/ This site has daily backups of the entire SQL Database.
+The username and password to access this is on our local database in Z:/CCLDAS/
+Go to the "Shares" tab. Then open datastore>mysql. Find and download the most recent backup.
+Get this backup onto your personal computer somehow (WITHOUT USING THIS PUBLIC REPOSITORY).
+
+On your own computer, follow all the steps from part 1 to get the code onto your computer.
+Download 7-Zip or a similar program to decompress the .bz2 backup file.
+Download MySQL Installer - Community.
+Download and install MySQL Server, MySQL Workbench, MySQL Fabric & MySQL Utilites, and Connector/ODBC (There seems to be something odd in that you need both the 32-bit and 64-bit versions of the Connector/ODBC. The 64-bit version provides the correct driver, but is itself incompatible with our version of 32-bit LabVIEW).
+When you download MySQL Server, you will be prompted to go through a few steps. The first step is to check the "Named Pipe" checkbox. Leave everything else to default.
+In the next step, create a password. This doesn't have to be complicated, and you should write it down somewhwere. If you don't remember it after today, the worst thing that could happen is you'll have to reconfigure MySQL Server and do all this again.
+In the next step, Make sure "Configure MySQL Server as a Windows Service" and "Start MySQL Server at System Startup" are both checked.
+Click Next, click Execute, wait for it to finish, and close the window.
+
+In MySQL Workbench, go to the Database menu and click Manage Connections.
+Click "New" in the bottom left corner.
+Make the Connection Name whatever you want. I recommend making it "CCLDAS_TEST".
+Click "Store in Vault". Enter the password you used to configure the SQL Server above.
+Once you're done, close the window. You should now have a connection called "CCLDAS_TEST" in the main window of MySQL Workbench. Click on it. If you clicked on the right fifth of the button, you'll have to click "Connect" in the bottom right corner.
+You should now be in a new Workbench tab called CCLDAS_TEST. On the left there is a toolbar. Click on the link that says "Data Import/Restore."
+Select "Import from self-contained file," then click the "..." button at right.
+Find and select the .sql file you decompressed using 7-zip a while back. Click "Open."
+Next to Default Target Schema, click "New." Name this schema "CCLDAS_TEST".
+Click "Start Import" in the bottom right corner. This will take a while to run, but you can do other things while it's working. If it errors, just do it all over again.
+Once the import has finished, go back to "Manage Connections," and make the "Default Target Schema" "CCLDAS_TEST."
+
+Open the program "Data Sources (ODBC)".
+Click "Add" in the "User DSN" tab.
+Select "Unicode Driver", then press "Finsh."
+In "Data Source Name:", enter "CCLDAS_TEST" exactly. This value is non-negotiable.
+Select the "Named Pipe" option. In the "User:" space, enter "root", and in the "Password:" space, enter the password you created earlier. In the "Database:" space, select the "CCLDAS_TEST" database.
+
+If you want to test the connection to the database, go to the git folder, then go to Database IO and open "Connect in.vi". If this vi runs without errors, your connection is sound. If it creates an error, you may have entered your password or something else wrong in Data Sources (ODBC).
+
+To make sure all the data is on the database, go to User Interface and open "Query_Dust_Event_v2.vi". You should see points in the plot. If not, bring the "Lower Timestamp Range" down to 1/1/1900, decrease the "Limit to _ events" control to 100 events, and press "Plot." Depending on how good your computer is, this may take 30 seconds or even a minute. If you still see no events, you probably have to import the .sql backup file again.
