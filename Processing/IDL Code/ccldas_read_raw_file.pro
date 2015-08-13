@@ -64,7 +64,9 @@ function ccldas_read_raw_file,filename,info=info
                 'lecroy_ch2', $
                 'lecroy_ch3', $ 
                 'lecroy_ch4', $
-                'psu']
+                'psu', $
+                'dcs 1', $ ;additions for the dust coordinate sensor
+                'dcs 2']
   info={timestamp:long64(0),version_number:long(0)}
   info_names=STRLOWCASE(tag_names(info))
   
@@ -77,6 +79,8 @@ function ccldas_read_raw_file,filename,info=info
     lecroy_ch3 = -1
     lecroy_ch4 = -1
     psu = -1
+    dcs_1 = -1
+    dcs_2 = -1
         
       ;get file info
       for i=0,1 do begin
@@ -100,10 +104,13 @@ function ccldas_read_raw_file,filename,info=info
           
           dataset_id = STRLOWCASE(H5G_GET_MEMBER_NAME(file_id,'/',i))
           signal_id = H5D_OPEN(shot_group_id, dataset_id)
+          dimension = H5D_GET_STORAGE_SIZE(signal_id)
+          print,dimension, 'test'
+          IF dimension ne 0 then begin
           ;print,dataset_id ;sanity check to make sure all detectors are getting looked at
           signal_metadata={signal_metadata, dt:float(0),hardware_id:long(0),offset:float(0),signal_length:long(0)} 
           signal_metadata_length=n_tags(signal_metadata); number of metadata entries
-        
+            IF dataset_id ne 'dcs 1' AND dataset_id ne 'dcs 2' THEN BEGIN ;dcs does not contain the following metadata
               for j=0,signal_metadata_length-1 DO BEGIN ;grabs signal metadata
               idl_signal_names=STRLOWCASE(tag_names(signal_metadata))
               atribute_id= H5A_OPEN_NAME(signal_id,idl_signal_names[j])
@@ -112,11 +119,18 @@ function ccldas_read_raw_file,filename,info=info
                ;print,idl_signal_names(j),' value ',signal_metadata.(j),' stored as ', idl_signal_names(j); metadata sanity check
               endfor
               j=0
+            ENDIF
               
               
               waveform=H5D_READ(signal_id)
               
-              sm = signal_metadata
+              
+        endif else begin
+        waveform=  FLTARR(2,2)
+        endelse  
+        sm = signal_metadata
+        
+          H5D_CLOSE,signal_id
               
                   ;populate detector structs 
                   CASE dataset_id OF
@@ -128,11 +142,10 @@ function ccldas_read_raw_file,filename,info=info
                     'lecroy_ch2':       lecroy_ch2 =      { waveform: waveform, dt: sm.dt, offset: sm.offset, signal_length: sm.signal_length, hardware_id: sm.hardware_id}
                     'lecroy_ch3':       lecroy_ch3 =      { waveform: waveform, dt: sm.dt, offset: sm.offset, signal_length: sm.signal_length, hardware_id: sm.hardware_id}
                     'lecroy_ch4':       lecroy_ch4 =      { waveform: waveform, dt: sm.dt, offset: sm.offset, signal_length: sm.signal_length, hardware_id: sm.hardware_id}
+                    'dcs 1':            dcs_1 =           { waveform: waveform}; only interested in the waceform for dcs
+                    'dcs 2':            dcs_2 =           { waveform: waveform}
                   ENDCASE
 
-        
-          H5D_CLOSE,signal_id
-        
         endfor
           
    H5G_CLOSE,shot_group_id 
@@ -146,7 +159,10 @@ function ccldas_read_raw_file,filename,info=info
                         'lecroy_ch2',lecroy_ch2, $ 
                         'lecroy_ch3',lecroy_ch3, $ 
                         'lecroy_ch4',lecroy_ch4, $ 
-                        'psu', psu, name=signals)
+                        'psu', psu, $
+                        'dcs_1',dcs_1, $ 
+                        'dcs_2',dcs_2, $ 
+                         name=signals)
                         
   ;print,'Returning all signals...' ;sanity check
   return,signals
