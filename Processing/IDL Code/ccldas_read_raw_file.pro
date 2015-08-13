@@ -100,9 +100,6 @@ function ccldas_read_raw_file,filename,info=info
           
           dataset_id = STRLOWCASE(H5G_GET_MEMBER_NAME(file_id,'/',i))
           signal_id = H5D_OPEN(shot_group_id, dataset_id)
-          dimension = H5D_GET_STORAGE_SIZE(signal_id)
-;          print,dimension, 'test'
-          IF dimension ne 0 then begin
           ;print,dataset_id ;sanity check to make sure all detectors are getting looked at
           signal_metadata={signal_metadata, dt:float(0),hardware_id:long(0),offset:float(0),signal_length:long(0)} 
           signal_metadata_length=n_tags(signal_metadata); number of metadata entries
@@ -119,13 +116,7 @@ function ccldas_read_raw_file,filename,info=info
               
               waveform=H5D_READ(signal_id)
               
-              
-        endif else begin
-        waveform=  FLTARR(2,2)
-        endelse  
-        sm = signal_metadata
-        
-          H5D_CLOSE,signal_id
+              sm = signal_metadata
               
                   ;populate detector structs 
                   CASE dataset_id OF
@@ -139,6 +130,9 @@ function ccldas_read_raw_file,filename,info=info
                     'lecroy_ch4':       lecroy_ch4 =      { waveform: waveform, dt: sm.dt, offset: sm.offset, signal_length: sm.signal_length, hardware_id: sm.hardware_id}
                   ENDCASE
 
+        
+          H5D_CLOSE,signal_id
+        
         endfor
           
    H5G_CLOSE,shot_group_id 
