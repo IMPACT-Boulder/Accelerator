@@ -111,47 +111,52 @@ pro idl_batch_processor,path_folder
         ;Particle number 1664759
         out_k=tobin_v_estimate(wv1,wv2,wv3,dt,old_data=(id_dust_event le last_old_particle))
         ;print,out_k
-          if out_k[0] GT 0 && out_k[1] GT 0 && out_k[2] GT 1 then begin ;print Tobin's results if Tobin's code finds anything
+        if out_k[0] GT 0 && out_k[1] GT 0 && out_k[2] GT 1 then begin ;print Tobin's results if Tobin's code finds anything
+          printf, lun, 'V', out_k[0]
+          printf, lun, 'C', out_k[1]
+          printf, lun, 'Q', out_k[2]
+          print,out_k,' Tobins code'
+        endif  else begin                   ;Call Andrew's code if Keith's doesn't see anything:
+          if out_k[0] eq -2 then begin ;print out that Tobin's code had an actual failure so we can find it and correct it
             printf, lun, 'V', out_k[0]
-            printf, lun, 'C', out_k[1]
-            printf, lun, 'Q', out_k[2]
-            print,out_k,' Tobins code'
-          endif  else begin                   ;Call Andrew's code if Keith's doesn't see anything:
-            if out_k[0] eq -2 then begin ;print out that Tobin's code had an actual failure so we can find it and correct it
-              printf, lun, 'V', out_k[0]
+            printf, lun, 'C', -1
+            printf, lun, 'Q', -2
+            print,out_k,' Tobins code had an error'
+          endif else begin
+            out = triple_est_latest(wv1, wv2, wv3, dt,old_data=(id_dust_event le last_old_particle))
+            ;print, out
+            ;/Andrew's code.
+            if out.quality lt qthreshold then begin ;if Andrew's code failed 
+              printf, lun, 'V', -1
               printf, lun, 'C', -1
-              printf, lun, 'Q', -2
-              print,out_k,' Tobins code had an error'
-            endif else begin
-              out = triple_est_latest(wv1, wv2, wv3, dt,old_data=(id_dust_event le last_old_particle))
-              ;print, out
-              ;/Andrew's code.
-              if out.quality lt qthreshold then begin ;if Andrew's code failed 
-                printf, lun, 'V', -1
+              printf, lun, 'Q', 0
+              print,'both failed'
+            endif  else begin
+              if out.quality eq 50 then begin
+                printf, lun, 'V', -3
                 printf, lun, 'C', -1
-                printf, lun, 'Q', 0
-                print,'both failed'
-              endif  else begin
-                if out.quality eq 50 then begin
-                  printf, lun, 'V', -3
-                  printf, lun, 'C', -1
-                  printf, lun, 'Q', -1
-                  print,'Andrews code had an error'
-                endif else begin  ;print Andrew's results if his code worked:
-                  printf, lun, 'V', out.velocity
-                  printf, lun, 'C', out.charge
-                  printf, lun, 'Q', 1
-                  print,out,' Andrews code'
-                endelse
+                printf, lun, 'Q', -1
+                print,'Andrews code had an error'
+              endif else begin  ;print Andrew's results if his code worked:
+                printf, lun, 'V', out.velocity
+                printf, lun, 'C', out.charge
+                printf, lun, 'Q', 1
+                print,out,' Andrews code'
               endelse
             endelse
           endelse
-        endif else begin
-          printf, lun, 'V', -1
-          printf, lun, 'C', -1
-          printf, lun, 'Q', -3
-          print,'Waveforms are missing or bad'
         endelse
+        positions = dcs_positioning(file)
+        printf, lun, 'X1', positions[0]
+        printf, lun, 'Y1', positions[1]
+        printf, lun, 'X2', positions[2]
+        printf, lun, 'Y2', positions[3]
+      endif else begin
+        printf, lun, 'V', -1
+        printf, lun, 'C', -1
+        printf, lun, 'Q', -3
+        print,'Waveforms are missing or bad'
+      endelse
       ; continueq = DIALOG_MESSAGE('Continue?', /question,/center)
       ;if continueq eq 'No' then break
       endif else begin

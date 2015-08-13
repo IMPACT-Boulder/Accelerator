@@ -107,24 +107,20 @@ function ccldas_read_raw_file,filename,info=info
           dimension = H5D_GET_STORAGE_SIZE(signal_id)
           print,dimension, 'test'
           IF dimension ne 0 then begin
-          ;print,dataset_id ;sanity check to make sure all detectors are getting looked at
-          signal_metadata={signal_metadata, dt:float(0),hardware_id:long(0),offset:float(0),signal_length:long(0)} 
-          signal_metadata_length=n_tags(signal_metadata); number of metadata entries
+            ;print,dataset_id ;sanity check to make sure all detectors are getting looked at
+            signal_metadata={signal_metadata, dt:float(0),hardware_id:long(0),offset:float(0),signal_length:long(0)} 
+            signal_metadata_length=n_tags(signal_metadata); number of metadata entries
             IF dataset_id ne 'dcs 1' AND dataset_id ne 'dcs 2' THEN BEGIN ;dcs does not contain the following metadata
               for j=0,signal_metadata_length-1 DO BEGIN ;grabs signal metadata
               idl_signal_names=STRLOWCASE(tag_names(signal_metadata))
-              atribute_id= H5A_OPEN_NAME(signal_id,idl_signal_names[j])
-              signal_metadata.(j)=H5A_READ(atribute_id) 
-               H5A_close,atribute_id
+              attribute_id= H5A_OPEN_NAME(signal_id,idl_signal_names[j])
+              signal_metadata.(j)=H5A_READ(attribute_id) 
+               H5A_close,attribute_id
                ;print,idl_signal_names(j),' value ',signal_metadata.(j),' stored as ', idl_signal_names(j); metadata sanity check
               endfor
               j=0
             ENDIF
-              
-              
-              waveform=H5D_READ(signal_id)
-              
-              
+            waveform=H5D_READ(signal_id)
         endif else begin
         waveform=  FLTARR(2,2)
         endelse  
