@@ -58,11 +58,11 @@ pro idl_batch_processor,path_folder
   there_was_an_error = 0
   catch, error_status
   if error_status ne 0 then begin
-     catch,/cancel
-     ;PRINT, 'Inside v_estimate_subroutine Error index: ', Error_status
-     if keyword_set(verbose) then print,'Error message from within v_estimate_subroutine: ', !ERROR_STATE.MSG
-     there_was_an_error = 1
-     goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error
+    catch,/cancel
+    ;PRINT, 'Inside v_estimate_subroutine Error index: ', Error_status
+    if keyword_set(verbose) then print,'Error message from within v_estimate_subroutine: ', !ERROR_STATE.MSG
+    there_was_an_error = 1
+    goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error
   endif
   
   last_old_particle=1664759 ;id_dust_event of the last particle run on the old acc length.
@@ -123,50 +123,61 @@ pro idl_batch_processor,path_folder
             printf, lun, 'Q', -2
             print,out_k,' Tobins code had an error'
           endif else begin
-            out = triple_est_latest(wv1, wv2, wv3, dt,old_data=(id_dust_event le last_old_particle))
+            out_k = triple_est_latest(wv1, wv2, wv3, dt,old_data=(id_dust_event le last_old_particle))
             ;print, out
             ;/Andrew's code.
-            if out.quality lt qthreshold then begin ;if Andrew's code failed 
+            if out_k.quality lt qthreshold then begin ;if Andrew's code failed 
               printf, lun, 'V', -1
               printf, lun, 'C', -1
               printf, lun, 'Q', 0
               print,'both failed'
             endif  else begin
-              if out.quality eq 50 then begin
+              if out_k.quality eq 50 then begin
                 printf, lun, 'V', -3
                 printf, lun, 'C', -1
                 printf, lun, 'Q', -1
                 print,'Andrews code had an error'
               endif else begin  ;print Andrew's results if his code worked:
-                printf, lun, 'V', out.velocity
-                printf, lun, 'C', out.charge
+                printf, lun, 'V', out_k.velocity
+                printf, lun, 'C', out_k.charge
                 printf, lun, 'Q', 1
-                print,out,' Andrews code'
+                print,out_k,' Andrews code'
               endelse
             endelse
           endelse
         endelse
-        positions = dcs_positioning(file)
-        printf, lun, 'X1', positions[0]
-        printf, lun, 'Y1', positions[1]
-        printf, lun, 'X2', positions[2]
-        printf, lun, 'Y2', positions[3]
       endif else begin
         printf, lun, 'V', -1
         printf, lun, 'C', -1
         printf, lun, 'Q', -3
         print,'Waveforms are missing or bad'
       endelse
-      ; continueq = DIALOG_MESSAGE('Continue?', /question,/center)
-      ;if continueq eq 'No' then break
+      
+      ;Makes sure dcs_1 and dcs_2 are structs (type 8) rather than ints (type 2)
+      IF size(out.dcs_1, /type) eq 8 and size(out.dcs_2, /type) eq 8 then begin
+        positions = dcs_positioning(file)
+        printf, lun, 'X1', positions[0]
+        printf, lun, 'Y1', positions[1]
+        printf, lun, 'X2', positions[2]
+        printf, lun, 'Y2', positions[3]
       endif else begin
-        printf, lun, 'V', -1
-        printf, lun, 'C', -1
-        printf, lun, 'Q', -4
-        print,'File does not exist'
+        printf, lun, 'X1', -99
+        printf, lun, 'Y1', -99
+        printf, lun, 'X2', -99
+        printf, lun, 'Y2', -99
       endelse
-      printf, lun, ','                        ;print ',' to separate shot outputs
-      print,'Iteration number: ',i
+    endif else begin
+      printf, lun, 'V', -1
+      printf, lun, 'C', -1
+      printf, lun, 'Q', -4
+      printf, lun, 'X1', -99
+      printf, lun, 'Y1', -99
+      printf, lun, 'X2', -99
+      printf, lun, 'Y2', -99
+      print,'File does not exist'
+    endelse
+    printf, lun, ','                        ;print ',' to separate shot outputs
+    print,'Iteration number: ',i
   endfor
   free_lun, lun                        ;close file
   
@@ -181,6 +192,10 @@ pro idl_batch_processor,path_folder
     printf, lun, 'V', -5
     printf, lun, 'C', -5
     printf, lun, 'Q', -5
+    printf, lun, 'X1', -99
+    printf, lun, 'Y1', -99
+    printf, lun, 'X2', -99
+    printf, lun, 'Y2', -99
     printf, lun, ','
     print,'IDL Batch Processor failed'
     

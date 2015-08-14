@@ -8,19 +8,19 @@ END
 
 
 FUNCTION DCS_POSITIONING, filename ; This will eventually be changed to a function that returns xy values
-  
-  maxes = Waveform_Max_HDF5(filename);1x16 array from both dcs 1 and dcs 2
+  print,filename
+  maxes = dcs_Waveform_Max_HDF5(filename);1x16 array from both dcs 1 and dcs 2
   dcs_1_maxes = maxes[0:7]
   dcs_2_maxes = maxes[8:15]
   
-  dcs_1_normalized_data = normalize_2(dcs_1_maxes);1x8 array
-  dcs_2_normalized_data = normalize_2(dcs_2_maxes);1x8 array
+  dcs_1_normalized_data = dcs_normalize_2(dcs_1_maxes);1x8 array
+  dcs_2_normalized_data = dcs_normalize_2(dcs_2_maxes);1x8 array
   
-  dcs_1_look_up_table_file = look_up_tables(dcs_1_maxes);structure of 8 individual 1x625 arrays
-  dcs_1_coordinate_table_file = coordinate_tables(dcs_1_maxes);structure of 2 individual 1x625 arrays
+  dcs_1_look_up_table_file = dcs_look_up_tables(dcs_1_maxes);structure of 8 individual 1x625 arrays
+  dcs_1_coordinate_table_file = dcs_coordinate_tables(dcs_1_maxes);structure of 2 individual 1x625 arrays
   
-  dcs_2_look_up_table_file = look_up_tables(dcs_2_maxes);structure of 8 individual 1x625 arrays
-  dcs_2_coordinate_table_file = coordinate_tables(dcs_2_maxes);structure of 2 individual 1x625 arrays
+  dcs_2_look_up_table_file = dcs_look_up_tables(dcs_2_maxes);structure of 8 individual 1x625 arrays
+  dcs_2_coordinate_table_file = dcs_coordinate_tables(dcs_2_maxes);structure of 2 individual 1x625 arrays
   
   dcs_1_look_up_values = transpose([[dcs_1_look_up_table_file.(0)], $ ;8x625 2D array
                     [dcs_1_look_up_table_file.(1)], $
@@ -48,11 +48,11 @@ FUNCTION DCS_POSITIONING, filename ; This will eventually be changed to a functi
   dcs_2_diff_squared = fltarr(625)
   
   For i=0, 624 DO BEGIN ;loops through each row of look_up_values array to compute sum of differences squared and places result in each index of diff_squared
-    dcs_1_diff_squared(i) = residual_squared(dcs_1_normalized_data,dcs_1_look_up_values(*,i)) 
+    dcs_1_diff_squared(i) = dcs_residual_squared(dcs_1_normalized_data,dcs_1_look_up_values(*,i)) 
   Endfor
   
   For i=0, 624 DO BEGIN ;loops through each row of look_up_values array to compute sum of differences squared and places result in each index of diff_squared
-    dcs_2_diff_squared(i) = residual_squared(dcs_2_normalized_data,dcs_2_look_up_values(*,i))
+    dcs_2_diff_squared(i) = dcs_residual_squared(dcs_2_normalized_data,dcs_2_look_up_values(*,i))
   Endfor
   
   dcs_1_min_diff_squared = min(dcs_1_diff_squared, dcs_1_min_index_diff_squared) ;finds the row in the look up table producing the least error
@@ -81,7 +81,7 @@ FUNCTION DCS_POSITIONING, filename ; This will eventually be changed to a functi
 
 END
 
-FUNCTION normalize_2, maxes ;Normalizes max values to 2
+FUNCTION dcs_normalize_2, maxes ;Normalizes max values to 2
 
   sum_maxes = TOTAL(maxes)
 
@@ -93,7 +93,7 @@ FUNCTION normalize_2, maxes ;Normalizes max values to 2
   
 END
 
-FUNCTION look_up_tables, maxes ;determines the quadrant of the measurement then reads in coresponding look-up table files for expected normalized values
+FUNCTION dcs_look_up_tables, maxes ;determines the quadrant of the measurement then reads in coresponding look-up table files for expected normalized values
 
   file_array=STRSPLIT(STRCOMPRESS(!PATH), ';', /EXTRACT)
   origin_path = STRTRIM(file_array[N_ELEMENTS(file_array)-1])
@@ -129,7 +129,7 @@ FUNCTION look_up_tables, maxes ;determines the quadrant of the measurement then 
 
 END
 
-FUNCTION coordinate_tables, maxes ;determins quadrant of measurement then reads in coresponding xy coordinate csv file
+FUNCTION dcs_coordinate_tables, maxes ;determins quadrant of measurement then reads in coresponding xy coordinate csv file
   
   file_array=STRSPLIT(STRCOMPRESS(!PATH), ';', /EXTRACT)
   origin_path = STRTRIM(file_array[N_ELEMENTS(file_array)-1])
