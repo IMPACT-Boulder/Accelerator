@@ -95,8 +95,8 @@ pro idl_batch_processor,path_folder
       wv1 = out.first_detector.waveform
       wv2 = out.second_detector.waveform
       wv3 = out.third_detector.waveform
-      dcs_1 = out.dcs_1.waveform
-      dcs_2 = out.dcs_2.waveform
+      dcs1 = out.dcs_1
+      dcs2 = out.dcs_2
       wv1size = SIZE(wv1,/N_ELEMENTS)
       print,wv1size,'test2'
       wv2size = SIZE(wv2,/N_ELEMENTS)
@@ -156,9 +156,9 @@ pro idl_batch_processor,path_folder
       endelse
       
       ;Makes sure dcs_1 and dcs_2 are structs (type 8) rather than ints (type 2)
-      IF size(out.dcs_1, /type) eq 8 and size(out.dcs_2, /type) eq 8 then begin
-        dcs_1_position = dcs_positioning(dcs_1)
-        dcs_2_position = dcs_positioning(dcs_2)
+      IF size(dcs1, /type) eq 8 and size(dcs2, /type) eq 8 then begin
+        dcs_1_position = dcs_positioning(dcs1.waveform)
+        dcs_2_position = dcs_positioning(dcs2.waveform)
         printf, lun, 'X1', dcs_1_position[0]
         printf, lun, 'Y1', dcs_1_position[1]
         printf, lun, 'X2', dcs_2_position[0]
