@@ -11,7 +11,7 @@ PRO DCS_POSITIONING
 END
 
 
-FUNCTION DCS_POSITIONING, waveform ; This will eventually be changed to a function that returns xy values
+FUNCTION DCS_POSITIONING, waveform, x_correction, y_correction; This will eventually be changed to a function that returns xy values
   dcs_maxes = dcs_Waveform_Max_HDF5(waveform);1x16 array from both dcs
   
   dcs_normalized_data = dcs_normalize_2(dcs_maxes);1x8 array
@@ -41,12 +41,13 @@ FUNCTION DCS_POSITIONING, waveform ; This will eventually be changed to a functi
   
   IF dcs_min_diff_squared LT 0.2 THEN BEGIN ;sets a limit on error to avoid what is likely from noise
     dcs_xy_values = dcs_coordinate_values(*,dcs_min_index_diff_squared) ;finds the row on the coordinate values with matching index to coresponding look up values row
+    dcs_xy_values_corrected = dcs_xy_values - [x_correction, y_correction] ;corrected dcs x y values correction is dcs center to beamline center in dcs coordinate system
     ;print, ('dcs 1 maxes'), dcs_1_maxes
   ENDIF ELSE BEGIN 
-    dcs_xy_values = [-99, -99] 
+    dcs_xy_values_corrected = [-99, -99] 
   ENDELSE; This will be changed to a return value when dcs_positioning is called as a function
   
-  dcs_coordinates = [dcs_xy_values]
+  dcs_coordinates = dcs_xy_values_corrected
   
   return, dcs_coordinates
 

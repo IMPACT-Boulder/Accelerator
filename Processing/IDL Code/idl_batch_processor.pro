@@ -60,10 +60,15 @@ pro idl_batch_processor,path_folder
   if error_status ne 0 then begin
     catch,/cancel
     ;PRINT, 'Inside v_estimate_subroutine Error index: ', Error_status
-    if keyword_set(verbose) then print,'Error message from within v_estimate_subroutine: ', !ERROR_STATE.MSG
+    print,'Error message from within v_estimate_subroutine: ', !ERROR_STATE.MSG
     there_was_an_error = 1
     goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error
   endif
+  
+  x_1_correction = 0.5 ;corrections based on measurement from beamline to dcs center in dcs coordinate system in mm.
+  y_1_correction = -0.5
+  x_2_correction = 2.5
+  y_2_correction = 2.5
   
   last_old_particle=1664759 ;id_dust_event of the last particle run on the old acc length.
   
@@ -157,8 +162,8 @@ pro idl_batch_processor,path_folder
       
       ;Makes sure dcs_1 and dcs_2 are structs (type 8) rather than ints (type 2)
       IF size(dcs1, /type) eq 8 and size(dcs2, /type) eq 8 then begin
-        dcs_1_position = dcs_positioning(dcs1.waveform)
-        dcs_2_position = dcs_positioning(dcs2.waveform)
+        dcs_1_position = dcs_positioning(dcs1.waveform, x_1_correction, y_1_correction)
+        dcs_2_position = dcs_positioning(dcs2.waveform, x_2_correction, y_2_correction)
         printf, lun, 'X1', dcs_1_position[0]
         printf, lun, 'Y1', dcs_1_position[1]
         printf, lun, 'X2', dcs_2_position[0]
