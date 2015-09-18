@@ -39,7 +39,7 @@ FUNCTION DCS_POSITIONING, waveform, x_correction, y_correction; This will eventu
   dcs_min_diff_squared = min(dcs_diff_squared, dcs_min_index_diff_squared) ;finds the row in the look up table producing the least error
   print,('dcs min diff squared'), dcs_min_diff_squared
   
-  IF dcs_min_diff_squared LT 0.2 THEN BEGIN ;sets a limit on error to avoid what is likely from noise
+  IF dcs_min_diff_squared LT 0.15 THEN BEGIN ;sets a limit on error to avoid what is likely from noise
     dcs_xy_values = dcs_coordinate_values(*,dcs_min_index_diff_squared) ;finds the row on the coordinate values with matching index to coresponding look up values row
     dcs_xy_values_corrected = dcs_xy_values - [x_correction, y_correction] ;corrected dcs x y values correction is dcs center to beamline center in dcs coordinate system
     ;print, ('dcs 1 maxes'), dcs_1_maxes
