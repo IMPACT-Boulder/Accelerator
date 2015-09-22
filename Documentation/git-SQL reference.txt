@@ -256,6 +256,6 @@ Select "Unicode Driver", then press "Finsh."
 In "Data Source Name:", enter "CCLDAS_TEST" exactly. This value is non-negotiable.
 Select the "Named Pipe" option. In the "User:" space, enter "root", and in the "Password:" space, enter the password you created earlier. In the "Database:" space, select the "CCLDAS_TEST" database.
 
-If you want to test the connection to the database, go to the git folder, then go to Database IO and open "Connect in.vi". If this vi runs without errors, your connection is sound. If it creates an error, you may have entered your password or something else wrong in Data Sources (ODBC).
+If you want to test the connection to the database, go to the git folder, then go to User Interface and open "Database Connection.vi". If this vi runs without errors, your connection is sound. If it creates an error, you may have entered your password or something else wrong in Data Sources (ODBC).
 
 To make sure all the data is on the database, go to User Interface and open "Query_Dust_Event_v2.vi". You should see points in the plot. If not, bring the "Lower Timestamp Range" down to 1/1/1900, decrease the "Limit to _ events" control to 100 events, and press "Plot." Depending on how good your computer is, this may take 30 seconds or even a minute. If you still see no events, you probably have to import the .sql backup file again.
