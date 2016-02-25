@@ -65,10 +65,10 @@ pro idl_batch_processor,path_folder
     goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error
   endif
   
-  x_1_correction = 0.5 ;corrections based on measurement from beamline to dcs center in dcs coordinate system in mm.
-  y_1_correction = -0.5
-  x_2_correction = 2.5
-  y_2_correction = 2.5
+  x_1_correction = 0 ;corrections based on measurement from beamline to dcs center in dcs coordinate system in mm.
+  y_1_correction = -2.4
+  x_2_correction = 1.5
+  y_2_correction = 0
   
   last_old_particle=1664759 ;id_dust_event of the last particle run on the old acc length.
   
@@ -87,6 +87,14 @@ pro idl_batch_processor,path_folder
   
   i=0
   For i=0,nshots-1 do begin;examine all shots 
+    there_was_a_line_error = 0
+    catch, line_error_status
+    if line_error_status ne 0 then begin
+      catch,/cancel
+      print,'Error message from within v_estimate_subroutine: ', !ERROR_STATE.MSG
+      there_was_a_line_error = 1
+      goto,line_error_jump_point
+    endif
     id_dust_event = ULONG64(shots.(STRING(i)))
     
     file = STRCOMPRESS(path_folder + '\' + string(id_dust_event/1000) + '\' + string(id_dust_event) +'.hdf5' ,/REMOVE_ALL)
@@ -184,12 +192,31 @@ pro idl_batch_processor,path_folder
       printf, lun, 'Y2', -99
       print,'File does not exist'
     endelse
+    ; This is a -5 error. This usually means that there's something
+    ; wrong with the DCS part of the hdf5 file.
+    line_error_jump_point:
+    if there_was_a_line_error then begin
+      if (fstat(lun)).open eq 0 then begin
+        goto, error_jump_point
+      endif
+      printf, lun, 'V', -5
+      printf, lun, 'C', -5
+      printf, lun, 'Q', -5
+      printf, lun, 'X1', -99
+      printf, lun, 'Y1', -99
+      printf, lun, 'X2', -99
+      printf, lun, 'Y2', -99
+    endif
     printf, lun, ','                        ;print ',' to separate shot outputs
     print,'Iteration number: ',i
   endfor
   free_lun, lun                        ;close file
   
-  error_jump_point: ;print,'got to error jump point'
+  ; This is the worst kind of error. If you see a -6 error in the database,
+  ; it may be a good idea to contact someone who does software development.
+  ; It means something crazy happened before we even started processing the
+  ; data, or something worse than crazy happened while we were processing data.
+  error_jump_point:
   if there_was_an_error then begin
     if (fstat(lun)).open eq 0 then begin
       openw, lun, output_file_id, /get_lun
@@ -197,16 +224,15 @@ pro idl_batch_processor,path_folder
       free_lun, lun
       openw, lun, output_file_id, /get_lun
     endelse
-    printf, lun, 'V', -5
-    printf, lun, 'C', -5
-    printf, lun, 'Q', -5
+    printf, lun, 'V', -6
+    printf, lun, 'C', -6
+    printf, lun, 'Q', -6
     printf, lun, 'X1', -99
     printf, lun, 'Y1', -99
     printf, lun, 'X2', -99
     printf, lun, 'Y2', -99
     printf, lun, ','
     print,'IDL Batch Processor failed'
-    
     free_lun, lun
   endif
 end
