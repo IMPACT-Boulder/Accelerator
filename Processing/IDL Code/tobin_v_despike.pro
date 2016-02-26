@@ -70,19 +70,29 @@ pro tobin_v_despike,wv1,wv2,wv3,dt,v_guess,thereisaspike,$
   if total(spike_existence_criteria - [1,1,1]) eq 0 then begin ;Found a spike, now remove it
      if keyword_set(reallyverbose) then print,'          Voltage spike found; removing it.'
      thereisaspike = 1          ;existence
-     spike_peakidx = peakidx1    ;location
+     spike_peakidx = peakidx1   ;location
      extrawidth = 0
      if v_guess ge 15000.0 then begin            ;where relevant, add extra squashed indices to right
-        search_width_s = 10.0 * 1.0e-6 ;[s] width of area to search within 
+        search_width_s = 10.0 * 1.0e-6           ;[s] width of area to search within 
         search_width   = long(search_width_s/dt) ;[samples]
-        search_region  = spike_peakidx + lindgen(search_width) - search_width/2
-        spikypart = wv1(search_region)
+
+        ;print,'search_width = '+s2(search_width)
+
+        search_region  = spike_peakidx + lindgen(search_width) - search_width/2 ;search in a region of searchwidth around spike
+        spikypart = wv1(search_region)                                          ;this is the region around the spike
         ;spikypart = smooth(spikypart,5)
         spike_indices0 = search_region(0) + where(spikypart ge 0.2 *max(spikypart))
         halfidx1 = min(spike_indices0)
         halfidx2 = max(spike_indices0)
 
-        extrawidth = 40*(max(spike_indices0)-min(spike_indices0))
+        ;;This can make too large an "extrawidth" if the spike is
+        ;;small compared to the background noise level.  That's
+        ;;why the widest_spike limit was put in on 2/12/16 by Tobin.
+        ;extrawidth = 40*(max(spike_indices0)-min(spike_indices0))
+        widest_spike_s = 1.0 * 1.0e-6 ;only flatten this much of waveform at most
+        widest_spike   = long(widest_spike_s/dt)
+        extrawidth = min([40*(max(spike_indices0)-min(spike_indices0)) , widest_spike])
+
      endif
 
      ;;add extra indices to left and right of spike based on velocity
@@ -90,6 +100,11 @@ pro tobin_v_despike,wv1,wv2,wv3,dt,v_guess,thereisaspike,$
      ;;squashtime_s  = 8.0*1.0e-6 ;[s] how much to squash around spike
      squashtime_s = 0.8/v_guess
      squashtime    = long(squashtime_s/dt) ;[samples]
+
+     ;print,'squashtime_s = '+s2(squashtime_s)
+     ;print,'squashtime_samples = '+s2(squashtime)
+     ;print,'extrawidth_samples = '+s2(extrawidth)
+
      spike_indices = spike_peakidx - squashtime/2 + indgen(squashtime+extrawidth)
   endif
 
