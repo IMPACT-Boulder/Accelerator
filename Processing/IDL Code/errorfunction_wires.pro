@@ -16,7 +16,7 @@ function errorfunction_wires,x,y,combined_wiremap,datavalues
   interpolated_datavalues = dblarr(8)
   for j=0,7 do begin
      single_wiremap = combined_wiremap(*,*,j+2)
-     interpolated_datavalues(j) = interpolate(single_wiremap,fracidx(x),fracidx(y),/double,cubic=-0.5)
+     interpolated_datavalues(j) = interpolate(single_wiremap,fracidx(x),fracidx(y),cubic=-0.5) ;Removed DOUBLE keyword
   endfor
   return,total(abs(datavalues-interpolated_datavalues))
 end
