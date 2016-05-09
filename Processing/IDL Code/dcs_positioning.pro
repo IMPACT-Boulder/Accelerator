@@ -16,11 +16,14 @@ END
 
 
 FUNCTION DCS_POSITIONING, waveform, x_correction, y_correction; This will eventually be changed to a function that returns xy values
-  dcs_maxes = dcs_Waveform_Max_HDF5(waveform);1x16 array from both dcs
-  highest_dcs_max = max(dcs_maxes) ;finds the maximum peak voltage after adjustments in order to determine quality of the signal
-  print,'highest max', highest_dcs_max
+  rank = 3
+  dcs_maxes = dcs_Waveform_Max_HDF5(waveform, rank);1x16 array from both dcs
+  highest_dcs_max = max(dcs_maxes, highest_dcs_max_index) ;finds the maximum peak voltage after adjustments in order to determine quality of the signal
+  max_channel_number = highest_dcs_max_index
+  channel_noise_sd = dcs_channel_noise(waveform, rank)
+  threshold = 4 * channel_noise_sd(max_channel_number)
   
-  IF highest_dcs_max GE 0.009 THEN BEGIN ;0.04 is typically the lowest clear particle signal observed in dcs waveforms. This may be adjusted in the future.
+  IF highest_dcs_max GE threshold THEN BEGIN ;0.04 is typically the lowest clear particle signal observed in dcs waveforms. This may be adjusted in the future.
     dcs_normalized_data = dcs_normalize_2(dcs_maxes);1x8 array
     ;call dcs_find_coordinates_from_peak_voltages here 
     dcs_find_coordinates_from_peak_voltages, dcs_normalized_data, dcs_xy_values
