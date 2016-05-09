@@ -21,7 +21,7 @@ FUNCTION DCS_POSITIONING, waveform, x_correction, y_correction; This will eventu
   highest_dcs_max = max(dcs_maxes, highest_dcs_max_index) ;finds the maximum peak voltage after adjustments in order to determine quality of the signal
   max_channel_number = highest_dcs_max_index
   channel_noise_sd = dcs_channel_noise(waveform, rank)
-  threshold = 4 * channel_noise_sd(max_channel_number)
+  threshold = 4.5 * channel_noise_sd(max_channel_number)
   
   IF highest_dcs_max GE threshold THEN BEGIN ;0.04 is typically the lowest clear particle signal observed in dcs waveforms. This may be adjusted in the future.
     dcs_normalized_data = dcs_normalize_2(dcs_maxes);1x8 array
