@@ -136,7 +136,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
   d_23 = 3.343                  ; distance 2->3 [m] AFTER March 5, 2014
   if keyword_set(old_data) then d_23 = 5.022 ; distance 2->3 [m]
   d_13 = d_23+d_12              ; distance 1->3 [m]
- 
+
   v_12 = d_12/(y2peakidx-y1peakidx)/dt
   v_23 = d_23/(y3peakidx-y2peakidx)/dt
   v_13 = d_13/(y3peakidx-y1peakidx)/dt
@@ -633,6 +633,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
   ;v_guess = 1000.0*[100,50,20,10,5,2] ;[m/s] takes 0.0379 sec avg.
   ;v_guess = 1000.0*[100,50,20,10,5]   ;[m/s] takes 0.0322 sec avg.
   v_guess = 1000.0*[100,50,20,5]      ;[m/s] takes 0.0253 sec avg.
+  ;v_guess = 1000.0*[20,10,5,2] ;[m/s] David's temp fix
 
   ;;MIGHT BE ABLE TO REDUCE THE NUMBER OF SLOW VELOCITIES AND STILL
   ;;GET GOOD RESULTS (Because of the strong signals and the droop)
@@ -647,6 +648,7 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
                                         thereisaspike,spike_indices,$
                                         verbose=verbose,old_data=old_data,$
                                         particle_number=particle_number)
+
      velocity = returndata.velocity
      if j eq n_elements(v_guess)-1 then begin ;ran out of tries
         badparticle=1
