@@ -16,50 +16,24 @@ END
 
 
 FUNCTION DCS_POSITIONING, waveform, x_correction, y_correction; This will eventually be changed to a function that returns xy values
-  dcs_maxes = dcs_Waveform_Max_HDF5(waveform);1x16 array from both dcs
-  highest_dcs_max = max(dcs_maxes) ;finds the maximum peak voltage after adjustments in order to determine quality of the signal
+  rank = 3
+  dcs_maxes = dcs_Waveform_Max_HDF5(waveform, rank);1x16 array from both dcs
+  highest_dcs_max = max(dcs_maxes, highest_dcs_max_index) ;finds the maximum peak voltage after adjustments in order to determine quality of the signal
+  max_channel_number = highest_dcs_max_index
+  channel_noise_sd = dcs_channel_noise(waveform, rank)
+  threshold = 4.5 * channel_noise_sd(max_channel_number)
   
-  IF highest_dcs_max GE 0.04 THEN BEGIN ;0.04 is typically the lowest clear particle signal observed in dcs waveforms. This may be adjusted in the future.
+  IF highest_dcs_max GE threshold THEN BEGIN ;0.04 is typically the lowest clear particle signal observed in dcs waveforms. This may be adjusted in the future.
     dcs_normalized_data = dcs_normalize_2(dcs_maxes);1x8 array
     ;call dcs_find_coordinates_from_peak_voltages here 
     dcs_find_coordinates_from_peak_voltages, dcs_normalized_data, dcs_xy_values
     dcs_xy_values_corrected = dcs_xy_values - [x_correction, y_correction]
     dcs_coordinates = dcs_xy_values_corrected
+    print, 'dcs_coordinates ', dcs_coordinates
   ENDIF ELSE BEGIN
     dcs_xy_values = [-99,-99]
     dcs_coordinates = dcs_xy_values
   ENDELSE
-  
-  ;dcs_look_up_table_file = dcs_look_up_tables(dcs_maxes);structure of 8 individual 1x625 arrays
-  ;dcs_coordinate_table_file = dcs_coordinate_tables(dcs_maxes);structure of 2 individual 1x625 arrays
-  
-  ;dcs_look_up_values = transpose([[dcs_look_up_table_file.(0)], $ ;8x625 2D array
-  ;                  [dcs_look_up_table_file.(1)], $
-  ;                  [dcs_look_up_table_file.(2)], $
-  ;                  [dcs_look_up_table_file.(3)], $
-  ;                  [dcs_look_up_table_file.(4)], $
-  ;                  [dcs_look_up_table_file.(5)], $
-  ;                  [dcs_look_up_table_file.(6)], $
-  ;                  [dcs_look_up_table_file.(7)]])
-                  
-  ;dcs_coordinate_values = transpose([[dcs_coordinate_table_file.(0)],[dcs_coordinate_table_file.(1)]])   ;2x625 2D array
-  
-  ;dcs_diff_squared = fltarr(625) ;initialize the array to hold differences squared i.e. error
-  
-  ;For i=0, 624 DO BEGIN ;loops through each row of look_up_values array to compute sum of differences squared and places result in each index of diff_squared
-  ;  dcs_diff_squared(i) = dcs_error(dcs_normalized_data, dcs_look_up_values(*,i))
-  ;Endfor
-  
-  ;dcs_min_diff_squared = min(dcs_diff_squared, dcs_min_index_diff_squared) ;finds the row in the look up table producing the least error
-  ;print,('dcs min diff squared'), dcs_min_diff_squared
-  
-  ;IF dcs_min_diff_squared LT 0.15 THEN BEGIN ;sets a limit on error to avoid what is likely from noise
-  ;  dcs_xy_values = dcs_coordinate_values(*,dcs_min_index_diff_squared) ;finds the row on the coordinate values with matching index to coresponding look up values row
-  ;  dcs_xy_values_corrected = dcs_xy_values - [x_correction, y_correction] ;corrected dcs x y values correction is dcs center to beamline center in dcs coordinate system
-    ;print, ('dcs 1 maxes'), dcs_1_maxes
-  ;ENDIF ELSE BEGIN 
-  ;  dcs_xy_values_corrected = [-99, -99] 
-  ;ENDELSE; This will be changed to a return value when dcs_positioning is called as a function
   
   return, dcs_coordinates
 

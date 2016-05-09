@@ -34,7 +34,7 @@ pro dcs_find_coordinates_from_peak_voltages,wire_peak_values,xyout,$
   restore,'\Users\Clavius\Desktop\Accelerator\Processing\IDL Code\dcs_combined_wire_voltages.sav',verbose=verbose
   xmap = dcs_combined_wire_voltages[*,*,0]
   ymap = dcs_combined_wire_voltages[*,*,1]
-
+  print, 'I have the table'
   ;;Do the straightforward matching to the COULOMB output, quantized
   ;;to a 0.5 mm grid.  This will be used as a starting point for the
   ;;interpolated search.
@@ -53,7 +53,7 @@ pro dcs_find_coordinates_from_peak_voltages,wire_peak_values,xyout,$
   ;;Could stop here if we didn't want to bother with the interpolation...
 
   ;;Make plots of search procedure
-  if keyword_set(verbose) then begin
+  if keyword_set(verbose) then begin 
      if not keyword_set(target_xy) then target_xy=[0.0,0.0]
      x1 = target_xy(0)
      y1 = target_xy(1)
@@ -75,9 +75,9 @@ pro dcs_find_coordinates_from_peak_voltages,wire_peak_values,xyout,$
            oplot,x1*[1,1],y1*[1,1],psym=6,color=colors.green,symsize=0.5,thick=3
         endfor
      endfor
-
+     
      plot_errormap = 1
-     if plot_errormap eq 1 then begin
+     if plot_errormap eq 1 then begin 
         window,4,xpos=400,xsize=800,ysize=800
         !p.multi=[0,1,1]
         errormap1 = dblarr(49,49)
@@ -135,7 +135,7 @@ pro dcs_find_coordinates_from_peak_voltages,wire_peak_values,xyout,$
      xminus = max([x1best-stepsize,xlo]) ;don't run over the edge!
      yplus  = min([y1best+stepsize,yhi]) ;don't run over the edge!
      yminus = max([y1best-stepsize,ylo]) ;don't run over the edge!
-
+    
      error_array(0) = errorfunction_wires(xminus,yplus ,dcs_combined_wire_voltages,wire_peak_values) ;NW
      error_array(1) = errorfunction_wires(x1best,yplus ,dcs_combined_wire_voltages,wire_peak_values) ;N
      error_array(2) = errorfunction_wires(xplus ,yplus ,dcs_combined_wire_voltages,wire_peak_values) ;NE
@@ -145,7 +145,8 @@ pro dcs_find_coordinates_from_peak_voltages,wire_peak_values,xyout,$
      error_array(6) = errorfunction_wires(xminus,yminus,dcs_combined_wire_voltages,wire_peak_values) ;SW
      error_array(7) = errorfunction_wires(x1best,yminus,dcs_combined_wire_voltages,wire_peak_values) ;S
      error_array(8) = errorfunction_wires(xplus ,yminus,dcs_combined_wire_voltages,wire_peak_values) ;SE
-     result = min(error_array,bestidx)
+    
+     result = min(error_array,bestidx)  
      if min(error_array) eq error_array(4) then bestidx=4 ;takes care of edge issues...
      case bestidx of
         0:begin

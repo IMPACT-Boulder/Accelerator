@@ -11,6 +11,19 @@
 ;If any of them do, use their derived velocity as a final width to
 ;make a last pass.
 ;
+;Revised 3/9/16  : Imposed minimum smoothing length of 5 samples to
+;                  deal with really really slow particles taken with
+;                  low data acquisition rates.
+;
+;                  Also revised the way that charge is calculated for
+;                  slow particles.  Specifically, changed the way that
+;                  the peak signal is located within the waveform in
+;                  the vicinity of the drooping top-hat. 
+;
+;                  Added 2 km/s and 1 km/s to the guesses in the
+;                  loop. This shouldn't slow anything down,
+;                  since the algorithm normally doesn't get that far. 
+;
 ;Revised 4/8/14  : Added error-handling statements into
 ;                  v_estimate_subroutine, including 'catch'
 ;                  statement, error_jump_point, and variable
@@ -58,7 +71,10 @@
 function convofilter,y,v_filter,dt
   detector_length = 0.18        ;[m] length of inner tube used for filter width
   ;create filter of width somewhat wider than v_guess
-  filterwidth = long(detector_length/v_filter/dt)
+  ;impose minimum width of 1 to keep routine from choking on weird
+  ;datasets like fast v_guess applied to slow sampling rates
+  ;filterwidth = long(detector_length/v_filter/dt)
+  filterwidth = max([1,long(detector_length/v_filter/dt)])
   y_filtered = -3.0*(smooth(y,filterwidth,/edge_truncate)-smooth(y,3*filterwidth,/edge_truncate))
   return,y_filtered
 end
@@ -174,7 +190,8 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
         ;;the midpoint between them.
 
         smoothing_time = 0.000001  ;[s]
-        smoothing_length = long(smoothing_time/dt)
+        ;smoothing_length = long(smoothing_time/dt)
+        smoothing_length = max([5,long(smoothing_time/dt)])
         ;print,'smoothing_length = '+s2(smoothing_length)+' samples.'
         ;yf1 = smooth2(y1,2*smoothing_length) ;SLOW
         yf1 = smooth(y1,2*smoothing_length,/edge_truncate)
@@ -344,7 +361,7 @@ function v_estimate_subroutine,y1,y2,y3,dt,v_guess,thereisaspike,spike_indices,$
         spacingtest_thresh2 = 100.0 ;essentially removing this as a failure mode
         spacingtest1 = abs(y3peakspacing-y1peakspacing)/float(y1peakspacing)
         spacingtest2 = abs(y3peakspacing-y2peakspacing)/float(y2peakspacing)
-        print,spacingtest1,spacingtest2
+        ;print,spacingtest1,spacingtest2
         ;if spacingtest1 gt spacingtest_thresh or spacingtest2 gt spacingtest_thresh then begin
         ;   ;print,'failed test of signal-length consistency'
         ;   badparticle_spacing_consistency = 1
@@ -533,6 +550,17 @@ end
 function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetector,verbose=verbose,$
                                used_alternate_peakroutine=used_alternate_peakroutine,yminidx=yminidx,$
                                particle_number=particle_number
+
+  ;;Some notes on variable names and indices
+  ;;
+  ;;ypeakidx      = the index of the center of the top-hat (for a square pulse)
+  ;;zoom_length   = length of waveform to be plotted in the
+  ;;                visualization of the charge calculation
+  ;;zoom          = the part of the signal being plotted in the
+  ;;                visualization of the charge calculation
+  ;;signal_minidx = index (of full waveform) at location of the
+  ;;                beginning of the top-hat
+
   case whichdetector of 
      1: det_cal = 1.14e13       ;detector 1 calibration factor [CSA 2]
      2: det_cal = 1.24e13       ;detector 2 calibration factor [CSA 3]
@@ -544,9 +572,10 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
   zoom_length   = 8L*signal_length
   full_length   = n_elements(y)
 
-  drooptime   = 5.0e-6          ;decay time for detector amplifiers
-  drooplength = long(drooptime/dt)
-     
+  drooptime   = 5.0e-6             ;decay time for detector amplifiers
+  drooplength = long(drooptime/dt) ;[samples]
+  ;print,'drooplength = '+s2(drooplength)
+
   zoom_minidx = max([ypeakidx - zoom_length/2,0])
   zoom_maxidx = min([ypeakidx + zoom_length/2,full_length-1])
   zoom = y(zoom_minidx:zoom_maxidx)
@@ -560,8 +589,23 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
   ;;beginning of the signal rather than the midpoint.
   if keyword_set(used_alternate_peakroutine) then begin
      ;print,'Inside charge calculation: using alternate peak definition'
-     signal_minidx = yminidx+3*drooplength
-     signal_maxidx = signal_minidx+drooplength
+
+     ;original version
+     ;signal_minidx = yminidx+3*drooplength
+     ;signal_maxidx = signal_minidx+drooplength
+
+     ;new version
+     ;print,'sample time='+s2((signal_maxidx-signal_minidx)*dt)
+     smoothingtime = 5.0e-7
+     smoothinglength = max([long(smoothingtime/dt),5])
+     ;print,smoothinglength
+     thing = min(smooth(zoom,smoothinglength),zoom_valley_idx)
+     ;print,'zoom valley idx = '+s2(zoom_valley_idx)
+     alt_yminidx = zoom_valley_idx + zoom_minidx ;location in full waveform of lowest voltage
+     signal_minidx = alt_yminidx ;- 2*drooplength
+     signal_maxidx = alt_yminidx + drooplength
+     ;print,signal_minidx,signal_maxidx
+
   endif
 
   offset_minidx = max([ypeakidx-3*signal_length,0])
@@ -593,7 +637,9 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
 
      title='Detector '+strcompress(string(whichdetector),/remove_all)+title1
      plot,zoom,charsize=2.0,title=title
-     oplot,2.0*y_filtered(zoom_minidx:zoom_maxidx),color=colors.orange,thick=3
+     if not keyword_set(used_alternate_peakroutine) then begin
+        oplot,2.0*y_filtered(zoom_minidx:zoom_maxidx),color=colors.orange,thick=3
+     endif
      oplot,findgen(new_signal_length)+first_idx_of_signal_within_zoom,$
            y(signal_minidx:signal_maxidx),color=colors.red
      oplot,findgen(offset_length)+first_idx_of_offset_within_zoom,$
@@ -632,7 +678,9 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
   ;cycle through until a good particle is found or we run out of tries
   ;v_guess = 1000.0*[100,50,20,10,5,2] ;[m/s] takes 0.0379 sec avg.
   ;v_guess = 1000.0*[100,50,20,10,5]   ;[m/s] takes 0.0322 sec avg.
-  v_guess = 1000.0*[100,50,20,5]      ;[m/s] takes 0.0253 sec avg.
+  ;v_guess = 1000.0*[100,50,20,5]      ;[m/s] takes 0.0253 sec avg.
+  v_guess = 1000.0*[100,50,20,5,2,1] ;[m/s]
+
 
   ;;MIGHT BE ABLE TO REDUCE THE NUMBER OF SLOW VELOCITIES AND STILL
   ;;GET GOOD RESULTS (Because of the strong signals and the droop)
@@ -642,6 +690,14 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
      ;;First identify big voltage spike from deflection plates (if it exists)
      tobin_v_despike,y1,y2,y3,dt,v_guess(j),thereisaspike,$
                      spike_peakidx,spike_indices;,verbose=verbose
+
+     ;print
+     ;print,'Is there a spike?'
+     ;print,thereisaspike
+     ;if thereisaspike then begin
+     ;   print,'There is a spike!'
+     ;   print,'Number of indices to blank out: '+s2(n_elements(spike_indices))
+     ;endif
 
      returndata = v_estimate_subroutine(y1,y2,y3,dt,v_guess(j),$
                                         thereisaspike,spike_indices,$
@@ -742,6 +798,13 @@ function tobin_v_estimate,y1,y2,y3,dt,verbose=verbose,old_data=old_data,particle
 
 
   ;if there_was_an_error then velocitycharge[0] = -2.0
+
+  if keyword_set(verbose) then begin
+     result=get_kbrd()
+     device, window_state=openwindows ;delete window 6 if it is open
+     if openwindows(6) ne 0 then wdelete,6
+  endif
+
 
   return,velocitycharge
 end

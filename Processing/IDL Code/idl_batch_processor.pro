@@ -167,7 +167,7 @@ pro idl_batch_processor,path_folder
         printf, lun, 'Q', -3
         print,'Waveforms are missing or bad'
       endelse
-      
+     
       ;Makes sure dcs_1 and dcs_2 are structs (type 8) rather than ints (type 2)
       IF size(dcs1, /type) eq 8 and size(dcs2, /type) eq 8 then begin
         dcs_1_position = dcs_positioning(dcs1.waveform, x_1_correction, y_1_correction)
