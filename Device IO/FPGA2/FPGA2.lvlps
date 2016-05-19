@@ -9,3 +9,11 @@ Cache_Path[Path] Line0002 = "2F51-C4E2-4700-BC6F-39BDDC655EBF}.txt"
 Cache_Path[Path] Line0001 = "/C/Users/Forrest/AppData/Local/Temp/AB_Cache_{3DCF"
 Cache_Path[Path] Line0002 = "5ADA-F420-4D96-A698-F4BD4765713F}.txt"
 
+[AB_Cache_{870C6898-0ED4-4125-BD66-F567B38CAB5F}]
+Cache_Path[Path] Line0001 = "/C/Users/Forrest/AppData/Local/Temp/AB_Cache_{870C"
+Cache_Path[Path] Line0002 = "6898-0ED4-4125-BD66-F567B38CAB5F}.txt"
+
+[AB_Cache_{B0D791A8-EC88-4ECD-845A-DD69297DA3A6}]
+Cache_Path[Path] Line0001 = "/C/Users/Forrest/AppData/Local/Temp/AB_Cache_{B0D7"
+Cache_Path[Path] Line0002 = "91A8-EC88-4ECD-845A-DD69297DA3A6}.txt"
+
