@@ -1,3 +1,6 @@
+;Author: William Goode
+;COULOMB lookup table values are based on wire voltage values normalized to 2.
+
 FUNCTION dcs_normalize_2, maxes ;Normalizes max values to 2
 
   sum_maxes = TOTAL(maxes)

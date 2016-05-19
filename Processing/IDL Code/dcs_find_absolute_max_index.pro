@@ -1,5 +1,8 @@
-
-
+;Author: William Goode
+;This uses wide window boxcar averaging to find the approximate location of the peak. The original waveform is used to calculate the 
+;baseline in order to compare the four wires in the plane.Finder rank is used to locate the peak while rank is used to calculate baseline
+;since this is the width used throughout the rest of the positioning routine. The result is the index in the plane at which the particle
+;is extimated to be within the plane.
 
 FUNCTION dcs_find_absolute_max_index, waves, rank, finder_rank
 

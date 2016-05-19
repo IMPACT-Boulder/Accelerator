@@ -1,3 +1,6 @@
+;Author: William Goode
+;This finds the standard deviation of the noise on each channel.
+
 FUNCTION dcs_channel_noise, waveform, rank
 
   dcs_channel_1 = SMOOTH(waveform[0, *], rank) ;Each channel from dcs 1 is put into a 1D array
@@ -9,6 +12,7 @@ FUNCTION dcs_channel_noise, waveform, rank
   dcs_channel_7 = SMOOTH(waveform[6, *], rank)
   dcs_channel_8 = SMOOTH(waveform[7, *], rank)
   
+  ;Take the first portion of the waveform in order to best establish the noise characteristic.
   sample_size = 0.08 * n_elements(dcs_channel_1)
   
   channel_1_noise = STDDEV(dcs_channel_1[0:sample_size])
