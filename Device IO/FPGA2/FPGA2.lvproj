@@ -12027,6 +12027,8 @@ Offset"ControlLogic=0;NumberOfElements=10;Type=0;ReadArbs=Never Arbitrate;Elemen
 					<Property Name="Comp.Xilinx.UseRecommended" Type="Bool">true</Property>
 					<Property Name="DefaultBuildSpec" Type="Bool">true</Property>
 					<Property Name="DestinationDirectory" Type="Path">FPGA Bitfiles</Property>
+					<Property Name="NI.LV.FPGA.LastCompiledBitfilePath" Type="Path">/C/Users/Forrest/Desktop/Accelerator/Device IO/FPGA2/FPGA Bitfiles/FPGA2_FPGATarget_FPGAcode_ccKM5CyXNW8.lvbitx</Property>
+					<Property Name="NI.LV.FPGA.LastCompiledBitfilePathRelativeToProject" Type="Path">FPGA Bitfiles/FPGA2_FPGATarget_FPGAcode_ccKM5CyXNW8.lvbitx</Property>
 					<Property Name="ProjectPath" Type="Path">/C/Users/Forrest/Desktop/Accelerator/Device IO/FPGA2/FPGA2.lvproj</Property>
 					<Property Name="RelativePath" Type="Bool">true</Property>
 					<Property Name="RunWhenLoaded" Type="Bool">false</Property>
@@ -12063,6 +12065,8 @@ Offset"ControlLogic=0;NumberOfElements=10;Type=0;ReadArbs=Never Arbitrate;Elemen
 					<Property Name="Comp.Xilinx.UseRecommended" Type="Bool">true</Property>
 					<Property Name="DefaultBuildSpec" Type="Bool">true</Property>
 					<Property Name="DestinationDirectory" Type="Path">FPGA Bitfiles</Property>
+					<Property Name="NI.LV.FPGA.LastCompiledBitfilePath" Type="Path">/C/Users/Forrest/Desktop/Accelerator/Device IO/FPGA2/FPGA Bitfiles/FPGA2_FPGATarget_FPGAcode2_Gw4Ab0yitnw.lvbitx</Property>
+					<Property Name="NI.LV.FPGA.LastCompiledBitfilePathRelativeToProject" Type="Path">FPGA Bitfiles/FPGA2_FPGATarget_FPGAcode2_Gw4Ab0yitnw.lvbitx</Property>
 					<Property Name="ProjectPath" Type="Path">/C/Users/Forrest/Desktop/Accelerator/Device IO/FPGA2/FPGA2.lvproj</Property>
 					<Property Name="RelativePath" Type="Bool">true</Property>
 					<Property Name="RunWhenLoaded" Type="Bool">false</Property>
