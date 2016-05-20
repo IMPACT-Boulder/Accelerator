@@ -1,13 +1,11 @@
-;Author: William Goode
-;Since each of the 8 channels for dcs have varying baseline voltages and that peak values must be relative to this baseline, this 
-;routine first determines the values of each channel's baseline then subtracts it from the channel max value in order to return
-;the coresponding peak value.
+;This procedure is for finding the max in relation to the channel's offset baseline prior to determining the channel with the 
+;maximum peak value.
 
-FUNCTION dcs_baseline_max_2, channel_ ,index_
-  
-  channel_max = channel_(index_) ;max signal of each channel along with its index
-  
+FUNCTION dcs_baseline_max_init, channel_
+
   sample_size = n_elements(channel_)
+  
+  channel_max = max(channel_, index_)
 
   mid_point = sample_size/2  ;this is the index half way through the signal
 
@@ -21,7 +19,7 @@ FUNCTION dcs_baseline_max_2, channel_ ,index_
   ENDELSE
 
   channel_baseline_max = channel_max - baseline ;The true amplitude of the spike is now taken starting at the channel baseline
-
-  return, channel_baseline_max
   
+  return, channel_baseline_max
+
 END

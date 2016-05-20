@@ -1,13 +1,10 @@
-;Author: William Goode
-;Since each of the 8 channels for dcs have varying baseline voltages and that peak values must be relative to this baseline, this 
-;routine first determines the values of each channel's baseline then subtracts it from the channel max value in order to return
-;the coresponding peak value.
+;This takes the full raw waveform and onyl returns the baseline for the channel.
 
-FUNCTION dcs_baseline_max_2, channel_ ,index_
-  
-  channel_max = channel_(index_) ;max signal of each channel along with its index
-  
+FUNCTION dcs_baseline_calc, channel_
+
   sample_size = n_elements(channel_)
+
+  channel_max = max(channel_, index_)
 
   mid_point = sample_size/2  ;this is the index half way through the signal
 
@@ -20,8 +17,6 @@ FUNCTION dcs_baseline_max_2, channel_ ,index_
     baseline = mean(channel_[slow_baseline:*]) ;take the last piece if it's a fast particle. This is to avoid including the spike in the mean calculation
   ENDELSE
 
-  channel_baseline_max = channel_max - baseline ;The true amplitude of the spike is now taken starting at the channel baseline
+  return, baseline
 
-  return, channel_baseline_max
-  
 END
