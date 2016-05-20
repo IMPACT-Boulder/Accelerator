@@ -1,3 +1,8 @@
+;Author: William Goode
+;Since each of the 8 channels for dcs have varying baseline voltages and that peak values must be relative to this baseline, this 
+;routine first determines the values of each channel's baseline then subtracts it from the channel max value in order to return
+;the coresponding peak value.
+
 FUNCTION dcs_baseline_max_2, channel_ ,index_
   
   channel_max = channel_(index_) ;max signal of each channel along with its index
