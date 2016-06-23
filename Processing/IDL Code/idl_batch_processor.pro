@@ -66,8 +66,8 @@ pro idl_batch_processor,path_folder
   endif
   
   x_1_correction = 0 ;corrections based on measurement from beamline to dcs center in dcs coordinate system in mm.
-  y_1_correction = -2.4
-  x_2_correction = 1.5
+  y_1_correction = 2.4
+  x_2_correction = -1.5
   y_2_correction = 0
   
   last_old_particle=1664759 ;id_dust_event of the last particle run on the old acc length.
