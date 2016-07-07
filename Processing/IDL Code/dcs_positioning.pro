@@ -15,9 +15,9 @@ PRO DCS_POSITIONING
 END
 
 
-FUNCTION DCS_POSITIONING, waveform, x_correction, y_correction, velocity, plot_anyway=plot_anyway, verbose=verbose; This will eventually be changed to a function that returns xy values
+FUNCTION DCS_POSITIONING, waveform, x_correction, y_correction, velocity, charge, plot_anyway=plot_anyway, verbose=verbose; This will eventually be changed to a function that returns xy values
 IF velocity GT 0 || keyword_set(plot_anyway) THEN BEGIN ;plot_anyway is used when there is no velocity found for the particle but 
-  IF velocity GT 0 THEN BEGIN                           ; user wishes to plot with dcs anyway.
+  IF velocity GT 0 && velocity LT 8090 THEN BEGIN                           ; user wishes to plot with dcs anyway.
     window_size = -0.00131*velocity + 10.6
     rank = window_size
   ENDIF ELSE BEGIN
@@ -46,18 +46,22 @@ IF velocity GT 0 || keyword_set(plot_anyway) THEN BEGIN ;plot_anyway is used whe
     
     dcs_estimate_quality = dcs_quality(dcs_normalized_data, SNRs, /verbose) 
     
-    dcs_coordinates = [dcs_xy_values_corrected, dcs_estimate_quality]
+    dcs_uncertainty, dcs_maxes, charge, dcs_xy_values, uncertainty
+    
+    dcs_coordinates = [dcs_xy_values_corrected, uncertainty, dcs_estimate_quality]
     if keyword_set(verbose) then print, 'dcs_coordinates ', dcs_coordinates, 'dcs_quality', dcs_estimate_quality
   ENDIF ELSE BEGIN
     dcs_xy_values = [-99,-99]
     dcs_estimate_quality = 0
-    dcs_coordinates = [dcs_xy_values, dcs_estimate_quality]
+    uncertainty = [-99, -99]
+    dcs_coordinates = [dcs_xy_values, uncertainty, dcs_estimate_quality]
   ENDELSE
   
   ENDIF ELSE BEGIN
     dcs_xy_values = [-99,-99]
     dcs_estimate_quality = 0
-    dcs_coordinates = [dcs_xy_values, dcs_estimate_quality]
+    uncertainty = [-99, -99]
+    dcs_coordinates = [dcs_xy_values, uncertainty, dcs_estimate_quality]
   ENDELSE
   
   return, dcs_coordinates ;[mm] xy position
