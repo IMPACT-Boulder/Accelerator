@@ -174,8 +174,14 @@ pro idl_batch_processor,path_folder
         dcs_2_position = dcs_positioning(dcs2.waveform, x_2_correction, y_2_correction, out_k[0], out_k[1], /verbose)
         printf, lun, 'X1', dcs_1_position[0]
         printf, lun, 'Y1', dcs_1_position[1]
+        printf, lun, 'dX1', dcs_1_position[2]
+        printf, lun, 'dY1', dcs_1_position[3]
+        printf, lun, 'Q1', dcs_1_position[4]
         printf, lun, 'X2', dcs_2_position[0]
         printf, lun, 'Y2', dcs_2_position[1]
+        printf, lun, 'dX2', dcs_2_position[2]
+        printf, lun, 'dY2', dcs_2_position[3]
+        printf, lun, 'Q2', dcs_2_position[4]
       endif else begin
         printf, lun, 'X1', -99
         printf, lun, 'Y1', -99
