@@ -1,4 +1,4 @@
-;This takes the full raw waveform and onyl returns the baseline for the channel.
+;This takes the full raw waveform and only returns the baseline for the channel.
 
 FUNCTION dcs_baseline_calc, channel_
 

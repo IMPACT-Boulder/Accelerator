@@ -4,7 +4,6 @@
 
 FUNCTION dcs_Waveform_Max_HDF5 ,waveform, rank
 
-  ;file_name = DIALOG_PICKFILE(FILTER=("*.hdf5")) ;Allows user to navigate to a csv file
   dcs_first_plane = waveform[0:3,*]
   dcs_second_plane = waveform[4:7,*]
   
@@ -20,6 +19,7 @@ FUNCTION dcs_Waveform_Max_HDF5 ,waveform, rank
   first_plane_waveform_index = dcs_find_absolute_max_index(dcs_first_plane, rank, finder_rank)
   second_plane_waveform_index = dcs_find_absolute_max_index(dcs_second_plane, rank, finder_rank)
   
+  ;Check that each wire plane peak value is within a reasonable timeframe. If not, it is probably noise.
   plane_disparity = ABS(first_plane_waveform_index - second_plane_waveform_index)
   ;offset_1 = ABS(first_plane_waveform_index - midpoint)
   ;offset_2 = ABS(second_plane_waveform_index - midpoint)

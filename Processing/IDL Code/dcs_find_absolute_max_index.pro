@@ -39,11 +39,11 @@ FUNCTION dcs_find_absolute_max_index, waves, rank, finder_rank
   ;print,('channel maxes'),channel_maxes
   channel_maxes = [channel_1_max, channel_2_max, channel_3_max, channel_4_max]
   channel_max_indexes = [index_1, index_2, index_3, index_4]
-  absolute_max_channel = max(channel_maxes, max_index)
-  max_index = channel_max_indexes(max_index)
+  absolute_max_channel = max(channel_maxes, max_index);max _index shows which channel has highest max value.
+  highest_max_index = channel_max_indexes(max_index);Take index from corresponding channel.
 
   
 
-  return, max_index
+  return, highest_max_index
 
 END

@@ -1,6 +1,6 @@
 ;;Author: William Goode
 
-;;COULOMB data values are based on wire voltage values normalized to 2
+;;COULOMB data values are based on wire voltage values normalized to 2 (i.e. each wire plane is normalized to 1)
 
 FUNCTION dcs_normalize_2, maxes ;Normalizes max values to 2
 

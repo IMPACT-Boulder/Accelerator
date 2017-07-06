@@ -1,7 +1,7 @@
 ;;Author: William Goode
 ;;This determines the quality of a dcs waveform based on the signal to noise ratio (SNR) and normalized peak values.
 ;;The signal to noise ratio indicates the overall strength of the signal while the normalized peak values are 
-;;used to determine the relative amount of charge induced amongst the wire. If most or all of the charge is induced on
+;;used to determine the relative amount of charge induced amongst the wires. If most or all of the charge is induced on
 ;;one wire, the quality of the data is lower since this gives less useful information on the particle's postion relative 
 ;;to the other wires. This program issues a series of demerits for pre-determined criteria. These demerits are subracted
 ;;from 5 to give the overall quality.

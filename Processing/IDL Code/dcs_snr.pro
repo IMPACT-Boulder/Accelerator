@@ -1,3 +1,6 @@
+;;Author: William Goode
+;;Takes each channel peak value and noise standard deviation. 
+;;Calculates signal to noise ratio (SNR) using square of the amplitude ratio.
 
 FUNCTION dcs_SNR, peak_values, channel_standard_deviations, verbose=verbose
 
