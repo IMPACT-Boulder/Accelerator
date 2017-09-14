@@ -65,10 +65,10 @@ pro idl_batch_processor,path_folder
     goto,error_jump_point  ;jump to end and set velocity = -2 to indicate error
   endif
   
-  x_1_correction = -0.6445 ;corrections based on measurement from beamline to dcs center in dcs coordinate system in mm.
-  y_1_correction = -0.1318
-  x_2_correction = 2.1886
-  y_2_correction = 0.3202
+  x_1_correction = 0.0 ;corrections based on measurement from beamline to dcs center in dcs coordinate system in mm.
+  y_1_correction = 0.0
+  x_2_correction = 0.0
+  y_2_correction = 0.0
   
   last_old_particle=1664759 ;id_dust_event of the last particle run on the old acc length.
   
