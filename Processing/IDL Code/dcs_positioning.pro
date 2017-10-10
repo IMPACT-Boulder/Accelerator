@@ -8,10 +8,12 @@ PRO DCS_POSITIONING
   out = ccldas_read_raw_file(file_name)
   file1 = out.dcs_1.waveform
   file2 = out.dcs_2.waveform
-  dcs_1_values = DCS_POSITIONING(file1)
-  dcs_2_values = DCS_POSITIONING(file2)
+  ;velocity = 1542
+  ;charge = 6.5E-14
+  dcs_1_values = DCS_POSITIONING(file1, 0, 0, velocity, charge)
+  dcs_2_values = DCS_POSITIONING(file2, 0, 0, velocity, charge)
   print, [dcs_1_values, dcs_2_values]
-  
+ 
 END
 
 
@@ -48,6 +50,7 @@ IF velocity GT 0 || keyword_set(plot_anyway) THEN BEGIN ;plot_anyway is used whe
     dcs_estimate_quality = dcs_quality(dcs_normalized_data, SNRs, /verbose) 
     
     dcs_uncertainty, dcs_maxes, charge, dcs_xy_values, uncertainty ;returns 1x2 array of DCS uncertainties
+    ;uncertainty = [0.0001,0.0001]
     
     dcs_coordinates = [dcs_xy_values_corrected, uncertainty, dcs_estimate_quality];1D array
     
