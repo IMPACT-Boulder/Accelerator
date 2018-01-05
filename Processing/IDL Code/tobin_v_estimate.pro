@@ -562,9 +562,11 @@ function c_estimate_subroutine,y,dt,velocity,ypeakidx,whichdetector=whichdetecto
   ;;                beginning of the top-hat
 
   case whichdetector of 
-     1: det_cal = 1.14e13       ;detector 1 calibration factor [CSA 2]
-     2: det_cal = 1.24e13       ;detector 2 calibration factor [CSA 3]
-     3: det_cal = 1.21e13       ;detector 3 calibration factor [CSA 4]
+     ;These were updated by David James on 1/04/2017 as a result of the 
+     ;calibration campaign using the rod insert method, etc...
+     1: det_cal = 1.97e13 ;+/-0.012E13 : detector 1 calibration factor [CSA 2]
+     2: det_cal = 2.03e13 ;+/-0.032E13 : detector 2 calibration factor [CSA 3]
+     3: det_cal = 2.00e13 ;+/-0.042E13 : detector 3 calibration factor [CSA 4]
   endcase
 
   detector_length = 0.16        ;residence time sampled for charge measurement
