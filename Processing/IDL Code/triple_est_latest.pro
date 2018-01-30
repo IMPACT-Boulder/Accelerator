@@ -44,7 +44,7 @@ function triple_est_latest, sig1_x, sig2_x, sig3_x, dt, cal=cal, verbose=verbose
      goto, error_jump_point  ;jump to end and set velocity = -3 to indicate error    
   ENDIF
   
-  FINAL_DET_CAL = 1.21e13
+  FINAL_DET_CAL = get_acc_det_calibrations(3) ; Changed from 1.21e13 by David James on 1/08/2018
   if keyword_set(cal) then FINAL_DET_CAL = cal
   
   vb = keyword_set(verbose)

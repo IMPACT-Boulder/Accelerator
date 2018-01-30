@@ -16,7 +16,9 @@ function keith_vest,x,y1,y2,y4,y3=y3
   sy = SMOOTH(y4b,10,/EDGE_MIRROR,/NAN)
   offset = mean(sy[0:2000]) ;find the charge using smoothed data, remove offset
   sminvoltage = (MIN(sy,schargepos))
-  scharge = ABS((sminvoltage-offset)/1.21e13)
+  scharge = ABS((sminvoltage-offset)/get_acc_det_calibrations(3)) 
+                                    ; Changed from 1.21e13 by David James
+                                              ; on 1/8/2018
   schargestring = 'Charge =' + STRING(scharge) + ' C'
   
   ;find 3rd, set ch1 and ch2 to zero for all points after 3rd
