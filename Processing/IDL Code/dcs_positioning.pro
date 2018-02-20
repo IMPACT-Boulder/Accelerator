@@ -39,6 +39,7 @@ IF velocity GT 0 || keyword_set(plot_anyway) THEN BEGIN ;plot_anyway is used whe
   
   ;Check that the peak stands out from noise
   IF highest_dcs_max GE amplitude_threshold && mean(dcs_maxes) NE 0 THEN BEGIN ;0.04 is typically the lowest clear particle signal observed in dcs waveforms. This may be adjusted in the future.
+    ;print, 'Attempting position computation '
     dcs_normalized_data = dcs_normalize_2(dcs_maxes);1x8 array
     ;call dcs_find_coordinates_from_peak_voltages here 
     dcs_find_coordinates_from_peak_voltages, dcs_normalized_data, dcs_xy_values
@@ -58,6 +59,7 @@ IF velocity GT 0 || keyword_set(plot_anyway) THEN BEGIN ;plot_anyway is used whe
     if keyword_set(verbose) then print, 'dcs_coordinates ', dcs_coordinates, 'dcs_quality', dcs_estimate_quality, 'maxes', dcs_maxes
     if keyword_set(save_max) then dcs_save_max, dcs_maxes, /x
   ENDIF ELSE BEGIN ;no clear signal found
+    print,'No clear signal found '
     dcs_xy_values = [-99,-99]
     dcs_estimate_quality = 0
     uncertainty = [-99, -99]
@@ -65,6 +67,7 @@ IF velocity GT 0 || keyword_set(plot_anyway) THEN BEGIN ;plot_anyway is used whe
   ENDELSE
   
 ENDIF ELSE BEGIN ;no good main detector data
+  print,'No good main detector data '
   dcs_xy_values = [-99,-99]
   dcs_estimate_quality = 0
   uncertainty = [-99, -99]

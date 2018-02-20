@@ -170,8 +170,16 @@ pro idl_batch_processor,path_folder
      
       ;Makes sure dcs_1 and dcs_2 are structs (type 8) rather than ints (type 2)
       IF size(dcs1, /type) eq 8 and size(dcs2, /type) eq 8 then begin
-        dcs_1_position = dcs_positioning(dcs1.waveform, x_1_correction, y_1_correction, out_k[0], out_k[1], /verbose);out_k[0] is velocity
-        dcs_2_position = dcs_positioning(dcs2.waveform, x_2_correction, y_2_correction, out_k[0], out_k[1], /verbose)
+        ;print, 'Going into dcs_positioning'
+        if size(out_k, /type) eq 8 then begin
+          dcs_velocity = out_k.velocity
+          dcs_charge = out_k.charge  
+        endif else begin
+          dcs_velocity = out_k[0]
+          dcs_charge = out_k[1]          
+        endelse
+        dcs_1_position = dcs_positioning(dcs1.waveform, x_1_correction, y_1_correction, dcs_velocity, dcs_charge, /verbose);out_k[0] is velocity
+        dcs_2_position = dcs_positioning(dcs2.waveform, x_2_correction, y_2_correction, dcs_velocity, dcs_charge, /verbose)
         printf, lun, 'X1', dcs_1_position[0]
         printf, lun, 'Y1', dcs_1_position[1]
         printf, lun, 'dX1', dcs_1_position[2]

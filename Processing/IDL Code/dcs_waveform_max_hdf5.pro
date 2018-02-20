@@ -29,7 +29,7 @@ FUNCTION dcs_Waveform_Max_HDF5 ,waveform, rank
   IF plane_disparity GT tolerance THEN BEGIN
     channel_maxes_array = 0
     ENDIF ELSE BEGIN
-    
+    ;print, 'Good on timing'
     ;Cut narrow window around peak location on original waveform
     dcs_first_plane_cut = dcs_first_plane[*, (first_plane_waveform_index - time_window):(first_plane_waveform_index + time_window)]
     dcs_second_plane_cut = dcs_second_plane[*, (second_plane_waveform_index - time_window):(second_plane_waveform_index + time_window)]
