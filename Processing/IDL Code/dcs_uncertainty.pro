@@ -42,26 +42,15 @@ PRO dcs_uncertainty, peak_voltages, charge, coordinates, uncertainty
   x_sigma = min([ x_abs_dist , x_d_R/abs(x_gradient) ])
   y_sigma = min([ y_abs_dist , y_d_R/abs(y_gradient) ])
   
-  ;delta_q = rms/(1.215d13) ;conversion of voltage rms to charge uncertainty
-  ;delta_q = 4.2d-16
-  ;qnr = charge/delta_q ;charge to noise ratio
+  ;The following checks for close-to-wire passes.
+  ;This means we don't know on which side the particle passed.
+  IF x_abs_dist LT 0.5 THEN BEGIN
+    x_sigma = 2*x_abs_dist
+  END
   
-  ;xr = first_q_high/first_q_low ;ratio of near wire charge over second nearst
-  ;yr = second_q_high/second_q_low
-  
-  ;xc_1 = first_q_high/charge ;c_1 and c_2 are fractions of the particle's charge on the nearest two wires
-  ;xc_2 = first_q_low/charge
-  
-  ;yc_1 = second_q_high/charge ;c_1 and c_2 are fractions of the particle's charge on the nearest two wires
-  ;yc_2 = second_q_low/charge
-  
-  ;xdelta_r = (xr/qnr)*SQRT((1/xc_1)^2 + (1/xc_2)^2) ;uncertainty of the ratio using addition in quadriture
-  ;ydelta_r = (yr/qnr)*SQRT((1/yc_1)^2 + (1/yc_2)^2)
-  
-  ;dcs_gradient, coordinates, gradient ;calculates dr/dp as a function of position for both x and y
-  
-  ;x_gradient = gradient(0)
-  ;y_gradient = gradient(1)
+  IF y_abs_dist LT 0.5 THEN BEGIN
+    y_sigma = 2*y_abs_dist
+ END
   
   x_uncertainty = x_sigma
   y_uncertainty = y_sigma 

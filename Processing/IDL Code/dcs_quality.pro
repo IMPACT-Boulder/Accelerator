@@ -10,7 +10,7 @@ FUNCTION dcs_quality, normalized_peak_values, SNRs, verbose=verbose
   
   demerit = 0
 
-  IF max(SNRs) LT 250 THEN BEGIN
+  IF max(SNRs) LT 1000 THEN BEGIN
     demerit = demerit + 1
   ENDIF
   
@@ -29,7 +29,7 @@ FUNCTION dcs_quality, normalized_peak_values, SNRs, verbose=verbose
   ENDIF
   
   IF max(normalized_peak_values) GT 0.9 THEN BEGIN
-    demerit = 4
+    demerit = 0 ;This somtimes leads to greater uncertainty but not by much.
     if keyword_set(verbose) then print,'close to wire but not exactly a strike'
   ENDIF
   
