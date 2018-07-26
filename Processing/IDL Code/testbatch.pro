@@ -23,7 +23,7 @@ pro testbatch,verbose=verbose,old_data=old_data,filename=filename,nshots=nshots,
   dir=''
   if not keyword_set(filename) then begin
      ;dir = 'data_hdf5/'
-     dir=''
+     dir='C:\Users\Clavius\Desktop\David_stuff\temporary\'
      ;filename = 'New_Database_Query72.hdf5'     ;72 shots -- use /old_data
      ;filename = 'New_Database_Query4224.hdf5'   ;4224 shots -- use /old_data
      ;filename = '2014_03_11_test0.hdf5'         ;1508 shots
@@ -44,7 +44,7 @@ pro testbatch,verbose=verbose,old_data=old_data,filename=filename,nshots=nshots,
      ;filename = '2014_10_18_file10.hdf5'        ;hdf5 file from first gas target run
      ;filename = '2014_11_14_big_particles_few_weird_ones.hdf5'
      ;filename='2015_02_10_GT80.hdf5' ;hdf5 file with v>80 km/s
-     filename='Evanrun8Test.hdf5'
+     filename='test_particle_for_new_processing.hdf5'
   endif
   filename_with_dir = dir+filename
   if keyword_set(pickfile) then begin
