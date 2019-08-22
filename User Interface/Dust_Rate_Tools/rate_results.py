@@ -22,7 +22,6 @@ import matplotlib.pyplot as plt
 import math
 import statistics
 import numpy as np
-import scipy.ndimage.filters as sci_filters
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
 #The accelerator range and bin size determines the number of bins
