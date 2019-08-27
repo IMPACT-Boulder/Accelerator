@@ -24,6 +24,7 @@ import statistics
 import numpy as np
 from matplotlib import cm
 from matplotlib.colors import ListedColormap
+from matplotlib.colors import LinearSegmentedColormap
 from matplotlib.colors import LogNorm
 from copy import deepcopy
 
@@ -239,7 +240,7 @@ def generate_rate_heatmap(session_list,start,end,material_string):
     
 
     #Resolution is pixel number for the vertical axis
-    resolution = 200
+    resolution = 100
 
     #Create the logspace boundaries for the bins
     velocity_values = np.logspace(math.log10(min_velocity),2,num=2*resolution)    
@@ -272,23 +273,14 @@ def generate_rate_heatmap(session_list,start,end,material_string):
             try:
                 velocity_index = int(math.log(particle[2]/1000/(min_velocity))/math.log(velocity_multiplier))
                 mass_index = int(math.log(particle[4]/(10**lower_mass_bound))/math.log(mass_multiplier))
-                particle_count_bins[mass_index][velocity_index]+=1
+                if velocity_index > 0 and mass_index>0: particle_count_bins[mass_index][velocity_index]+=1
+                
             except IndexError:
                 print("Indexing error with particle: ",particle,velocity_index,mass_index,file=sys.stderr)
 
-    #Now here's the tough thing, the color map. Without intervention, the 0s blend in too easily with the low numbers, so 
-    #A color map with a specified 0 was necessary. I did it the simplest way, guaranteeing that the 0s will 
-    #Be several steps from the lowest numbers by lowering the 0 values to negatives, and making the 
-    #Color map resolution the color array size variable. See here for more : 
-    # https://matplotlib.org/3.1.0/tutorials/colors/colormap-manipulation.html
-    color_array_size = 10000
 
-    jet = cm.get_cmap('jet', color_array_size)
-    newcolors = jet(np.linspace(0, 1, color_array_size))
-    white = np.array([1, 1, 1, 1])
-    newcolors[0] = white
-    newcmp = ListedColormap(newcolors)
-    
+
+
     bins_copy = deepcopy(particle_count_bins)
     #Graph making for the runtime heatmapscopy.deepcopy()
     for is_hi_rez in [False, True]:
@@ -299,7 +291,7 @@ def generate_rate_heatmap(session_list,start,end,material_string):
         if is_hi_rez: fig = plt.figure(figsize = (12,7))
         else: plt.figure()
 
-        plt.imshow(runtime_bins,origin="lower",cmap= newcmp)
+        plt.imshow(runtime_bins,origin="lower",cmap= "jet")
         plt.xlabel("Velocity (km/s)",fontsize = 14)
         plt.ylabel("Mass (kg)",fontsize = 14)
         plt.title("Accelerator Runtime Distribution by Mass and Velocity\n%s - %s with %s"\
@@ -322,25 +314,25 @@ def generate_rate_heatmap(session_list,start,end,material_string):
 
         #For the particle count bins, to avoid the colormap as classifying low values in the same color as 0s, I move the 0s
         #4 (to be safe) color steps down from 0
+        min_val = math.inf
         max_particles = np.amax(particle_count_bins)
         for i in range(len(velocity_values)-1):
             for j in range(len(mass_values)-1):
-                if particle_count_bins[j][i]==0:
-                    particle_count_bins[j][i] -= 4*max_particles/color_array_size
-                else:
-                    particle_count_bins[j][i]/= (velocity_values[i+1]-(velocity_values[i]) * (mass_values[j+1]-mass_values[j]))
+                if particle_count_bins[j][i] != 0:
+                    particle_count_bins[j][i]/= (velocity_values[i+1]-velocity_values[i]) * (mass_values[j+1]-mass_values[j])
+                    if particle_count_bins[j][i] < min_val: min_val = particle_count_bins[j][i]
 
         max_particles = np.amax(particle_count_bins)
-        offset = 10**-100
-        while offset*10 < max_particles: offset*=10
-    
+        offset = 10**100
+        while offset/10 > min_val: offset/=10
+        
         for i in range(len(velocity_values)-1):
             for j in range(len(mass_values)-1):
-                particle_count_bins[j][i]*=offset
+                particle_count_bins[j][i]/=offset
         #Particle distribution figure
         if is_hi_rez: fig = plt.figure(figsize = (12,7))
         else: plt.figure()
-        plt.imshow(particle_count_bins,cmap =newcmp,origin="lower",norm =LogNorm())
+        plt.imshow(particle_count_bins,cmap ="jet",origin="lower",norm =LogNorm())
         plt.xlabel("Velocity (km/s)",fontsize = 14)
         plt.ylabel("Mass (kg)",fontsize = 14)
         plt.title("Accelerator Particle Distribution by Mass and Velocity\n%s - %s with %s"\
@@ -356,7 +348,7 @@ def generate_rate_heatmap(session_list,start,end,material_string):
         plt.yticks(tick_vals,ticks)
 
         #Colorbar and saving
-        plt.colorbar(shrink = .6).set_label("Number of particles per \n%.1Ekg km/s" %(offset),fontsize = 14)
+        plt.colorbar(shrink = .6).set_label("Number of particles per ($10^{%s}$kg)(km/s)" %(int(-1*math.log10(offset))),fontsize = 14)
         filename = "heatmaps/Particle_heatmap_%s_to_%s_%s.png"%(datetime.fromtimestamp(start).strftime("%m-%d-%Y")\
             ,datetime.fromtimestamp(end).strftime("%m-%d-%Y"),material_string)
         if is_hi_rez: fig.savefig(filename.replace("-0","-").replace("_0","_").replace("/","/hi-rez"))
@@ -367,15 +359,13 @@ def generate_rate_heatmap(session_list,start,end,material_string):
         max_particles = np.amax(particle_count_bins)
         for i in range(len(velocity_values)-1):
             for j in range(len(mass_values)-1):
-                if particle_count_bins[j][i]<0:
-                    rate_bins[j][i] = 0
-                elif runtime_bins[j][i]>0:
+                if runtime_bins[j][i]>0:
                     rate_bins[j][i]/=runtime_bins[j][i]
 
         #Rate graph
         if is_hi_rez: fig = plt.figure(figsize = (12,7))
         else: plt.figure()
-        plt.imshow(particle_count_bins,origin="lower",cmap = newcmp,norm = LogNorm())
+        plt.imshow(particle_count_bins,origin="lower",cmap = "jet",norm = LogNorm())
         plt.xlabel("Velocity (km/s)",fontsize = 14)
         plt.ylabel("Mass (kg)",fontsize = 14)
         plt.title("Accelerator Rate Distribution by Mass and Velocity\n%s - %s with %s"\
@@ -387,7 +377,7 @@ def generate_rate_heatmap(session_list,start,end,material_string):
         ticks = [10**i for i in range(lower_mass_bound,upper_mass_bound+1)]
         tick_vals = [int(math.log(i/(10**lower_mass_bound))/math.log(mass_multiplier)) for i in ticks]
         plt.yticks(tick_vals,ticks)
-        plt.colorbar(shrink = .6).set_label("Rate of particles per \nhour %.1Ekg km/s" %(offset),fontsize = 14)
+        plt.colorbar(shrink = .6).set_label("Number of particles per (hour)($10^{%s}$kg)(km/s)" %(int(-1*math.log10(offset))),fontsize = 14)
         filename = "heatmaps/Rate_heatmap_%s_to_%s_%s.png" %(datetime.fromtimestamp(start).strftime("%m-%d-%Y")\
             ,datetime.fromtimestamp(end).strftime("%m-%d-%Y"),material_string)
         if is_hi_rez: fig.savefig(filename.replace("-0","-").replace("_0","_").replace("/","/hi-rez"))
