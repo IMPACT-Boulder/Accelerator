@@ -14,6 +14,8 @@ This tool is designed to give insight on historical data of the dust accelerator
 # Usage
 To run this tool launch the results_interface.vi application
 
+To fix the runtime table, change the code variables for mySQL server access, then run it. NOTE: this will only work when the mySQL server is updated
+
 ## Troubleshooting
 If the program seems caught in a loop with Authentication failure, stop the program and check the debugging tab
 If the program fails to give results, consult the debugging tab of the vi
