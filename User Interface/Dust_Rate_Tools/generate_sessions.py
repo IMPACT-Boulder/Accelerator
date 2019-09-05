@@ -31,7 +31,7 @@ import sys
 
 #The gap size referes to the segmentation of the dust event timeline into groups where the spacing between two events
 # is >= to the gap size. 
-gap_size = 20*60*1000
+gap_size = 5*60*1000
 
 #Useful data starts after 2013, or 1380573080182 in ms time.
 data_start = 1380573080182
@@ -130,15 +130,14 @@ class Rate_analyzer:
         
         #Split these sessions by gaps where the pelletron is not firing
         self.frequency_segment()
-
         #Split the sessions along the experiment ID changes, also give each session the epxeriment ID 
         # at the time
         self.experiment_tag_segment()
 
+    
         #Split the sessions along the velocity range changes, also give each session the velocity paramters
         # at the time
         self.velocity_tag_segment()
-
 
         #Use the data stored in each dust event to tag the session with the dustID and material
         self.particle_tag()
@@ -146,6 +145,9 @@ class Rate_analyzer:
         #Write the data to a local file, allowing the rate_results.py to calculate only the results, not pull
         # and calculate all the data as in this program. 
         self.write_data()
+        for s in self.session_list:
+            if s.experimentID > 1145 and s.experimentID < 1155:
+                print(s,file = sys.stderr)
 
         #A few debugging statements
         print("Total runtime: %2f hours" %(sum(s.duration for s in self.session_list)/1000/60/60),file = sys.stderr)
@@ -157,8 +159,9 @@ class Rate_analyzer:
         print("Time to calculate: %.2fs" %(time.time()-start_time),file = sys.stderr)
 
 
-
-
+        exps = [s.experimentID for s in self.session_list if s.experimentID >= 320 and s.experimentID <=1208]
+        print(len(list(set(exps))), file = sys.stderr)
+        print(sum(s.duration for s in self.session_list if s.experimentID < 1200)/1000/60/60,file = sys.stderr)
     # pull_data takes the login credentials for the database and populates the important input fields of 
     # the rate analyzer class.
     # The data is retrieved as a list of tuples, such as (integer, float, float, integer) in the case of one
@@ -326,8 +329,8 @@ class Rate_analyzer:
                 self.session_list.insert(sesssion_index, Session(session.start,\
                                     self.frequency_gaps[frequency_index][0]-1,session.min_V,session.max_V))
                 #back up to clean up
-                frequency_index -=2
-                sesssion_index -=2
+                frequency_index -=1
+                sesssion_index -=1
 
             sesssion_index+=1
 
@@ -363,8 +366,10 @@ class Rate_analyzer:
                 del self.session_list[session_index]
                 self.session_list.insert(session_index, Session(self.velocities[velocity_index][0]+1,\
                                     session.end,session.min_V,session.max_V))
+                self.session_list[session_index].experimentID = session.experimentID
                 self.session_list.insert(session_index, Session(session.start,\
                                     self.velocities[velocity_index][0]-1,session.min_V,session.max_V))
+                self.session_list[session_index].experimentID = session.experimentID
 
                 session_index -=1
                 velocity_index -=1
@@ -385,15 +390,17 @@ class Rate_analyzer:
                 exp_id_index += 1
 
             session.experimentID = self.experiments[exp_id_index-1][1]
-
-            
             #Split and replace
             if self.experiments[exp_id_index][0] < session.end:
                 del self.session_list[session_index]
                 self.session_list.insert(session_index, Session(self.experiments[exp_id_index][0]+1,\
                                     session.end,session.min_V,session.max_V))
+                self.session_list[session_index].experimentID = session.experimentID
+
                 self.session_list.insert(session_index, Session(session.start,\
                                     self.experiments[exp_id_index][0]-1,session.min_V,session.max_V))
+                self.session_list[session_index].experimentID = session.experimentID
+
                 exp_id_index-=1
                 session_index -=1
                 
