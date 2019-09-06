@@ -23,7 +23,7 @@ class Session:
         self.performance_factor = 0
 
 """ADJUST THESE TO THE CORRECT VALUES WHEN RUNNING"""
-hostname = "localhost"
+hostname = "192.168.1.102"
 usr = "root"
 password = "dust"
 db = "ccldas_production"
@@ -63,7 +63,7 @@ try:
         #A deep copy for the operation
         db_copy = copy.deepcopy(exp_to_db)
         #The span of the runtimes that need to be corrected here
-        runtimes_start, runtimes_stop = 1208,4000
+        runtimes_start, runtimes_stop = 1208,2614
         for i in range(runtimes_start,runtimes_stop+1):
 
             #Manage the key errors
