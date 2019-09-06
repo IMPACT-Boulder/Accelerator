@@ -34,7 +34,10 @@ mydb = mysql.connector.connect(host=hostname, user=usr,\
 cursor = mydb.cursor()
 cursor.execute("select * from ccldas_production.run_times")
 runtimes = cursor.fetchall()
-
+def timeshow(timelist):
+    for timestamp in timelist:
+        print("%s, %s"%(datetime.fromtimestamp(timestamp[0]/1000).strftime("%X|%m/%d"),datetime.fromtimestamp(timestamp[1]/1000).strftime("%X|%m/%d")),end = "   ")
+    print()
 #Fetch all the velocity parameter changes, with the timestamp, min, and max
 total=0
 try:
@@ -59,9 +62,8 @@ try:
 
         #A deep copy for the operation
         db_copy = copy.deepcopy(exp_to_db)
-
         #The span of the runtimes that need to be corrected here
-        runtimes_start, runtimes_stop = 320,1208
+        runtimes_start, runtimes_stop = 1208,4000
         for i in range(runtimes_start,runtimes_stop+1):
 
             #Manage the key errors
@@ -76,9 +78,7 @@ try:
                 #Sets stop times for each start times, relying on the database values
                 for j in range(len(db)-1):
                     #Check if the gap goes over day lines
-                    if datetime.fromtimestamp(db[j+1][0]/1000).strftime("%d")==datetime.fromtimestamp(db[j][1]/1000).strftime("%d"):
-                        db[j] = (db[j][0],db[j+1][0]-1)
-
+                    db[j] = (db[j][0],db[j+1][0]-1)
 
                 #Assigns stops from the pkl if they go chronologically
                 while db_index < len(db):
@@ -88,15 +88,21 @@ try:
                         pkl_index += 1
 
                     db[db_index] = val
-                    new_time += val[1]-val[0]
                     db_index += 1
+
+                #Prevent for the crossing of dates from start to stop
+                for j in range(len(db)):
+                    val = db[j]
+                    if datetime.fromtimestamp(val[0]/1000).strftime("%d")!=datetime.fromtimestamp(val[1]/1000).strftime("%d"):
+                        db[j] = db_copy[i][j]
 
                 #Slap the last pkl onto the db if it makes sense(ish)
                 if pkl[-1][1] > db[-1][0] and pkl[-1][1] - db[-1][0] < 8*60*60*1000: db[-1] = (db[-1][0],pkl[-1][1])
 
                 #Update the database, I assume no duplicate start values
                 for val in exp_to_db[i]:
-                    cursor.execute("update ccldas_production.runtimes set stop_timestamp = %d where start_timestamp = %d" %(val[1],val[0]))
+                    cursor.execute("update ccldas_production.run_times set stop_timestamp = %d where start_timestamp = %d" %(val[1],val[0]))
+
 
 except FileNotFoundError:
     print('temp_data.pkl not found')
