@@ -2,3 +2,5 @@
 *.pkl
 heatmaps/*
 *.csv
+RUN.*
+
