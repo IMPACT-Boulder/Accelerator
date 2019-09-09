@@ -18,7 +18,7 @@ To fix the runtime table, change the code variables for mySQL server access, the
 
 ## Troubleshooting
 If the program seems caught in a loop with Authentication failure, stop the program and check the debugging tab
-If the program fails to give results, consult the debugging tab of the vi
+Here are some of the more common errors:
  - Error: ModuleNotFoundError: No module named 'mysql'
     - Failed to install the mySQL python connector, see setup first
     - If that fails, download from https://dev.mysql.com/downloads/connector/python/
@@ -26,6 +26,8 @@ If the program fails to give results, consult the debugging tab of the vi
     - Failed to install the matplotlib Python package, see setup first
     - Install through pip with `pip install matplotlib`
     - Or download from https://matplotlib.org/downloads.html
+ - _mysql_connector.MySQLInterfaceError: Can't connect to MySQL server on <IP>
+
  - Setup error: 'pip' is not recognized as an internal or external command
     - Failed to install pip, run setup.bat again, or install from https://pip.pypa.io/en/stable/installing/
 # Implementation
