@@ -8171,7 +8171,6 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 				<Item Name="Strip Path Extension - String__ogtk.vi" Type="VI" URL="/&lt;userlib&gt;/_OpenG.lib/file/file.llb/Strip Path Extension - String__ogtk.vi"/>
 				<Item Name="Strip Path Extension - 1D Array of Paths__ogtk.vi" Type="VI" URL="/&lt;userlib&gt;/_OpenG.lib/file/file.llb/Strip Path Extension - 1D Array of Paths__ogtk.vi"/>
 				<Item Name="Strip Path Extension - 1D Array of Strings__ogtk.vi" Type="VI" URL="/&lt;userlib&gt;/_OpenG.lib/file/file.llb/Strip Path Extension - 1D Array of Strings__ogtk.vi"/>
-				<Item Name="correlationwithf_FPGATarget_FPGAcode60214_dpdmgs7o1BA.lvbitx" Type="Document" URL="/&lt;userlib&gt;/Accelerator/User Interface/Executables/FPGAController_v4/data/correlationwithf_FPGATarget_FPGAcode60214_dpdmgs7o1BA.lvbitx"/>
 			</Item>
 			<Item Name="NiFpgaLv.dll" Type="Document" URL="NiFpgaLv.dll">
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
@@ -8306,6 +8305,119 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 				<Property Name="TgtF_productName" Type="Str">FPGAController_v4_slow</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{38C07688-AEBE-4B4C-AA1E-B23248B1F7E6}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">FPGAPSU_slow.exe</Property>
+			</Item>
+			<Item Name="FPGAController_v4.1" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{ECB95CD5-C4A4-4F2F-A2B1-88274B46D0EE}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{3C5EA554-BDB9-426E-8B6F-2364D2CA44F7}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{D5760495-1943-4BF9-AD9D-F62DF23EE91E}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v4.1</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.1</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{57AAEE7D-2A85-48BA-A403-D8CEC198534F}</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">Application.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.1/Application.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.1/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Source[0].itemID" Type="Str">{B4B92525-25B0-45C0-A5D9-B7379504D173}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v4.1.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v4.1</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v4.1</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2020 </Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v4.1</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{A5EF3D8A-DE55-4526-9655-35083E8305FD}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">Application.exe</Property>
+			</Item>
+			<Item Name="FPGAController_v4.1_test2" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{E74F0598-760A-4043-A408-2388E04E7075}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{3C9E3FB6-65C0-42C2-8DE6-93241C749435}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{D0FD1EF0-4724-44EA-A921-1FCB955398C5}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v4.1_test2</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.1_test2</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{15AACC52-994D-4BA2-9E2D-A325D19F699F}</Property>
+				<Property Name="Bld_version.build" Type="Int">1</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">FPGAController_v4.1_test2.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.1_test2/FPGAController_v4.1_test2.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.1_test2/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Source[0].itemID" Type="Str">{B4B92525-25B0-45C0-A5D9-B7379504D173}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v4.1.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v4.1_test2</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v4.1_test2</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2020 </Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v4.1_test2</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{DA231406-3892-45A4-8F64-6F3638FC94A0}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">FPGAController_v4.1_test2.exe</Property>
+			</Item>
+			<Item Name="FPGAController_v4.1_test3" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{4EF92AE6-E66D-459B-8E70-9BAC1ADEDF3C}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{831D6755-311A-4928-A895-EE3B88E0AB04}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{AD13380C-EBE9-4E79-B419-A7617E862F83}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v4.1_test3</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/correlation with fpgaFPGAController_v4.1_test3</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{0188D656-29B8-4D8C-AC17-59CBD3A6D478}</Property>
+				<Property Name="Bld_version.build" Type="Int">1</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">FPGAController_v4.1_test3.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/correlation with fpgaFPGAController_v4.1_test3/FPGAController_v4.1_test3.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/correlation with fpgaFPGAController_v4.1_test3/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Source[0].itemID" Type="Str">{B4B92525-25B0-45C0-A5D9-B7379504D173}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v4.1.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v4.1_test3</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v4.1_test3</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2020 </Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v4.1_test3</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{8D4A73C4-3737-41D9-A243-2111598100BB}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">FPGAController_v4.1_test3.exe</Property>
 			</Item>
 		</Item>
 	</Item>
