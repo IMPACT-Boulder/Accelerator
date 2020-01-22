@@ -8075,6 +8075,7 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 		<Item Name="FPGAController_v4_slow.vi" Type="VI" URL="../FPGAController_v4_slow.vi"/>
 		<Item Name="FPGA PSU SLOW.ico" Type="Document" URL="../../../User Interface/Executables/FPGAController_v4_slow/FPGA PSU SLOW.ico"/>
 		<Item Name="FPGAController_v4.1.vi" Type="VI" URL="../FPGAController_v4.1.vi"/>
+		<Item Name="FPGAController_v4.2.vi" Type="VI" URL="../FPGAController_v4.2.vi"/>
 		<Item Name="Dependencies" Type="Dependencies">
 			<Item Name="vi.lib" Type="Folder">
 				<Item Name="NI_Matrix.lvlib" Type="Library" URL="/&lt;vilib&gt;/Analysis/Matrix/NI_Matrix.lvlib"/>
@@ -8497,6 +8498,126 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 				<Property Name="TgtF_productName" Type="Str">FPGAController_v4.1</Property>
 				<Property Name="TgtF_targetfileGUID" Type="Str">{B9B1C8B5-AB16-4BF0-9EC1-05E964CD7C59}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">FPGAController_v4.1.exe</Property>
+			</Item>
+			<Item Name="FPGAController_v4.2" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{545E400A-B82D-4F80-AA66-29BA76BD4D41}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{C94D7E9E-9DEF-4491-B5AE-ABF058FEDCC9}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{DDC498B7-DD0B-4955-B423-71F1511183E4}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v4.2</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.2</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{70DDD9DB-5110-472A-8B9F-6774C6E678FE}</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">FPGA_Controller_v4.2.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.2/FPGA_Controller_v4.2.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.2/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/FPGA PSU SLOW.ico</Property>
+				<Property Name="Source[0].itemID" Type="Str">{6D783C0A-EFAC-4F3A-9B38-60A3F00B524D}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v4.2.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_companyName" Type="Str">University of Colorado</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v4.2</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v4.2</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2020 University of Colorado</Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v4.2</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{73148AEC-03ED-4073-AB18-B6E7E2C04094}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">FPGA_Controller_v4.2.exe</Property>
+			</Item>
+			<Item Name="FPGAController_v4.22" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{8C6EEF4E-E1A1-4A58-86D1-A9354134E83B}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{CD9026D6-A4FF-493D-8B98-A44A71A236D1}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{48AC3EF3-1624-4165-9897-4A59DEEA7341}</Property>
+				<Property Name="Bld_buildSpecDescription" Type="Str">Eliminates or at least reduces false positives by drastically reducing the number of times the program pings the database for updated PSU setttings.</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v4.22</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.22</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{E5A553B1-7871-4062-9C73-DF6C2AE2A986}</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">Application.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.22/Application.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.22/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/FPGA PSU SLOW.ico</Property>
+				<Property Name="Source[0].itemID" Type="Str">{6D783C0A-EFAC-4F3A-9B38-60A3F00B524D}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v4.2.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_companyName" Type="Str">University of Colorado</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v4.22</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v4.22</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2020 University of Colorado</Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v4.22</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{2246D4EE-11C4-4266-95A7-843689F389BE}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">Application.exe</Property>
+			</Item>
+			<Item Name="FPGAController_v4.23" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{893BD0F0-CBE3-4D0A-84F2-4B2917678EF8}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{63FD32F1-D7DB-4470-8395-E5042FD39022}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{362D8515-087F-4B44-B52F-A3DAEB726591}</Property>
+				<Property Name="Bld_buildSpecDescription" Type="Str">Eliminates or at least reduces false positives by drastically reducing the number of times the program pings the database for updated PSU setttings.</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v4.23</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.23</Property>
+				<Property Name="Bld_localDestDirType" Type="Str">relativeToCommon</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{C772918B-91C4-451B-B165-CB7903B48086}</Property>
+				<Property Name="Bld_version.build" Type="Int">1</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">Application.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.23/Application.exe</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">../builds/NI_AB_PROJECTNAME/FPGAController_v4.23/data</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Exe_iconItemID" Type="Ref">/My Computer/FPGA PSU SLOW.ico</Property>
+				<Property Name="Source[0].itemID" Type="Str">{6D783C0A-EFAC-4F3A-9B38-60A3F00B524D}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v4.2.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_companyName" Type="Str">University of Colorado</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v4.23</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v4.23</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2020 University of Colorado</Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v4.23</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{69E4DE79-6890-41E7-9C56-C8EF5ECD2FC1}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">Application.exe</Property>
 			</Item>
 		</Item>
 	</Item>
