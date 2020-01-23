@@ -1,48 +1,3 @@
-<<<<<<< HEAD
-[ProjectWindow_Data]
-ProjectExplorer.ClassicPosition[String] = "36,1171,954,1760"
-
-[AB_Cache_{2C96B146-580A-4BAF-B20E-C0E4EE51968C}]
-Cache_Path[Path] Line0001 = "/C/Users/Clavius/AppData/Local/Temp/AB_Cache_{2C96"
-Cache_Path[Path] Line0002 = "B146-580A-4BAF-B20E-C0E4EE51968C}.txt"
-
-[AB_Cache_{C892B15D-E39B-4A60-BBCB-859AAEA8826F}]
-Cache_Path[Path] Line0001 = "/C/Users/Clavius/AppData/Local/Temp/AB_Cache_{C892"
-Cache_Path[Path] Line0002 = "B15D-E39B-4A60-BBCB-859AAEA8826F}.txt"
-
-[AB_Cache_{96CFA2F5-F93B-4252-ABA0-294DC1C143F7}]
-Cache_Path[Path] Line0001 = "/C/Users/Clavius/AppData/Local/Temp/AB_Cache_{96CF"
-Cache_Path[Path] Line0002 = "A2F5-F93B-4252-ABA0-294DC1C143F7}.txt"
-
-[AB_Cache_{EB58BC73-1EBC-46EA-BBC5-098E93439B32}]
-Cache_Path[Path] Line0001 = "/C/Users/Clavius/AppData/Local/Temp/AB_Cache_{EB58"
-Cache_Path[Path] Line0002 = "BC73-1EBC-46EA-BBC5-098E93439B32}.txt"
-
-[AB_Cache_{3809651A-26BA-4B33-85FA-32378FA98534}]
-Cache_Path[Path] Line0001 = "/C/Users/IMPACT/AppData/Local/Temp/AB_Cache_{38096"
-Cache_Path[Path] Line0002 = "51A-26BA-4B33-85FA-32378FA98534}.txt"
-
-[AB_Cache_{603C84EE-DED2-4A58-82CD-010E1CB5117D}]
-Cache_Path[Path] Line0001 = "/C/Users/IMPACT/AppData/Local/Temp/AB_Cache_{603C8"
-Cache_Path[Path] Line0002 = "4EE-DED2-4A58-82CD-010E1CB5117D}.txt"
-
-[AB_Cache_{F2E5A4BB-9B4A-407F-9794-5F8E2E73379F}]
-Cache_Path[Path] Line0001 = "/C/Users/IMPACT/AppData/Local/Temp/AB_Cache_{F2E5A"
-Cache_Path[Path] Line0002 = "4BB-9B4A-407F-9794-5F8E2E73379F}.txt"
-
-[AB_Cache_{157C2C11-6D4A-45DF-A48C-3F8299646C59}]
-Cache_Path[Path] Line0001 = "/C/Users/IMPACT/AppData/Local/Temp/AB_Cache_{157C2"
-Cache_Path[Path] Line0002 = "C11-6D4A-45DF-A48C-3F8299646C59}.txt"
-
-[AB_Cache_{6C56F9D4-27FA-4766-AC3B-14C2AFAC22F7}]
-Cache_Path[Path] Line0001 = "/C/Users/IMPACT/AppData/Local/Temp/AB_Cache_{6C56F"
-Cache_Path[Path] Line0002 = "9D4-27FA-4766-AC3B-14C2AFAC22F7}.txt"
-
-[AB_Cache_{270D666C-F4C8-45E7-BD4B-5E06F9E59D26}]
-Cache_Path[Path] Line0001 = "/C/Users/IMPACT/AppData/Local/Temp/AB_Cache_{270D6"
-Cache_Path[Path] Line0002 = "66C-F4C8-45E7-BD4B-5E06F9E59D26}.txt"
-
-=======
 [ProjectWindow_Data]
 ProjectExplorer.ClassicPosition[String] = "51,123,969,712"
 
@@ -150,4 +105,3 @@ Cache_Path[Path] Line0002 = "15-087F-4B44-B52F-A3DAEB726591}.txt"
 Cache_Path[Path] Line0001 = "/C/Users/dusty/AppData/Local/Temp/AB_Cache_{C77291"
 Cache_Path[Path] Line0002 = "8B-91C4-451B-B165-CB7903B48086}.txt"
 
->>>>>>> 05935669fad88843197e58f6baba8aa5d32e34dd
