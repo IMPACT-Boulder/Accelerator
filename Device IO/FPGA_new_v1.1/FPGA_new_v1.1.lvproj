@@ -8577,11 +8577,11 @@ Offset"ControlLogic=0;NumberOfElements=10;Type=0;ReadArbs=Never Arbitrate;Elemen
 				<Property Name="NI.PreserveRelativePath" Type="Bool">true</Property>
 			</Item>
 			<Item Name="connect in.vi" Type="VI" URL="../../../Database IO/connect in.vi"/>
-			<Item Name="calc_variables.vi" Type="VI" URL="../calc_variables.vi"/>
-			<Item Name="process_limits.vi" Type="VI" URL="../process_limits.vi"/>
 			<Item Name="connect out.vi" Type="VI" URL="../../../Database IO/connect out.vi"/>
 			<Item Name="FPGAnew_FPGATarget_Graphdetnoise_Kx9imQGLZRE.lvbitx" Type="Document" URL="../FPGA Bitfiles/FPGAnew_FPGATarget_Graphdetnoise_Kx9imQGLZRE.lvbitx"/>
 			<Item Name="FPGAnewv1.1_FPGATarget_FPGAcode_Osxg-qhu+U8.lvbitx" Type="Document" URL="../FPGA Bitfiles/FPGAnewv1.1_FPGATarget_FPGAcode_Osxg-qhu+U8.lvbitx"/>
+			<Item Name="calc_variables.vi" Type="VI" URL="../calc_variables.vi"/>
+			<Item Name="process_limits.vi" Type="VI" URL="../process_limits.vi"/>
 		</Item>
 		<Item Name="Build Specifications" Type="Build"/>
 	</Item>
