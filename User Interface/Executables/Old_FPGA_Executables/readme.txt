@@ -1,3 +1,5 @@
+last updated (1/28/2020)
+
 FPGA Controller v3:
 -This is an old version of the FPGA code
 -no manual threshold functionality
