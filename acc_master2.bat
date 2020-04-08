@@ -1,0 +1,5 @@
+cmd /C ".\User Interface\BigAccDAQ.vi"
+cmd /C ".\User Interface\Dust_Source_Control.vi"
+cmd /C ".\User Interface\Database Connection.vi"
+cmd /C ".\User Interface\Live_Plot.vi"
+cmd /C ".\User Interface\Executables\FPGAController_v4.1\FPGAController_v4.1.exe"
