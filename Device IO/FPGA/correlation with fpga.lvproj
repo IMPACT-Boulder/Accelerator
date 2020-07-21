@@ -6726,6 +6726,7 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 				<Item Name="vi.lib" Type="Folder">
 					<Item Name="lvSimController.dll" Type="Document" URL="/&lt;vilib&gt;/rvi/Simulation/lvSimController.dll"/>
 				</Item>
+				<Item Name="AverageSampleHold_slow.vi" Type="VI" URL="../AverageSampleHold_slow.vi"/>
 			</Item>
 			<Item Name="Build Specifications" Type="Build">
 				<Item Name="AverageSampleHold" Type="{F4C5E96F-7410-48A5-BB87-3559BC9B167F}">
