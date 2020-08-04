@@ -8620,6 +8620,46 @@ MemoryActual Number of Elements=30;ReadArbs=2;WriteArbs=2;Implementation=1;DataT
 				<Property Name="TgtF_targetfileGUID" Type="Str">{69E4DE79-6890-41E7-9C56-C8EF5ECD2FC1}</Property>
 				<Property Name="TgtF_targetfileName" Type="Str">Application.exe</Property>
 			</Item>
+			<Item Name="FPGAController_v4.2.1" Type="EXE">
+				<Property Name="App_copyErrors" Type="Bool">true</Property>
+				<Property Name="App_INI_aliasGUID" Type="Str">{3F30797D-4812-4047-8A64-B6EDAE7E73C3}</Property>
+				<Property Name="App_INI_GUID" Type="Str">{7E0F2969-E593-4897-98D1-D088BC322C5B}</Property>
+				<Property Name="App_serverConfig.httpPort" Type="Int">8002</Property>
+				<Property Name="Bld_autoIncrement" Type="Bool">true</Property>
+				<Property Name="Bld_buildCacheID" Type="Str">{F84938A6-DAD2-424D-BD98-BCBC221E6A25}</Property>
+				<Property Name="Bld_buildSpecName" Type="Str">FPGAController_v4.2.1</Property>
+				<Property Name="Bld_excludeInlineSubVIs" Type="Bool">true</Property>
+				<Property Name="Bld_excludeLibraryItems" Type="Bool">true</Property>
+				<Property Name="Bld_excludePolymorphicVIs" Type="Bool">true</Property>
+				<Property Name="Bld_localDestDir" Type="Path">/C/Users/dusty/Desktop/Accelerator/User Interface/Executables/FPGAController_v4.2.1</Property>
+				<Property Name="Bld_modifyLibraryFile" Type="Bool">true</Property>
+				<Property Name="Bld_previewCacheID" Type="Str">{CCD9AC42-3B66-4878-B7FC-82819D89D9FA}</Property>
+				<Property Name="Bld_version.build" Type="Int">1</Property>
+				<Property Name="Bld_version.major" Type="Int">1</Property>
+				<Property Name="Destination[0].destName" Type="Str">FPGAController_v4.2.exe</Property>
+				<Property Name="Destination[0].path" Type="Path">/C/Users/dusty/Desktop/Accelerator/User Interface/Executables/FPGAController_v4.2.1/FPGAController_v4.2.exe</Property>
+				<Property Name="Destination[0].path.type" Type="Str">&lt;none&gt;</Property>
+				<Property Name="Destination[0].preserveHierarchy" Type="Bool">true</Property>
+				<Property Name="Destination[0].type" Type="Str">App</Property>
+				<Property Name="Destination[1].destName" Type="Str">Support Directory</Property>
+				<Property Name="Destination[1].path" Type="Path">/C/Users/dusty/Desktop/Accelerator/User Interface/Executables/FPGAController_v4.2.1/data</Property>
+				<Property Name="Destination[1].path.type" Type="Str">&lt;none&gt;</Property>
+				<Property Name="DestinationCount" Type="Int">2</Property>
+				<Property Name="Source[0].itemID" Type="Str">{E127B3F9-F3F1-4C89-A224-D05AC884B7FC}</Property>
+				<Property Name="Source[0].type" Type="Str">Container</Property>
+				<Property Name="Source[1].destinationIndex" Type="Int">0</Property>
+				<Property Name="Source[1].itemID" Type="Ref">/My Computer/FPGAController_v4.2.vi</Property>
+				<Property Name="Source[1].sourceInclusion" Type="Str">TopLevel</Property>
+				<Property Name="Source[1].type" Type="Str">VI</Property>
+				<Property Name="SourceCount" Type="Int">2</Property>
+				<Property Name="TgtF_companyName" Type="Str">University of Colorado</Property>
+				<Property Name="TgtF_fileDescription" Type="Str">FPGAController_v4.2.1</Property>
+				<Property Name="TgtF_internalName" Type="Str">FPGAController_v4.2.1</Property>
+				<Property Name="TgtF_legalCopyright" Type="Str">Copyright © 2020 University of Colorado</Property>
+				<Property Name="TgtF_productName" Type="Str">FPGAController_v4.2.1</Property>
+				<Property Name="TgtF_targetfileGUID" Type="Str">{F8D0AE12-FE38-4589-9A87-D93A07313D92}</Property>
+				<Property Name="TgtF_targetfileName" Type="Str">FPGAController_v4.2.exe</Property>
+			</Item>
 		</Item>
 	</Item>
 </Project>
