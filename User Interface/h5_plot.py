@@ -10,8 +10,8 @@ import numpy as np
 import h5py 
 import matplotlib.pyplot as plt
 
-path = "X:/5641/" #set to containing folder
-filename = '5641365'
+path = "X:/5627/" #set to containing folder
+filename = '5627477'
 
 filepath = path+filename+'.hdf5'
 
@@ -37,19 +37,23 @@ d2=second_det[0:]
 d3=third_det[0:]
 psu=psu[0:]
 
+dt = first_det.attrs['dt'] #read hdf5 metadata for time axis
+x = dt*np.arange(len(d1))
+
+
 plt.figure(figsize=(18,10)) #set plot size to make easier to read
 
 plt.subplot(4,1,1)#4 panel plot, 1st column, row 1
 plt.title(filename)
-plt.plot(d1,color='lightsteelblue')
+plt.plot(x,d1,color='lightsteelblue')
 
 plt.subplot(4,1,2)#4 panel plot, 1st column, row 2
-plt.plot(d2,color='b')
+plt.plot(x,d2,color='b')
 
 plt.subplot(4,1,3)#4 panel plot, 1st column, row 3
-plt.plot(psu,color='r')
+plt.plot(x,psu,color='r')
 
 plt.subplot(4,1,4)#4 panel plot, 1st column, row 4
-plt.plot(d3,color='y')
+plt.plot(x,d3,color='y')
 
 plt.show()
